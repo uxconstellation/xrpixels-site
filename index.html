@@ -1,0 +1,2227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>XR Pixels — Beyond the Screen</title>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#030305;          /* near-black ground (Indigo rgb(3,3,3) deviated holographic) */
+    --bg-2:#05070d;        /* chapter ground, a half-step up */
+    --ink:#eef3fb;
+    --muted:#7e879b;
+    --line:rgba(238,243,251,.12);  /* the thin rule under chapter titles (Indigo div.line) */
+    --cyan:#3fe7ff;        /* the one saturated accent — XR portal-light (Indigo's single-accent discipline) */
+    --amber:#ff9a52;       /* warm counter-glow, used sparingly */
+    --accent-field:#1b1140;/* the threshold field tint (deviated from Indigo indigo rgb(106,21,255)) */
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"General Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+
+    /* ===== SHARED TOKENS (design-lead fix #4) ===== */
+    --container:1270px;    /* captured XR Pixels container max-width */
+    --gutter:40px;         /* page side padding (desktop) */
+    /* 8pt spacing scale, captured gaps 20/15/10/5 anchor the rhythm */
+    --s1:5px; --s2:10px; --s3:15px; --s4:20px; --s5:40px; --s6:60px;
+    --s7:80px; --s8:120px; --s9:160px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{min-height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+  /* ============ NODE SPINE — persistent morphing field behind the whole site ============ */
+  /* fixed full-viewport canvas: above the near-black ground, below all text/cards/chapters */
+  #spine-stage{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;
+     transition:opacity 1.1s ease;will-change:opacity}
+  #spine-stage.on{opacity:1}
+  /* WAVE 1 #5: starfield sits just UNDER the spine field; fades in only during the #omni space-dive */
+  #starfield{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0;
+     transition:opacity 1.2s ease;will-change:opacity}
+  #starfield.on{opacity:1}
+  @media (prefers-reduced-motion: reduce){ #starfield{display:none} }
+  /* m7 FIX: the renderer sets explicit CSS px (clamped to clientWidth/Height in resize);
+     cap at 100% so the canvas box can never exceed the viewport with overflow-x:hidden. */
+  #spine-stage canvas{display:block;max-width:100%;max-height:100%}
+  /* once the reader is into the chapters, retire the hero's leftover FIXED overlays so they
+     can't bleed through the now-translucent chapter grounds (spine field stays).
+     WAVE 1 #2: #topbar is DELIBERATELY excluded — the nav is persistent on every section. */
+  body.in-chapters .world-stage,
+  body.in-chapters .hero-copy,
+  body.in-chapters .sub-row,
+  body.in-chapters #next,
+  body.in-chapters .corner{ opacity:0 !important; visibility:hidden; pointer-events:none;
+     transition:opacity .5s ease,visibility .5s ease }
+  /* the hero->omni handoff card is a hero overlay only; once into chapters take it fully
+     out of flow so the per-frame loop can never re-show it over a chapter (e.g. AR). */
+  body.in-chapters #next{ display:none !important }
+
+  /* per-section colour washes — break the flat single-black ground. Semi-transparent
+     so the node spine still reads through the translucent chapters. Each section gets a
+     distinct hue pinned to a corner, very low alpha, near-black base preserved. */
+  .chapter{ position:relative; }
+  #omni{     background:radial-gradient(120% 90% at 82% 22%, rgba(28,86,120,.20), transparent 62%); }
+  #products{ background:radial-gradient(110% 90% at 16% 18%, rgba(70,40,128,.16), transparent 60%); }
+  #light{    background:radial-gradient(120% 90% at 74% 52%, rgba(22,96,104,.20), transparent 60%); }
+  #ar{       background:radial-gradient(120% 95% at 24% 64%, rgba(96,44,132,.18), transparent 62%); }
+  #tiers{    background:radial-gradient(120% 80% at 50% 14%, rgba(26,64,116,.16), transparent 60%); }
+  #video{    background:radial-gradient(120% 100% at 50% 28%, rgba(40,84,130,.22), transparent 64%); }
+  #preorder{ background:radial-gradient(110% 95% at 50% 96%, rgba(74,40,124,.18), transparent 62%); }
+  /* chapters ride ABOVE the spine; their ground is translucent so the field reads through */
+  @media (prefers-reduced-motion: reduce){ #spine-stage{transition:none} }
+
+  /* the hero is a fixed-stage cinematic act; chapters scroll over it after the portal */
+  #hero-scope{height:300vh;position:relative;z-index:1}
+
+  .wrap{width:100%;max-width:var(--container);margin-inline:auto;padding-inline:var(--gutter)}
+
+  /* ============ THE WORLD (pure near-black ground; the NODE figure is the only hero subject) ============ */
+  /* WAVE 1 #1: photographic backdrop (world.jpg) + legacy 2D hologram reel REMOVED. The hero is the
+     3D node spine on pure #030305 — no image, no video behind it. Only the iris + soft glows remain. */
+  .world-stage{position:fixed;inset:0;z-index:1;overflow:hidden;display:grid;place-items:center;background:var(--bg)}
+  .floorglow{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;
+     background:radial-gradient(46% 42% at 50% 52%, rgba(63,231,255,.10), transparent 70%)}
+  .worldwrap{position:absolute;inset:0;display:grid;place-items:center;
+     /* iris mask: a slit that opens into a full circle, then floods the frame */
+     -webkit-clip-path:circle(var(--iris,0.2%) at 50% 50%);
+             clip-path:circle(var(--iris,0.2%) at 50% 50%);
+     will-change:clip-path;
+     /* the iris now opens onto the pure near-black ground; the node spine reads above it */
+     background:radial-gradient(60% 55% at 50% 48%, rgba(63,231,255,.05), var(--bg) 72%)}
+  /* legibility scrim: darken the top/bottom bands where the two headline lines sit, keep the bright centre */
+  .scrim{position:absolute;inset:0;z-index:2;pointer-events:none;
+     background:linear-gradient(180deg, rgba(3,3,5,.82) 0%, rgba(3,3,5,.52) 30%, rgba(3,3,5,0) 46%,
+        rgba(3,3,5,0) 54%, rgba(3,3,5,.52) 70%, rgba(3,3,5,.84) 100%)}
+  /* holographic atmosphere — a soft vignette that frames the node figure on near-black */
+  .haze{position:absolute;inset:0;pointer-events:none;
+     background:radial-gradient(60% 55% at 50% 46%, transparent 42%, rgba(3,3,5,.62) 100%)}
+  .portal-ring{position:absolute;left:50%;top:50%;width:64vmin;height:64vmin;transform:translate(-50%,-50%);
+     border-radius:50%;pointer-events:none;opacity:0;
+     box-shadow:0 0 0 1px rgba(63,231,255,.16), 0 0 80px -10px rgba(63,231,255,.45), inset 0 0 90px -20px rgba(63,231,255,.35);
+     will-change:opacity,transform}
+
+  /* ============ THRESHOLD GATE (Indigo's "Enter the experience") ============ */
+  .gate{position:fixed;inset:0;z-index:5;display:grid;place-items:center;background:var(--bg);
+     will-change:opacity,clip-path}
+  .gate-field{position:absolute;inset:0;z-index:0;
+     background:radial-gradient(120% 120% at 50% 40%, var(--accent-field) 0%, #06040e 60%, var(--bg) 100%);
+     opacity:1;will-change:opacity}
+  .gate-grain{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;mix-blend-mode:screen;
+     background:radial-gradient(40% 30% at 50% 38%, rgba(120,80,255,.20), transparent 70%)}
+
+  .gate-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:30px;width:min(640px,90vw);text-align:center}
+  /* the real XR Pixels monogram, inline + animatable */
+  .gate-mark{width:clamp(120px,18vw,190px);height:auto;will-change:transform,opacity}
+  .gate-mark path{will-change:opacity,transform}
+  .welcome{font-family:var(--sans);font-weight:400;font-size:clamp(15px,1.5vw,19px);line-height:1.5;color:var(--ink);
+     max-width:420px;opacity:0;will-change:opacity,transform}
+  .gate-idx{font-family:var(--mono);font-size:12px;letter-spacing:.3em;color:var(--muted);opacity:0}
+  .enter{position:relative;font-family:var(--mono);font-weight:500;letter-spacing:.22em;font-size:13px;text-transform:uppercase;
+     color:var(--ink);padding:14px 26px;border:1px solid rgba(238,243,251,.5);background:transparent;cursor:pointer;
+     overflow:hidden;opacity:0;will-change:opacity,transform}
+  .enter::before{content:"";position:absolute;inset:0;background:var(--ink);transform:scaleY(0);transform-origin:bottom;
+     transition:transform .5s cubic-bezier(.7,0,.2,1);z-index:-1}
+  .enter:hover{color:#08080c}.enter:hover::before{transform:scaleY(1)}
+  .nosound{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;
+     display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;cursor:pointer}
+  .nosound .glyph{width:18px;height:24px;opacity:.7}
+
+  /* ============ HERO OVER THE WORLD (after open) ============ */
+  /* WAVE 1 #2: PERSISTENT sticky header — sits above the chapters (#chapters z-index:7) on every
+     section, never vanishes. Gains a translucent blurred ground once the reader scrolls. */
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+     padding:18px var(--gutter);opacity:0;will-change:opacity;
+     transition:background .4s ease,border-color .4s ease,backdrop-filter .4s ease,padding .4s ease}
+  .topbar.scrolled{padding:12px var(--gutter);background:rgba(3,3,6,.62);backdrop-filter:blur(12px) saturate(1.1);
+     border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{width:30px;height:30px;display:block}
+  .brand-word{font-family:var(--mono);font-weight:500;letter-spacing:.30em;font-size:13px}
+  .navpill{display:flex;align-items:center;gap:6px;padding:10px 20px;border-radius:999px;
+     background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px)}
+  .navpill a{color:var(--ink);text-decoration:none;font-size:13px;padding:0 9px;opacity:.82;transition:opacity .3s}
+  .navpill a:hover{opacity:1}
+  .navpill .sep{width:3px;height:3px;border-radius:50%;background:var(--muted);opacity:.6}
+  .lang{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.1em}
+
+  /* m5 FIX: was rgba(140,160,185,.6) = 3.27:1 (sub-AA). Raised to clear AA 4.5:1 on near-black. */
+  .corner{position:fixed;z-index:6;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+     color:rgba(166,184,207,.95);line-height:1.7;opacity:0;will-change:opacity}
+  .corner.tl{top:92px;left:var(--gutter)}
+  .corner.tr{top:92px;right:var(--gutter);text-align:right}
+  .corner .hot{color:var(--cyan)}
+
+  /* headline — split around the portal (WILD split-reveal mechanic) */
+  .hero-copy{position:fixed;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;
+     gap:46vmin;pointer-events:none}
+  .hl{font-family:var(--sans);font-weight:600;letter-spacing:-.01em;line-height:.96;
+     font-size:clamp(34px,6.4vw,84px);text-align:center;
+     text-shadow:0 2px 18px rgba(3,3,5,.95), 0 0 50px rgba(3,3,5,.85), 0 1px 3px rgba(3,3,5,.9)}
+  .hl .mask{display:block;overflow:hidden}
+  .hl .mask i{display:inline-block;font-style:normal;transform:translateY(110%);will-change:transform}
+  .hl.bot .em{color:var(--cyan)}
+
+  .sub-row{position:fixed;left:0;right:0;bottom:60px;z-index:6;display:flex;flex-direction:column;align-items:center;gap:18px;
+     pointer-events:none}
+  .sub{max-width:520px;text-align:center;color:var(--muted);font-size:clamp(14px,1.3vw,16px);line-height:1.6;opacity:0;will-change:opacity}
+  .proof{display:flex;justify-content:center;gap:16px;align-items:center;flex-wrap:wrap;
+     font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--muted);opacity:0;will-change:opacity}
+  .proof b{color:var(--ink);font-weight:500}
+  .proof .stars{color:var(--amber);letter-spacing:.2em}
+
+  /* ============ HANDOFF CHAPTER (proves the through-scroll handoff) ============ */
+  .next{position:fixed;inset:0;z-index:3;display:grid;place-items:center;opacity:0;pointer-events:none;
+     background:linear-gradient(180deg,#030305,#05070d);will-change:opacity}
+  .next .ch-idx{font-family:var(--mono);font-size:12px;letter-spacing:.34em;color:var(--cyan);margin-bottom:20px}
+  .next h2{font-family:var(--sans);font-weight:600;font-size:clamp(28px,5vw,64px);letter-spacing:-.01em;color:var(--ink);text-align:center;line-height:1}
+
+  /* ============ SCROLLED CHAPTERS (sections 2-10) ============ */
+  /* they sit in normal flow, on a solid ground, above the fixed hero stage */
+  /* the hero-scope (300vh) already reserves the portal scroll runway; chapters flow right after it */
+  /* chapters sit ABOVE the spine field (spine z-index:2). Ground is now TRANSPARENT so the
+     morphing node field carries through the whole site; per-section scrims handle legibility. */
+  #chapters{position:relative;z-index:7;background:transparent}
+  .chapter{position:relative;padding-block:var(--s8)}
+  /* a soft local scrim under each chapter's text column keeps copy legible over the live field */
+  .chapter > .wrap{position:relative;z-index:1}
+  .chapter > .wrap::before{content:"";position:absolute;inset:-4% -6%;z-index:-1;pointer-events:none;
+     background:radial-gradient(120% 90% at 30% 40%, rgba(3,3,5,.74), rgba(3,3,5,.30) 60%, transparent 80%)}
+  .chapter + .chapter{border-top:1px solid var(--line)}
+
+  /* Indigo chapter head: mono index + title + thin rule under it */
+  .ch-head{display:flex;align-items:baseline;gap:16px;margin-bottom:var(--s5)}
+  .ch-num{font-family:var(--mono);font-size:12px;letter-spacing:.3em;color:var(--cyan);white-space:nowrap;padding-top:6px}
+  .ch-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
+  .ch-title{font-family:var(--sans);font-weight:600;letter-spacing:-.01em;line-height:1.02;
+     font-size:clamp(30px,5vw,60px)}
+  .ch-title .em{color:var(--cyan)}
+  .rule{height:1px;background:var(--line);margin-top:22px}
+  .lead{max-width:620px;color:var(--muted);font-size:clamp(15px,1.4vw,18px);line-height:1.65;margin-top:var(--s4)}
+  .lead b{color:var(--ink);font-weight:600}
+  [data-reveal]{opacity:0;transform:translateY(26px);will-change:transform,opacity}
+
+  /* product grid: 8 cards, eyebrow + title + thin rule (4+4) */
+  .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin-top:var(--s6);border:1px solid var(--line)}
+  /* translucent cards so the GRID node field reads through the product grid; backdrop-blur keeps copy crisp */
+  .card{position:relative;background:rgba(4,6,12,.62);backdrop-filter:blur(3px);padding:var(--s5) var(--s4) var(--s6);min-height:230px;
+     display:flex;flex-direction:column;justify-content:space-between;text-decoration:none;color:inherit;
+     transition:background .4s ease}
+  .card:hover{background:rgba(7,9,18,.72)}
+  /* hovered card glows a cyan edge — signals the field is now reshaping to this product */
+  .card.spine-hot{background:rgba(7,11,22,.66);box-shadow:inset 0 0 0 1px rgba(63,231,255,.4),0 0 40px -8px rgba(63,231,255,.5)}
+  /* WAVE 1: while a product is being previewed, dim the rest of the grid so the node
+     silhouette of THAT product reads clearly over the cards instead of competing with them. */
+  #products.previewing .card{transition:opacity .45s ease,background .4s ease}
+  #products.previewing .card:not(.spine-hot){opacity:.16}
+  #products.previewing .card.spine-hot{background:rgba(4,6,12,.30)}
+  #products.previewing .ch-head,#products.previewing .lead,#products.previewing .grid-note{opacity:.22;transition:opacity .45s ease}
+  .card .c-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.28em;color:var(--muted)}
+  /* m5 FIX: was rgba(140,160,185,.5) = 2.60:1 (sub-AA). Raised to clear AA 4.5:1 on near-black. */
+  .card .c-num{font-family:var(--mono);font-size:10.5px;color:rgba(164,182,205,.92)}
+  .card .c-top{display:flex;justify-content:space-between;align-items:center}
+  .card .c-title{font-family:var(--sans);font-weight:600;font-size:clamp(22px,2.4vw,30px);letter-spacing:-.01em}
+  .card .c-line{height:1px;background:var(--line);margin-top:18px;position:relative;overflow:hidden}
+  .card .c-line::after{content:"";position:absolute;inset:0;background:var(--cyan);transform:scaleX(0);transform-origin:left;
+     transition:transform .5s cubic-bezier(.7,0,.2,1)}
+  .card:hover .c-line::after{transform:scaleX(1)}
+  .card .c-arrow{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:14px;transition:color .3s,transform .3s}
+  .card:hover .c-arrow{color:var(--cyan);transform:translateX(4px)}
+  .grid-note{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--muted);margin-top:var(--s4)}
+
+  /* two-up editorial rows (Innovating / Augmented) */
+  .editorial{display:grid;grid-template-columns:1.05fr .95fr;gap:var(--s7);align-items:center}
+  /* WAVE 1: editorial visual frame is now translucent so the section's node shape (projector /
+     goggles) reads THROUGH it as a holographic display, not behind a solid panel. */
+  .editorial .visual{aspect-ratio:4/3;border:1px solid var(--line);position:relative;overflow:hidden;border-radius:2px;
+     background:radial-gradient(120% 120% at 30% 20%, rgba(63,231,255,.08), transparent 55%), rgba(5,7,14,.30);
+     backdrop-filter:blur(2px)}
+  /* explicit 100% box so the canvas's intrinsic (attribute) size can't drive layout —
+     without this an abs-positioned replaced element with inset:0 lets the growing
+     canvas.width feed back through the ResizeObserver and blow the box up to millions
+     of px (white-out). Matches .threads / .video-reel which already pin width/height. */
+  .holo-orb{position:absolute;inset:0;width:100%;height:100%;z-index:2}
+  /* WAVE 2 P3: flowing-lines "Threads" trail bg (reactbits-inspired, single-file canvas)
+     behind the #light projector form — reads as the hologram emitting light. */
+  .threads{position:absolute;inset:0;width:100%;height:100%;z-index:1;display:block;pointer-events:none}
+
+  /* WAVE 2 P2: #ar GOGGLES-ON slide-in — the visual enters from the left, the copy from
+     the right, both with a slight blur-focus, so reaching #ar feels like the headset
+     snapping over your eyes. GSAP owns the actual animation; these are the rest states. */
+  #ar .editorial .visual{transform:translateX(-9vw);opacity:0;filter:blur(8px);will-change:transform,opacity,filter}
+  #ar .editorial > p.lead{transform:translateX(9vw);opacity:0;filter:blur(6px);will-change:transform,opacity,filter}
+  #ar.gog-in .editorial .visual,#ar.gog-in .editorial > p.lead{transform:none;opacity:1;filter:blur(0)}
+  @media (prefers-reduced-motion: reduce){
+    #ar .editorial .visual,#ar .editorial > p.lead{transform:none;opacity:1;filter:none}
+  }
+
+  /* tiers: LITE / CORE / ELITE */
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-top:var(--s6);border:1px solid var(--line)}
+  .tier{background:var(--bg);padding:var(--s5) var(--s4) var(--s5);display:flex;flex-direction:column;gap:var(--s4)}
+  .tier-name{font-family:var(--mono);font-size:12px;letter-spacing:.26em;color:var(--cyan)}
+  .tier-h{font-family:var(--sans);font-weight:600;font-size:clamp(20px,2.2vw,26px);letter-spacing:-.01em}
+  .tier-h small{display:block;font-family:var(--mono);font-weight:400;font-size:11px;letter-spacing:.22em;color:var(--muted);margin-top:8px;text-transform:uppercase}
+  .tier-body{color:var(--muted);font-size:14.5px;line-height:1.6}
+  .tier-inc{list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:auto;padding-top:var(--s4);border-top:1px solid var(--line)}
+  .tier-inc li{display:flex;gap:12px;font-size:13.5px;line-height:1.5;color:var(--ink)}
+  .tier-inc li::before{content:"";flex:0 0 6px;width:6px;height:6px;margin-top:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px rgba(63,231,255,.6)}
+  .tier-inc li b{color:var(--ink);font-weight:600}.tier-inc li span{color:var(--muted)}
+  .btn{align-self:flex-start;font-family:var(--mono);font-weight:500;letter-spacing:.14em;font-size:12px;text-transform:uppercase;
+     color:var(--bg);background:var(--cyan);padding:13px 22px;border:none;cursor:pointer;text-decoration:none;
+     position:relative;overflow:hidden;transition:transform .3s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.ghost{color:var(--ink);background:transparent;border:1px solid rgba(238,243,251,.4)}
+  .btn.ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+
+  /* shaping tomorrow video */
+  .video-band{text-align:center}
+  .video-stage{position:relative;margin-top:var(--s6);aspect-ratio:16/7;border:1px solid var(--line);overflow:hidden;border-radius:3px;
+     display:grid;place-items:center;background:radial-gradient(80% 120% at 50% 0%, rgba(63,231,255,.12), transparent 60%), #04060c;cursor:pointer}
+  /* COVER the frame: size the iframe to 16:9 and let it overflow-crop, so the film fills
+     the stage with no black letterbox / no side reel showing (was inset:0 -> Vimeo letterboxed). */
+  .video-stage iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+     width:100%;aspect-ratio:16/9;height:auto;min-height:100%;border:0;z-index:3}
+  .video-stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0;z-index:3}
+  /* WAVE 2 P1: local reel canvas fills the stage; revealed once the node frame has formed */
+  .video-reel{position:absolute;inset:0;width:100%;height:100%;z-index:1;display:block;
+     opacity:0;transition:opacity .8s ease;pointer-events:none}
+  .video-stage.reel-on .video-reel{opacity:1}
+  /* WAVE 2 P1: glowing node-frame border around the playing video (the outline of points
+     sits here too; this CSS edge reinforces the "framed by the field" read) */
+  .video-stage.framed{border-color:rgba(63,231,255,.55);
+     box-shadow:0 0 0 1px rgba(63,231,255,.35),0 0 60px -8px rgba(63,231,255,.45),inset 0 0 50px -16px rgba(63,231,255,.35)}
+  .video-stage.playing{cursor:default}
+  .video-stage.playing .play{opacity:0;pointer-events:none}
+  .play{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:16px;transition:opacity .4s ease}
+  .play .disc{width:84px;height:84px;border-radius:50%;border:1px solid rgba(238,243,251,.5);display:grid;place-items:center;
+     backdrop-filter:blur(4px);background:rgba(3,3,8,.3);transition:transform .3s,border-color .3s}
+  .video-stage:hover .play .disc{transform:scale(1.06);border-color:var(--cyan)}
+  .play .disc svg{width:22px;height:22px;margin-left:4px}
+  .play span{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--ink);text-transform:uppercase}
+
+  /* contact / pre-order */
+  .contact{display:grid;grid-template-columns:.9fr 1.1fr;gap:var(--s7);align-items:stretch}
+  .contact .visual{border:1px solid var(--line);position:relative;overflow:hidden;border-radius:2px;min-height:420px;
+     background:radial-gradient(120% 80% at 50% 100%, rgba(63,231,255,.12), transparent 55%), #05070e}
+  .contact h4{font-family:var(--sans);font-weight:600;font-size:clamp(22px,3vw,34px);letter-spacing:-.01em}
+  .contact .h-sub{color:var(--muted);font-size:16px;margin-top:12px;line-height:1.55}
+  form.preorder{margin-top:var(--s5);display:flex;flex-direction:column;gap:var(--s3)}
+  form.preorder .field{display:flex;flex-direction:column;gap:8px}
+  form.preorder label{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+  form.preorder input,form.preorder textarea{background:#06080f;border:1px solid var(--line);color:var(--ink);
+     font-family:var(--sans);font-size:15px;padding:14px 16px;border-radius:2px;outline:none;transition:border-color .3s}
+  form.preorder input:focus,form.preorder textarea:focus{border-color:var(--cyan)}
+  form.preorder textarea{resize:vertical;min-height:96px}
+  form.preorder .row2{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+
+  /* footer */
+  footer.site{position:relative;z-index:7;background:var(--bg);border-top:1px solid var(--line);padding-block:var(--s6)}
+  .foot-row{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);flex-wrap:wrap}
+  .foot-brand{display:flex;align-items:center;gap:14px}
+  .foot-brand svg{width:34px;height:34px}
+  .foot-word{font-family:var(--mono);letter-spacing:.28em;font-size:12px}
+  .foot-meta{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--muted);display:flex;gap:22px;align-items:center}
+  .foot-meta a{color:var(--muted);text-decoration:none;transition:color .3s}.foot-meta a:hover{color:var(--cyan)}
+
+  @media (max-width:980px){
+    .editorial,.contact{grid-template-columns:1fr;gap:var(--s5)}
+    .product-grid{grid-template-columns:repeat(2,1fr)}
+    .tiers{grid-template-columns:1fr}
+  }
+  @media (max-width:640px){
+    :root{--gutter:20px}
+    .topbar{padding:16px 20px}.navpill{display:none}
+    .hero-copy{gap:40vmin}
+    .product-grid{grid-template-columns:1fr}
+    .ch-head{flex-direction:column;gap:6px}
+    form.preorder .row2{grid-template-columns:1fr}
+  }
+
+  /* ===== m6 FIX — visible keyboard focus across all interactive elements =====
+     Inputs previously used outline:none with only a border change; nav/cards/.enter/
+     .btn/footer links had no focus ring at all. A cyan focus-visible ring restores a
+     clear, AA-friendly keyboard indicator without affecting mouse users. */
+  .navpill a:focus-visible,
+  .card:focus-visible,
+  .enter:focus-visible,
+  .btn:focus-visible,
+  .video-stage:focus-visible,
+  .foot-meta a:focus-visible,
+  .nosound:focus-visible,
+  form.preorder input:focus-visible,
+  form.preorder textarea:focus-visible{
+    outline:none;
+    box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--cyan);
+    border-radius:3px;
+  }
+  /* inputs already have a border; pair the ring with the cyan border for clarity */
+  form.preorder input:focus-visible,
+  form.preorder textarea:focus-visible{ border-color:var(--cyan); }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    [data-reveal]{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===================== NODE SPINE (persistent morphing field, fixed behind all) ===================== -->
+  <div id="spine-stage" aria-hidden="true"></div>
+  <!-- WAVE 1 #5: STARFIELD — fades in as #omni arrives so the globe-dive reads as immersing into space -->
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <!-- ===================== HERO SCOPE (fixed cinematic stage) ===================== -->
+  <div id="hero-scope">
+
+    <!-- THE WORLD (revealed) — pure near-black ground; the node spine is the only subject -->
+    <div class="world-stage">
+      <div class="worldwrap" id="worldwrap"></div>
+      <div class="floorglow"></div>
+      <div class="portal-ring" id="ring"></div>
+      <div class="haze"></div>
+      <div class="scrim"></div>
+    </div>
+
+    <!-- HERO chrome over the world -->
+    <header class="topbar" id="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 1913 1946" aria-hidden="true">
+          <use href="#xr-mono"/>
+        </svg>
+        <span class="brand-word">XR&nbsp;PIXELS</span>
+      </div>
+      <nav class="navpill">
+        <a href="#products">3D</a><span class="sep"></span>
+        <a href="#light">Holograms</a><span class="sep"></span>
+        <a href="#tiers">All-in-one</a><span class="sep"></span>
+        <a href="#preorder">Contact</a>
+      </nav>
+      <div class="lang">EN ⌄</div>
+    </header>
+    <div class="corner tl" id="ctl">XRPIXELS&nbsp;COLLECTIVE<br>OMNICHANNEL&nbsp;3D</div>
+    <div class="corner tr" id="ctr">01&nbsp;/&nbsp;06 · HERO<br><span class="hot">● BEYOND THE SCREEN</span></div>
+
+    <div class="hero-copy">
+      <div class="hl top"><span class="mask"><i>Crafting&nbsp;Worlds</i></span></div>
+      <div class="hl bot"><span class="mask"><i>Beyond&nbsp;the&nbsp;<span class="em">Screen</span></i></span></div>
+    </div>
+
+    <div class="sub-row">
+      <p class="sub" id="sub">We turn brand activations into immersive, floating 3D experiences: holograms, AR and explorable worlds that live beyond the screen.</p>
+      <div class="proof" id="proof">
+        <span>TRUSTED&nbsp;BY&nbsp;BRANDS&nbsp;WORLDWIDE</span>
+        <span class="stars">★★★★★</span>
+        <span><b>40,000+</b>&nbsp;HOLOGRAMS&nbsp;SHIPPED</span>
+      </div>
+    </div>
+
+    <!-- HANDOFF CHAPTER -->
+    <section class="next" id="next">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="ch-idx">02 / 06 · THE CRAFT</div>
+        <h2>Omnichannel<br>3D Advertising</h2>
+      </div>
+    </section>
+
+    <!-- THRESHOLD GATE (Indigo's Enter the experience) -->
+    <div class="gate" id="gate">
+      <div class="gate-field" id="gateField"></div>
+      <div class="gate-grain"></div>
+      <div class="gate-inner">
+        <div class="gate-idx" id="gateIdx">[ XR PIXELS · 5 WORLDS, ONE LIGHT ]</div>
+        <svg class="gate-mark" id="mark" viewBox="0 0 1913 1946" role="img" aria-label="XR Pixels">
+          <use href="#xr-mono"/>
+        </svg>
+        <p class="welcome" id="welcome">Welcome to XR Pixels, a holographic advertising studio. A journey through worlds, made to be seen.</p>
+        <button class="enter" id="enter">Enter the experience</button>
+        <div class="nosound" id="nosound">
+          <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 9v6h4l5 4V5L9 9H5z"/><path d="M19 9l-4 6M15 9l4 6"/></svg>
+          Continue without sound
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /hero-scope -->
+
+  <!-- ===================== CHAPTERS 2–10 (scrolled, Indigo-style) ===================== -->
+  <main id="chapters">
+
+    <!-- 03 / Omnichannel intro -->
+    <section class="chapter" id="omni">
+      <div class="wrap">
+        <div class="ch-head">
+          <span class="ch-num">02 / 09</span>
+          <div>
+            <div class="ch-eyebrow" data-reveal>The Craft</div>
+            <h2 class="ch-title" data-reveal>Omnichannel<br>3D&nbsp;<span class="em">Advertising</span></h2>
+            <div class="rule" data-reveal></div>
+          </div>
+        </div>
+        <p class="lead" data-reveal>We transform <b>brand activations</b> into immersive, floating <b>3D experiences.</b> Through interactive <b>AR</b> and fully <b>explorable digital environments</b>, audiences don't just see your brand, they step inside it.</p>
+      </div>
+    </section>
+
+    <!-- 03 / Custom 3D Content — 8 product cards -->
+    <section class="chapter" id="products">
+      <div class="wrap">
+        <div class="ch-head">
+          <span class="ch-num">03 / 09</span>
+          <div>
+            <div class="ch-eyebrow" data-reveal>The Collective</div>
+            <h2 class="ch-title" data-reveal>Custom 3D Content</h2>
+            <div class="rule" data-reveal></div>
+          </div>
+        </div>
+        <p class="lead" data-reveal>The <b>Xrpixels Collective</b> can craft any bespoke hologram you imagine, powered by our cutting-edge technology.</p>
+
+        <div class="product-grid" data-reveal>
+          <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">01</span></div><div><div class="c-title">Avatar</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
+          <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">02</span></div><div><div class="c-title">Slots</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
+          <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">03</span></div><div><div class="c-title">Pick &amp; Learn</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
+          <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">04</span></div><div><div class="c-title">Snap Station</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
+          <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">05</span></div><div><div class="c-title">Premiere</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
+          <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">06</span></div><div><div class="c-title">HoloTwin</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
+          <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">07</span></div><div><div class="c-title">Omega Wall</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
+          <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">08</span></div><div><div class="c-title">Live Streaming</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
+        </div>
+        <p class="grid-note" data-reveal>Delivery takes 20–60 days, based on content and solution complexity.</p>
+      </div>
+    </section>
+
+    <!-- 04 / Innovating Through Light -->
+    <section class="chapter" id="light">
+      <div class="wrap">
+        <div class="ch-head">
+          <span class="ch-num">04 / 09</span>
+          <div>
+            <div class="ch-eyebrow" data-reveal>XR Pixels</div>
+            <h2 class="ch-title" data-reveal>Innovating<br>Through&nbsp;<span class="em">Light</span></h2>
+            <div class="rule" data-reveal></div>
+          </div>
+        </div>
+        <div class="editorial">
+          <p class="lead" data-reveal style="margin-top:0">Advanced <b>hologram displays</b> crafted for clarity and depth. Each projection blends <b>technology, precision, and creativity</b> to redefine modern <b>visual communication</b>.</p>
+          <div class="visual" data-reveal><canvas class="threads" id="lightThreads" aria-hidden="true"></canvas><canvas class="holo-orb" data-orb="light"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 / Augmented Reality -->
+    <section class="chapter" id="ar">
+      <div class="wrap">
+        <div class="ch-head">
+          <span class="ch-num">05 / 09</span>
+          <div>
+            <div class="ch-eyebrow" data-reveal>XR Pixels</div>
+            <h2 class="ch-title" data-reveal>Augmented&nbsp;<span class="em">Reality</span></h2>
+            <div class="rule" data-reveal></div>
+          </div>
+        </div>
+        <div class="editorial">
+          <div class="visual" style="order:-1"><canvas class="holo-orb" data-orb="ar"></canvas></div>
+          <p class="lead" style="margin-top:0">The <b>Future of Brand Engagement</b> lives inside our <b>Smart XP</b>. We don't just create experiences. We reshape how people <b>feel about brands.</b></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 / All-in-One Solutions: LITE / CORE / ELITE -->
+    <section class="chapter" id="tiers">
+      <div class="wrap">
+        <div class="ch-head">
+          <span class="ch-num">06 / 09</span>
+          <div>
+            <div class="ch-eyebrow" data-reveal>All-in-One</div>
+            <h2 class="ch-title" data-reveal>XR All-in-One Solutions</h2>
+            <div class="rule" data-reveal></div>
+          </div>
+        </div>
+
+        <div class="tiers" data-reveal>
+          <div class="tier">
+            <div class="tier-name">LITE</div>
+            <div class="tier-h">Interactive Experience <small>Snap Station</small></div>
+            <p class="tier-body">Snap Station is an interactive experience for brand activations, built to create memorable &amp; shareable moments.</p>
+            <ul class="tier-inc">
+              <li><b>Setup &amp; Delivery:&nbsp;</b><span>full setup, install &amp; on-site support.</span></li>
+              <li><b>Branded Content:&nbsp;</b><span>custom overlays &amp; screens; guests capture shareable moments.</span></li>
+              <li><b>Data Capture:&nbsp;</b><span>collect leads &amp; track engagement, insight during the event.</span></li>
+            </ul>
+            <a class="btn" href="#preorder">Start Your Project</a>
+          </div>
+          <div class="tier">
+            <div class="tier-name">CORE</div>
+            <div class="tier-h">Custom Impact <small>Story-led 3D</small></div>
+            <p class="tier-body">A layered, narrative-led 3D animation that blends creativity, motion, and brand storytelling.</p>
+            <ul class="tier-inc">
+              <li><b>Photoreal or stylised&nbsp;</b><span>rendering suited to your visual identity.</span></li>
+              <li><b>Story-based animation&nbsp;</b><span>around a clear theme / narrative arc.</span></li>
+              <li><b>Enhanced motion design:&nbsp;</b><span>light trails, particles, digital textures.</span></li>
+            </ul>
+            <a class="btn" href="#preorder">Bring Story to Life</a>
+          </div>
+          <div class="tier">
+            <div class="tier-name">ELITE</div>
+            <div class="tier-h">Fully Immersive <small>Cinematic 3D</small></div>
+            <p class="tier-body">A cinematic, high-impact 3D video that blends storytelling, artistry, and cutting-edge visual design.</p>
+            <ul class="tier-inc">
+              <li><b>Advanced visualisation:&nbsp;</b><span>photoreal textures, lighting &amp; fine detail.</span></li>
+              <li><b>Dynamic camera choreography:&nbsp;</b><span>smooth transitions.</span></li>
+              <li><b>Integrated VFX:&nbsp;</b><span>motion depth, atmosphere, surreal tone.</span></li>
+            </ul>
+            <a class="btn" href="#preorder">Go Immersive</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 / Shaping Tomorrow video -->
+    <section class="chapter" id="video">
+      <div class="wrap video-band">
+        <div class="ch-head" style="justify-content:center">
+          <span class="ch-num">07 / 09</span>
+          <div>
+            <div class="ch-eyebrow" data-reveal>Feature Film</div>
+            <h2 class="ch-title" data-reveal>Shaping Tomorrow<br>with&nbsp;<span class="em">Holograms</span></h2>
+            <div class="rule" data-reveal></div>
+          </div>
+        </div>
+        <!-- WAVE 1 #6: real, playable video. Poster + play button; click swaps in the Vimeo
+             embed (autoplay). HTML5 fallback wired in JS if the embed is blocked. -->
+        <div class="video-stage" data-reveal id="videoStage" role="button" tabindex="0" aria-label="Play Shaping Tomorrow video">
+          <!-- WAVE 2 P1: local muted-loop fallback reel (canvas) plays INSIDE the node frame
+               so the "video plays inside the outline" reads on localhost. Click upgrades to the
+               Vimeo embed for production. The reel hides once Vimeo mounts. -->
+          <canvas id="videoReel" class="video-reel" aria-hidden="true"></canvas>
+          <div class="play" id="videoPlay">
+            <div class="disc"><svg viewBox="0 0 24 24" fill="var(--ink)"><path d="M8 5v14l11-7z"/></svg></div>
+            <span>Watch Film</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 / Contact / Pre-order -->
+    <section class="chapter" id="preorder">
+      <div class="wrap">
+        <div class="ch-head">
+          <span class="ch-num">08 / 09</span>
+          <div>
+            <div class="ch-eyebrow" data-reveal>Pre-order</div>
+            <h2 class="ch-title" data-reveal>Get in touch<br>with&nbsp;<span class="em">us</span></h2>
+            <div class="rule" data-reveal></div>
+          </div>
+        </div>
+        <div class="contact">
+          <div class="visual" data-reveal><canvas class="holo-orb" data-orb="contact"></canvas></div>
+          <div data-reveal>
+            <h4>We are waiting to hear from you</h4>
+            <p class="h-sub">Tell us about your activation. We will reply with a route into a world beyond the screen.</p>
+            <form class="preorder" onsubmit="return false">
+              <div class="field"><label for="fn">Full Name *</label><input id="fn" type="text" required placeholder="Your name"></div>
+              <div class="row2">
+                <div class="field"><label for="ph">Phone *</label><input id="ph" type="tel" required placeholder="+00 000 000 000"></div>
+                <div class="field"><label for="em">E-mail *</label><input id="em" type="email" required placeholder="you@brand.com"></div>
+              </div>
+              <div class="field"><label for="msg">Message</label><textarea id="msg" placeholder="What are we building?"></textarea></div>
+              <button class="btn" type="submit">Send message</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 09 / Footer -->
+    <footer class="site">
+      <div class="wrap foot-row">
+        <div class="foot-brand">
+          <svg viewBox="0 0 1913 1946" aria-hidden="true"><use href="#xr-mono"/></svg>
+          <span class="foot-word">XR&nbsp;PIXELS</span>
+        </div>
+        <div class="foot-meta">
+          <span>© XR Pixels LLC</span>
+          <a href="#">Privacy Policy</a>
+          <span class="hot" style="color:var(--cyan)">09 / 09 · END</span>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ===== inline real XR Pixels monogram (Logo_white.svg), defined once, animatable ===== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <g id="xr-mono" fill="#fff" fill-rule="nonzero">
+        <path d="M1625.746,1272.096c-3.813,-4.175 -8.275,-7.917 -11.362,-12.571c-74,-111.646 -147.846,-223.367 -221.717,-335.083c-1.854,-2.792 -3.862,-5.508 -5.417,-8.45c-5.017,-9.479 -2.254,-20.792 6.796,-26.146c5.742,-3.387 12.021,-5.833 18.037,-8.742c68.271,-33.033 125.792,-79.146 169.917,-141.283c46.6,-65.642 70.279,-138.975 67.096,-219.396c-4.442,-112.375 -50.767,-205.188 -137.258,-277.087c-55.208,-45.879 -119.121,-74.013 -189.458,-86.758c-25.408,-4.6 -51.396,-6.058 -77.183,-8.296c-8.975,-0.779 -18.108,0.4 -26.833,0.679c-5.071,7.617 -9.383,13.725 -13.346,20.087c-113.8,182.562 -227.583,365.154 -341.363,547.746c-3.108,4.971 -6.146,9.979 -9.258,14.958c-9.354,15.029 -9.633,29.908 0.754,44.596c3.392,4.771 6.696,9.625 10.062,14.404c123.508,175.125 247.046,350.221 370.554,525.367c4.817,6.833 9.908,13.55 13.95,20.862c18.487,33.513 8.275,74.542 -23.354,95.154c-31.55,20.571 -73.117,13.175 -96.4,-17.242c-3.029,-3.971 -5.562,-8.346 -8.275,-12.571c-117.138,-182.438 -234.254,-364.904 -351.367,-547.342c-4.062,-6.333 -8.329,-12.571 -12.067,-19.104c-31.129,-54.529 -30.675,-108.825 3.917,-161.271c35.012,-53.096 71.608,-105.158 107.579,-157.65c93.717,-136.708 187.421,-273.417 281.308,-410.029c5.142,-7.492 10.738,-15.158 17.688,-20.817c13.217,-10.783 28.342,-15.383 46.254,-14.908c77.833,2.063 152.929,16.088 223.446,49.85c114.833,55.004 197.454,141.133 236.213,263.288c49.342,155.488 15.65,294.308 -95.771,413.45c-40.483,43.263 -88.796,76.071 -142.371,101.133c-7.354,3.446 -14.6,7.137 -23.429,11.467c5.267,9.45 9.45,17.446 14.067,25.167c61.908,103.425 123.967,206.771 185.75,310.271c5.017,8.396 12.462,15.908 12.288,26.8l0.525,-0.5l0.029,-0.029l0,-0.004Z"/>
+        <path d="M62.163,111.754c22.675,27.854 45.4,55.658 68,83.563c110.592,136.533 221.137,273.117 331.704,409.675c5.796,7.137 11.288,14.629 17.733,21.117c10.913,10.987 24.808,10.004 34.767,-2.038c3.712,-4.5 6.796,-9.529 10.108,-14.354c64.013,-93.067 128.35,-185.908 191.862,-279.325c21.621,-31.8 41.421,-64.888 61.704,-97.567c38.408,-61.842 76.554,-123.838 114.888,-185.729c4.388,-7.113 8.6,-14.429 13.867,-20.892c23.933,-29.288 66.3,-34.717 97,-12.771c29.8,21.292 38.708,61.817 20.342,93.971c-3.717,6.512 -8.408,12.471 -12.946,18.479c-35.267,46.758 -71.308,92.967 -105.804,140.279c-80.442,110.338 -170.012,213.233 -257.129,318.142c-24.583,29.613 -48.987,59.379 -74.146,88.517c-26.438,30.621 -66.925,40.55 -104.9,27.1c-16.204,-5.729 -29.7,-15.158 -40.133,-28.808c-4.062,-5.304 -7.775,-10.883 -11.488,-16.467c-114.004,-171.375 -228.033,-342.754 -342.038,-514.129c-5.896,-8.875 -11.587,-17.85 -17.383,-26.8l3.988,-1.987l0,0.025l0.004,-0Z"/>
+        <path d="M912.825,1333.408c-5.342,-5.958 -10.892,-11.737 -16.033,-17.875c-114.079,-135.904 -228.108,-271.833 -342.138,-407.763c-9.154,-10.908 -18.263,-21.821 -27.442,-32.679c-3.237,-3.821 -6.321,-7.867 -10.083,-11.158c-9.483,-8.271 -22.95,-6.842 -30.679,3.342c-4.542,5.988 -8.379,12.521 -12.467,18.833c-109.337,169.512 -218.654,339.029 -327.992,508.521c-4.992,7.742 -9.733,15.717 -15.5,22.825c-24.733,30.367 -67.925,35.471 -98.929,12.092c-29.7,-22.396 -36.975,-64.908 -16.379,-96.783c3.613,-5.604 7.975,-10.758 12.142,-15.987c130.058,-162.833 260.267,-325.562 390.075,-488.592c16.829,-21.146 36.171,-37.354 63.438,-41.279c35.746,-5.133 66.071,5.125 88.946,34.113c3.612,4.604 6.746,9.583 10.058,14.408c106.729,157.167 213.462,314.367 320.146,471.592c5.392,7.971 10.358,16.242 15.525,24.362c-0.879,0.654 -1.758,1.333 -2.638,1.987l-0.05,0.05l0,-0.008Z"/>
+        <path d="M1090.237,1770.563c-30.75,1.008 -59.671,0.25 -88.567,0.554c-28.921,0.3 -57.871,-0.854 -87.946,0.875c-4.538,21.875 -1.958,43.396 -2.108,64.688c-0.146,21.417 -1.779,42.987 1.558,65.917c7.979,0.354 15.25,0.979 22.55,0.979c47.658,0.075 95.321,0 142.979,0.075c7.292,0 14.592,0.554 22.171,0.854c4.242,11.417 2.587,21.596 1.383,32.729c-4.412,0.883 -8.633,2.446 -12.85,2.467c-68.5,0.154 -137.029,0.154 -205.529,0.05c-4.292,0 -8.554,-0.929 -13.875,-1.554c-0.6,-5.304 -1.425,-9.554 -1.558,-13.854c-2.704,-96.258 -1.204,-328.5 2.408,-350.071c3.812,-0.575 8.025,-1.783 12.242,-1.783c68.508,-0.125 137.038,-0.125 205.538,0c4.263,0 8.504,1.033 13.625,1.688c1.729,10.613 1.729,20.033 0.325,29.113c-5.821,6.283 -12.896,4.471 -19.317,4.471c-48.408,0.154 -96.796,0.054 -145.208,0.125c-8,0 -16.025,0.554 -23.029,0.804c-1.604,2.946 -2.883,4.2 -2.904,5.458c-0.275,36.554 -0.45,73.104 -0.525,109.658c0,2.842 0.85,5.679 1.529,9.729c6.146,0.529 11.888,1.429 17.608,1.429c45.425,0.125 90.85,0.029 136.275,0.125c7.3,0 14.571,0.604 22.454,0.958c3.258,11.283 2.008,21.467 0.775,34.513l-0.004,0.004Z"/>
+        <path d="M1733.808,1613.821c-4.967,10.908 -9.258,20.312 -14.2,31.071c-5.771,-3.721 -10.663,-6.658 -15.325,-9.958c-40.208,-28.325 -84.629,-35.117 -132.013,-25.238c-8.608,1.783 -17.133,5.404 -24.833,9.7c-24.583,13.75 -35.975,38.417 -31.283,66.242c2.808,16.542 11.592,29.417 26.792,36.325c12.117,5.479 24.929,9.804 37.85,12.971c20.971,5.133 42.421,8.221 63.367,13.375c15.125,3.721 30.175,8.396 44.496,14.458c25.283,10.658 44.242,28.258 49.458,56.438c5.521,29.888 1.133,58.05 -19.208,82.154c-11.817,14.008 -26.696,23.633 -43.396,30.696c-15.975,6.762 -32.812,9.908 -49.917,11.367c-39.958,3.388 -78.837,-1.512 -116.037,-17c-8.904,-3.717 -17.379,-8.521 -25.733,-13.425c-5.721,-3.342 -10.842,-7.688 -17.237,-12.321c2.108,-5.883 3.737,-11.408 6.046,-16.637c2.354,-5.383 5.342,-10.508 8.65,-16.867c5.75,3.242 10.938,5.758 15.679,8.925c41.267,27.404 87.112,33.258 134.975,28.083c10.883,-1.179 22.025,-4.7 31.933,-9.45c26.113,-12.471 37.771,-39.575 30.35,-67.604c-3.008,-11.387 -9.633,-20.487 -20.038,-25.696c-9.938,-4.95 -20.296,-9.654 -30.979,-12.321c-21.65,-5.404 -43.8,-8.846 -65.492,-14.096c-16.608,-4 -33.537,-7.896 -49.121,-14.658c-62.454,-27.125 -77.025,-104.804 -29.517,-154.104c18.812,-19.533 42.417,-30.492 68.529,-35.146c37.975,-6.762 75.8,-5.229 112.371,8.271c19.667,7.242 37.933,17.146 53.783,34.467l0.05,-0.021Z"/>
+        <path d="M1.133,1573.771c7.4,-0.554 13.196,-1.333 18.988,-1.333c43.896,-0.104 87.792,-0.05 131.688,-0.05c16.429,0 32.683,1.458 48.488,6.333c40.938,12.617 66.221,43.917 68.454,86.804c0.729,14.008 0.554,28.688 -2.833,42.133c-10.383,41.383 -39.483,63.508 -79.917,71.575c-13.042,2.612 -26.588,3.321 -39.933,3.596c-26.763,0.529 -53.554,0.071 -80.342,0.221c-6.496,0.029 -12.992,0.779 -20.871,1.304c-1.854,18.075 -0.704,35.125 -0.904,52.071c-0.2,16.388 0,32.804 -0.05,49.196c-0.075,16.992 -0.275,33.992 -0.45,51.488c-14.475,4.175 -27.442,3.042 -41.762,1.283c-0.629,-4.125 -1.629,-7.617 -1.629,-11.112c-0.075,-114.083 -0.075,-228.146 0,-342.229c0,-2.917 0.525,-5.804 1.079,-11.312l0,0.029l-0.004,0.004Zm42.842,171.021c6.146,0.883 9.733,1.812 13.321,1.842c29.775,0.125 59.575,0.325 89.321,-0.104c9.608,-0.154 19.392,-1.304 28.771,-3.367c28.267,-6.258 45.55,-24.562 49.692,-53.367c1.354,-9.383 0.779,-19.362 -0.704,-28.783c-3.787,-24.438 -18.288,-40.633 -41.712,-47.542c-11.263,-3.321 -23.329,-5 -35.092,-5.304c-29.75,-0.729 -59.55,-0.325 -89.321,-0.175c-4.187,0 -8.379,1.104 -14.271,1.958c-0.075,45.05 -0.1,88.846 0,134.875l0,-0.029l-0.004,-0.004Z"/>
+        <path d="M634.721,1785.471c-39.333,53.321 -76.454,103.654 -113.075,153.3c-16.354,1.688 -30.979,1.283 -46.629,0.529c-0.704,-8.221 4.212,-12.262 7.5,-16.696c37.8,-50.929 75.779,-101.708 113.654,-152.596c4.392,-5.904 8.479,-12.042 13.217,-18.8c-43.017,-58.854 -86.512,-116.271 -129.808,-175.354c4.312,-1.729 6.196,-3.113 8.1,-3.138c13.346,-0.2 26.688,-0.104 40.433,-0.104c7.55,10.208 14.625,19.717 21.646,29.292c7.075,9.604 14.121,19.258 21.146,28.908c7.025,9.654 14.046,19.304 21.071,28.958c7.025,9.654 13.871,19.438 21.146,28.908c7.125,9.304 12.792,19.862 23.204,28.917c35.821,-48.321 69.533,-96.438 104.725,-144c15.804,-1.783 31.225,-1.737 46.658,-0.104c2.104,7.721 -3.637,11.467 -6.925,15.917c-35.517,47.967 -71.263,95.779 -106.904,143.646c-4.392,5.908 -8.529,11.992 -13.496,18.979c23.075,31.05 45.725,61.512 68.354,91.987c22.55,30.367 45.604,60.363 67.879,91.688c-15.2,5.05 -23.679,5.404 -48.967,2.312c-17.858,-24.237 -36.346,-49.479 -55.008,-74.592c-18.608,-25.042 -36.546,-50.554 -57.917,-77.937l0,-0.021l-0.004,-0Z"/>
+        <path d="M1194.633,1573.867c13.5,-2.283 25.862,-1.958 39.583,-0.3c0.85,5.2 2.333,10.054 2.379,14.929c0.229,29.821 0.125,59.633 0.125,89.471c0,65.617 -0.021,131.2 0.054,196.821c0,8.042 0.5,16.092 0.825,25.438c7.825,0.554 14.304,1.362 20.771,1.383c46.125,0.133 92.233,0 138.358,0.104c7.3,0 14.6,0.575 22.729,0.929c3.308,11.867 2.354,22.721 1.004,34.667c-4.367,0.854 -8.533,2.387 -12.717,2.387c-66.95,0.154 -133.896,0.125 -200.846,0.05c-3.583,0 -7.175,-0.7 -11.083,-1.133c-3.967,-8.521 -2.558,-16.763 -2.558,-24.738c-0.104,-93.946 -0.075,-187.867 -0.075,-281.812c0,-14.908 -0.075,-29.821 0.104,-44.721c0.05,-4.279 0.871,-8.575 1.425,-13.5l-0.075,0.021l-0.004,0.004Z"/>
+        <path d="M358.5,1938.271l0,-363.571c13.471,-3.821 26.488,-2.437 39.354,-1.179c5.921,6.833 3.663,14.604 3.688,21.742c0.175,65.617 0.1,131.2 0.1,196.821c0,41 0.05,82.008 -0.05,123.008c0,7.292 -0.6,14.554 -0.954,22.575c-14.296,3.321 -27.217,2.667 -42.167,0.625l0.025,-0.021l0.004,0Z"/>
+        <path d="M1741.533,1511.45c0,-5.658 -0.325,-11.342 0.075,-16.992c0.775,-10.708 6.517,-16.721 17.179,-17.146c11.837,-0.479 23.754,-0.479 35.592,0.021c10.138,0.429 15.954,5.612 16.529,15.792c0.754,12.971 0.679,26.042 -0.175,38.992c-0.579,8.771 -5.571,13.721 -14.2,14.175c-13.492,0.708 -27.117,0.679 -40.608,-0.075c-8.304,-0.471 -13.3,-6.054 -14.1,-14.404c-0.621,-6.737 -0.125,-13.575 -0.125,-20.362l-0.175,0l0.008,-0Z"/>
+        <path d="M1812.321,1567.388c3.112,-1.208 5.167,-2.667 7.25,-2.717c11.283,-0.279 22.6,-0.529 33.892,-0.154c6.471,0.2 9.508,3.242 9.729,9.508c0.4,10.729 0.429,21.513 0.104,32.279c-0.2,6.383 -3.312,9.825 -9.258,10.054c-11.283,0.404 -22.6,0.25 -33.892,0c-4.388,-0.075 -7.921,-2.617 -8.325,-7.062c-1.204,-14.029 -1.508,-28.083 0.525,-41.938l-0.029,0.029l0.004,-0Z"/>
+        <path d="M1889.254,1520.979c15.95,0 17.354,1.429 17.304,17.446c-0.05,15.592 -1.729,17.196 -17.763,17.146c-15.7,-0.05 -17.458,-1.804 -17.4,-17.596c0.021,-15.158 1.625,-16.821 16.15,-16.992l1.708,0l-0,-0.004Z"/>
+      </g>
+    </defs>
+  </svg>
+
+<!-- node-spine engine deps (local) -->
+<script src="./vendor/three.min.js"></script>
+<script src="./mono-paths.js"></script>
+
+<script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+<!-- ============================================================================
+     NODE SPINE ENGINE — the persistent morphing field that carries the whole site.
+     Ported from node-spine.html: ~16k point field + near-neighbour node-mesh that
+     MORPHS between sampled target shapes. Decoupled from its own scroll page; index.html
+     drives it via window.__spine (setShape / setCenter / mouse / capture hooks).
+     ============================================================================ -->
+<script>
+(function(){
+  "use strict";
+  if(!window.THREE){ console.warn('[spine] three.js missing'); return; }
+  const SP_REDUCED = matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SP_STILL = location.search.includes("still");
+  const N = SP_REDUCED ? 9000 : 16000;       // particle count (lighter when reduced)
+  const COL_CYAN  = new THREE.Color('#3fe7ff');
+  const COL_AMBER = new THREE.Color('#ff9a52');
+  const MONO_PATHS = window.__MONO_PATHS__;
+
+  const stage = document.getElementById('spine-stage');
+  const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
+  renderer.setClearColor(0x000000, 0);       // transparent — the near-black page bg shows through
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  stage.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(52, 1, 1, 4000);
+  camera.position.set(0, 0, 560);
+
+  // ---------- buffers ----------
+  const positions = new Float32Array(N*3);
+  const colors    = new Float32Array(N*3);
+  const sizes     = new Float32Array(N);
+  // WAVE 1: dedicated per-section + per-product shape targets (sampled from white-on-black silhouettes)
+  const KEYS = ['humanoid','globe','grid','core','monogram','wall','avatar','__live',
+    'projector','goggles','tierstack',                         // sections: #light, #ar, #tiers
+    'figure','slot','panel','booth','cinema','holotwin','broadcast',  // product card hovers
+    'videoframe','contactconverge','__trickle'                 // WAVE 2 P1: video frame outline + contact converge + trickle scratch
+  ];
+  const T = {}, Tc = {};
+  KEYS.forEach(k=>{ T[k]=new Float32Array(N*3); Tc[k]=new Float32Array(N*3); });
+  const jitter = new Float32Array(N);
+  for(let i=0;i<N;i++) jitter[i] = Math.random();
+  function setC(arr,i,c){ arr[i*3]=c.r; arr[i*3+1]=c.g; arr[i*3+2]=c.b; }
+
+  // ============ GLOBE (network) ============
+  (function buildGlobe(){
+    const R=180, HUBS=520, hub=[];
+    for(let h=0;h<HUBS;h++){ const k=h+0.5; const phi=Math.acos(1-2*k/HUBS); const tha=Math.PI*(1+Math.sqrt(5))*k;
+      hub.push([Math.cos(tha)*Math.sin(phi), Math.cos(phi), Math.sin(tha)*Math.sin(phi)]); }
+    for(let i=0;i<N;i++){
+      const H=hub[(Math.random()*HUBS)|0];
+      let x=H[0]+(Math.random()-0.5)*0.16, y=H[1]+(Math.random()-0.5)*0.16, z=H[2]+(Math.random()-0.5)*0.16;
+      const inv=1/Math.hypot(x,y,z); x*=inv;y*=inv;z*=inv;
+      const rr=R*(0.95+Math.random()*0.07); x*=rr;y*=rr;z*=rr;
+      T.globe[i*3]=x;T.globe[i*3+1]=y;T.globe[i*3+2]=z;
+      const lat=Math.abs(y/R);
+      const c=COL_CYAN.clone().multiplyScalar(1.22).lerp(COL_AMBER, Math.max(0,lat-0.62)*2.0);
+      setC(Tc.globe,i,c);
+    }
+  })();
+
+  // ============ GRID (cluster of cubes) ============
+  (function buildGrid(){
+    const cells=[[-260,70],[0,70],[260,70],[-260,-70],[0,-70],[260,-70]];
+    const per=Math.floor(N/cells.length); let idx=0;
+    for(let c=0;c<cells.length;c++){
+      const [cx,cy]=cells[c]; const s=80; const cnt=(c===cells.length-1)?(N-idx):per;
+      for(let j=0;j<cnt;j++,idx++){
+        let x=(Math.random()*2-1),y=(Math.random()*2-1),z=(Math.random()*2-1);
+        const ax=Math.abs(x),ay=Math.abs(y),az=Math.abs(z),m=Math.max(ax,ay,az);
+        if(m===ax)x=Math.sign(x); else if(m===ay)y=Math.sign(y); else z=Math.sign(z);
+        if(Math.random()<0.55){
+          if(Math.abs(x)===1){ if(Math.abs(y)>Math.abs(z)) y=Math.sign(y)*(0.78+Math.random()*0.22); else z=Math.sign(z)*(0.78+Math.random()*0.22); }
+          else if(Math.abs(y)===1){ if(Math.abs(x)>Math.abs(z)) x=Math.sign(x)*(0.78+Math.random()*0.22); else z=Math.sign(z)*(0.78+Math.random()*0.22); }
+          else { if(Math.abs(x)>Math.abs(y)) x=Math.sign(x)*(0.78+Math.random()*0.22); else y=Math.sign(y)*(0.78+Math.random()*0.22); }
+        }
+        T.grid[idx*3]=cx+x*s; T.grid[idx*3+1]=cy+y*s; T.grid[idx*3+2]=z*s;
+        const c2=(c%2===0)?COL_CYAN.clone().multiplyScalar(1.25):COL_CYAN.clone().multiplyScalar(1.15).lerp(COL_AMBER,0.20);
+        setC(Tc.grid,idx,c2);
+      }
+    }
+  })();
+
+  // ============ CORE / RING (converge) ============
+  (function buildCore(){
+    for(let i=0;i<N;i++){
+      const ringFrac=0.62;
+      if(i/N<ringFrac){
+        const a=Math.random()*Math.PI*2; const rr=96+(Math.random()-0.5)*10; const tube=(Math.random()-0.5)*16;
+        T.core[i*3]=Math.cos(a)*rr; T.core[i*3+1]=Math.sin(a)*rr*0.34+tube*0.4; T.core[i*3+2]=Math.sin(a)*rr+tube;
+        setC(Tc.core,i,COL_CYAN.clone());
+      } else {
+        const r=Math.pow(Math.random(),2)*40; const a=Math.random()*Math.PI*2,b=Math.acos(2*Math.random()-1);
+        T.core[i*3]=Math.sin(b)*Math.cos(a)*r; T.core[i*3+1]=Math.cos(b)*r; T.core[i*3+2]=Math.sin(b)*Math.sin(a)*r;
+        setC(Tc.core,i,COL_CYAN.clone().lerp(COL_AMBER,0.30));
+      }
+    }
+  })();
+
+  // ============ HUMANOID (sampled from hero-figure.png; capsule fallback) ============
+  function buildHumanoidFallback(){
+    for(let i=0;i<N;i++){
+      const t=i/N; const y=(t-0.5)*420; const w=70*(1-0.5*Math.abs(t-0.5)*2);
+      const a=Math.random()*Math.PI*2;
+      T.humanoid[i*3]=Math.cos(a)*w*Math.random(); T.humanoid[i*3+1]=y; T.humanoid[i*3+2]=Math.sin(a)*w*Math.random();
+      setC(Tc.humanoid,i,COL_CYAN.clone());
+    }
+  }
+  buildHumanoidFallback();
+  let humanoidReady=false;
+  function sampleHumanoid(img){
+    const cw=212,ch=316; const cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
+    const ctx=cv.getContext('2d'); ctx.drawImage(img,0,0,cw,ch);
+    const data=ctx.getImageData(0,0,cw,ch).data; const bright=[];
+    for(let py=0;py<ch;py++) for(let px=0;px<cw;px++){
+      const o=(py*cw+px)*4; const lum=(0.2126*data[o]+0.7152*data[o+1]+0.0722*data[o+2])/255;
+      if(lum>0.16) bright.push([px,py,lum,data[o],data[o+1],data[o+2]]);
+    }
+    if(bright.length<200) return;
+    const SCALE=480/ch;
+    for(let i=0;i<N;i++){
+      const s=bright[(Math.random()*bright.length)|0]; const [px,py,lum,r,g,b]=s;
+      T.humanoid[i*3]=(px-cw/2)*SCALE+(Math.random()-0.5)*1.4;
+      T.humanoid[i*3+1]=(ch/2-py)*SCALE+(Math.random()-0.5)*1.4;
+      T.humanoid[i*3+2]=(lum-0.4)*150+(Math.random()-0.5)*22;
+      let c=new THREE.Color(r/255,g/255,b/255); c.lerp(COL_CYAN,0.55); if(lum>0.82)c.lerp(COL_AMBER,0.35);
+      setC(Tc.humanoid,i,c);
+    }
+    humanoidReady=true;
+    if(curFrom==='humanoid'||curTo==='humanoid') dirty=true;
+  }
+
+  // ============ generic 2D-canvas sampler ============
+  // SHAPES2: the silhouette is auto-fit to TARGET_H world units (filling ~55-65% of the
+  // viewport) and EDGE-BIASED — ~58% of points snap to the silhouette contour so the
+  // form's outline reads as a clear line-traced figure, not a faint filled blob.
+  const sampled={};
+  // viewport at zoom 560 / FOV 52 shows ~546 world units of height; ~330 -> ~60% vh.
+  const TARGET_H = 360;                 // default world height the fitted shape fills
+  const EDGE_BIAS = 0.58;               // fraction of points pulled to the contour
+  function sampleCanvas(key,cw,ch,worldH,zAmp,draw,colorFn){
+    const cv=document.createElement('canvas'); cv.width=cw; cv.height=ch; const ctx=cv.getContext('2d');
+    ctx.fillStyle='#000'; ctx.fillRect(0,0,cw,ch); draw(ctx,cw,ch);
+    const data=ctx.getImageData(0,0,cw,ch).data;
+    // luminance grid + bright/edge pixel lists
+    const LUM=new Float32Array(cw*ch);
+    let minX=cw,minY=ch,maxX=0,maxY=0;
+    for(let py=0;py<ch;py++) for(let px=0;px<cw;px++){
+      const o=(py*cw+px)*4; const l=(0.2126*data[o]+0.7152*data[o+1]+0.0722*data[o+2])/255;
+      LUM[py*cw+px]=l;
+      if(l>0.30){ if(px<minX)minX=px; if(px>maxX)maxX=px; if(py<minY)minY=py; if(py>maxY)maxY=py; }
+    }
+    const bright=[], edge=[];
+    for(let py=0;py<ch;py++) for(let px=0;px<cw;px++){
+      const l=LUM[py*cw+px]; if(l<=0.30) continue;
+      const px2=[px,py,l]; bright.push(px2);
+      // contour test: a bright pixel adjacent (radius 2) to a dark pixel is an edge
+      let isEdge=false;
+      for(let dy=-2;dy<=2&&!isEdge;dy++) for(let dx=-2;dx<=2;dx++){
+        const nx=px+dx, ny=py+dy;
+        if(nx<0||ny<0||nx>=cw||ny>=ch||LUM[ny*cw+nx]<=0.30){ isEdge=true; break; }
+      }
+      if(isEdge) edge.push(px2);
+    }
+    if(bright.length<150) return false;
+    // auto-fit: scale the silhouette's bounding box to TARGET_H, centre on its centroid
+    const bbH=Math.max(1,maxY-minY), bbCX=(minX+maxX)/2, bbCY=(minY+maxY)/2;
+    const SCALE=(worldH||TARGET_H)/bbH;
+    const Tp=T[key], Tcc=Tc[key]; const hasEdge=edge.length>40;
+    for(let i=0;i<N;i++){
+      const useEdge = hasEdge && Math.random()<EDGE_BIAS;
+      const pool = useEdge ? edge : bright;
+      const s=pool[(Math.random()*pool.length)|0]; const px=s[0],py=s[1],lum=s[2];
+      // SHAPES3: crisp edge points (small jitter) so the contour is a clean line, looser fill.
+      const jx=(Math.random()-0.5)*(useEdge?0.7:1.6);
+      Tp[i*3]=(px-bbCX)*SCALE+jx; Tp[i*3+1]=(bbCY-py)*SCALE+(Math.random()-0.5)*(useEdge?0.7:1.6);
+      // SHAPES3: flatten the slab (halved z) so the silhouette faces the viewer and reads 2D,
+      // instead of a deep cloud that scatters in perspective.
+      Tp[i*3+2]=(Math.random()-0.5)*zAmp*0.5;
+      const c=colorFn?colorFn(lum,px/cw,py/ch):COL_CYAN.clone().multiplyScalar(1.10); setC(Tcc,i,c);
+    }
+    sampled[key]=true; return true;
+  }
+  let monoImg=null;
+  function buildMonogram(){ if(!monoImg) return false;
+    return sampleCanvas('monogram',360,366,420,26,(ctx,cw,ch)=>{ctx.drawImage(monoImg,0,0,cw,ch);},
+      (lum)=>COL_CYAN.clone().multiplyScalar(1.30).lerp(COL_AMBER, lum>0.9?0.18:0)); }
+  // OMEGA WALL — large screen on a stand with a tile grid (thicker, clearer)
+  function buildWall(){ return sampleCanvas('wall',420,360,360,30,(c,w,h)=>{
+      c.fillStyle='#fff'; const pw=w*0.74,ph=h*0.52,px=(w-pw)/2,py=h*0.08; c.fillRect(px,py,pw,ph); // bezel
+      c.fillStyle='#000'; c.fillRect(px+w*0.03,py+h*0.04,pw-w*0.06,ph-h*0.08);                     // screen
+      c.fillStyle='#fff'; c.lineWidth=w*0.012;
+      for(let gx=1;gx<4;gx++){ c.fillRect(px+gx*pw/4-w*0.006,py+h*0.05,w*0.012,ph-h*0.10); }       // v grid
+      for(let gy=1;gy<3;gy++){ c.fillRect(px+w*0.03,py+gy*ph/3-w*0.006,pw-w*0.06,w*0.012); }        // h grid
+      c.fillRect(w*0.5-w*0.025,py+ph,w*0.05,h*0.18);                                                // neck
+      c.fillRect(w*0.5-pw*0.30,h*0.82,pw*0.60,h*0.05);                                              // base
+    },(lum)=>COL_CYAN.clone().multiplyScalar(1.30)); }
+  // AVATAR fallback: a clear standing human (figure target is the real one; keep this readable)
+  function buildAvatar(){ return sampleCanvas('avatar',300,440,360,24,(c,w,h)=>{
+      c.fillStyle='#fff'; c.lineCap='round'; c.lineJoin='round'; const cx=w/2;
+      c.beginPath(); c.arc(cx,h*0.12,h*0.078,0,7); c.fill();
+      c.beginPath(); c.moveTo(cx-w*0.16,h*0.24); c.lineTo(cx+w*0.16,h*0.24);
+      c.lineTo(cx+w*0.11,h*0.58); c.lineTo(cx-w*0.11,h*0.58); c.closePath(); c.fill();
+      c.lineWidth=h*0.075; c.strokeStyle='#fff';
+      c.beginPath(); c.moveTo(cx-w*0.08,h*0.28); c.lineTo(cx-w*0.30,h*0.52); c.stroke();
+      c.beginPath(); c.moveTo(cx+w*0.08,h*0.28); c.lineTo(cx+w*0.30,h*0.52); c.stroke();
+      c.lineWidth=h*0.088;
+      c.beginPath(); c.moveTo(cx-w*0.06,h*0.58); c.lineTo(cx-w*0.17,h*0.94); c.stroke();
+      c.beginPath(); c.moveTo(cx+w*0.06,h*0.58); c.lineTo(cx+w*0.17,h*0.94); c.stroke();
+    },(lum)=>COL_CYAN.clone().multiplyScalar(1.30)); }
+
+  // ====================================================================
+  // WAVE 1 — DEDICATED SHAPE TARGETS. Each draws a white-on-black icon/silhouette
+  // that reads as the real thing, then samples its bright pixels into a target buffer.
+  // ====================================================================
+  // SHAPES3: with NORMAL blending each dot is drawn once (no additive accumulation), so the
+  // colour must stay <=1 to read as bright CYAN, not clip to white. Keep a modest lift.
+  const CY = ()=>COL_CYAN.clone().multiplyScalar(1.05);
+  const CYA = (t)=>COL_CYAN.clone().multiplyScalar(1.05).lerp(COL_AMBER,t);
+
+  // a standing human FIGURE (head + filled torso + arms + legs) — used by Avatar card
+  function buildFigure(){ return sampleCanvas('figure',300,440,400,24,(c,w,h)=>{
+      c.fillStyle='#fff'; c.strokeStyle='#fff'; c.lineCap='round'; c.lineJoin='round';
+      const cx=w/2;
+      c.beginPath(); c.arc(cx, h*0.12, h*0.078, 0, 7); c.fill();           // head
+      // filled tapered torso (trapezoid) reads as a body mass, not a thin line
+      c.beginPath(); c.moveTo(cx-w*0.16,h*0.24); c.lineTo(cx+w*0.16,h*0.24);
+      c.lineTo(cx+w*0.11,h*0.58); c.lineTo(cx-w*0.11,h*0.58); c.closePath(); c.fill();
+      c.lineWidth=h*0.072;
+      c.beginPath(); c.moveTo(cx-w*0.08,h*0.28); c.lineTo(cx-w*0.30,h*0.52); c.stroke(); // L arm
+      c.beginPath(); c.moveTo(cx+w*0.08,h*0.28); c.lineTo(cx+w*0.30,h*0.52); c.stroke(); // R arm
+      c.lineWidth=h*0.085;
+      c.beginPath(); c.moveTo(cx-w*0.06,h*0.58); c.lineTo(cx-w*0.17,h*0.94); c.stroke(); // L leg
+      c.beginPath(); c.moveTo(cx+w*0.06,h*0.58); c.lineTo(cx+w*0.17,h*0.94); c.stroke(); // R leg
+    },(lum)=>CY()); }
+
+  // SLOT MACHINE — cabinet, 3 distinct reels, side lever, coin slot — used by Slots card
+  function buildSlot(){ return sampleCanvas('slot',380,440,400,26,(c,w,h)=>{
+      c.fillStyle='#fff'; c.lineCap='round'; c.lineJoin='round';
+      // arched-top cabinet
+      c.beginPath();
+      c.moveTo(w*0.18,h*0.94); c.lineTo(w*0.18,h*0.20);
+      c.quadraticCurveTo(w*0.18,h*0.06,w*0.40,h*0.06);
+      c.lineTo(w*0.58,h*0.06); c.quadraticCurveTo(w*0.78,h*0.06,w*0.78,h*0.20);
+      c.lineTo(w*0.78,h*0.94); c.closePath(); c.fill();
+      // 3 distinct reel windows — wide dark gaps + bright vertical separators so they read as 3
+      const reelY=h*0.22, reelH=h*0.32, rw=w*0.135, sep=w*0.045, grpX=w*0.235;
+      // dark window behind all three
+      c.fillStyle='#000'; c.fillRect(grpX-w*0.015,reelY-h*0.02,3*rw+2*sep+w*0.03,reelH+h*0.04);
+      for(let r=0;r<3;r++){ const rx=grpX+r*(rw+sep);
+        // bright reel face
+        c.fillStyle='#fff'; c.fillRect(rx,reelY,rw,reelH);
+        // black symbol cuts (top/bottom) so each reel shows a centre symbol band
+        c.fillStyle='#000';
+        c.fillRect(rx+w*0.01,reelY+reelH*0.05,rw-w*0.02,reelH*0.22);
+        c.fillRect(rx+w*0.01,reelY+reelH*0.73,rw-w*0.02,reelH*0.22);
+      }
+      // pay-line / display panel below reels
+      c.fillStyle='#fff'; c.fillRect(w*0.25,h*0.58,w*0.28,h*0.07);
+      c.fillStyle='#000'; c.fillRect(w*0.27,h*0.595,w*0.24,h*0.04);
+      // coin slot (small horizontal slit, lower cabinet)
+      c.fillStyle='#000'; c.fillRect(w*0.34,h*0.74,w*0.10,h*0.022);
+      // side LEVER on the right: arm + round knob
+      c.strokeStyle='#fff'; c.lineWidth=w*0.04;
+      c.beginPath(); c.moveTo(w*0.80,h*0.46); c.lineTo(w*0.91,h*0.22); c.stroke();
+      c.fillStyle='#fff'; c.beginPath(); c.arc(w*0.91,h*0.17,w*0.055,0,7); c.fill();
+    },(lum)=>CYA(0.12)); }
+
+  // interactive PANEL: 3x2 grid of tiles, one tile highlighted, + a cursor — Pick & Learn
+  function buildPanel(){ return sampleCanvas('panel',460,380,360,22,(c,w,h)=>{
+      c.fillStyle='#fff'; c.fillRect(w*0.08,h*0.10,w*0.70,h*0.66);  // screen bezel
+      c.fillStyle='#000'; c.fillRect(w*0.11,h*0.14,w*0.64,h*0.58);  // screen
+      // 3x2 grid of tiles (outlined so they read as separate cards)
+      const gx0=w*0.135, gy0=h*0.18, tw=w*0.185, th=h*0.245, gxs=w*0.205, gys=h*0.275;
+      for(let r=0;r<2;r++) for(let col=0;col<3;col++){
+        const x=gx0+col*gxs, y=gy0+r*gys;
+        const highlight=(r===0&&col===1);
+        c.fillStyle='#fff'; c.fillRect(x,y,tw,th);
+        if(!highlight){ c.fillStyle='#000'; c.fillRect(x+w*0.012,y+h*0.018,tw-w*0.024,th-h*0.036); } // hollow tile
+      }
+      // cursor / pointer over the highlighted tile (bottom-right of it)
+      c.fillStyle='#fff';
+      const cxp=gx0+gxs+tw*0.82, cyp=gy0+th*0.62;
+      c.beginPath(); c.moveTo(cxp,cyp); c.lineTo(cxp,cyp+h*0.20);
+      c.lineTo(cxp+w*0.035,cyp+h*0.13); c.lineTo(cxp+w*0.075,cyp+h*0.16);
+      c.lineTo(cxp+w*0.04,cyp+h*0.09); c.lineTo(cxp+w*0.085,cyp+h*0.055); c.closePath(); c.fill();
+    },(lum,nx,ny)=>CYA(ny<0.45&&nx>0.40&&nx<0.62?0.45:0.04)); }
+
+  // SNAP STATION — camera body + big round lens + flash on top — used by Snap Station
+  function buildBooth(){ return sampleCanvas('booth',440,380,360,24,(c,w,h)=>{
+      c.fillStyle='#fff';
+      // rounded camera body
+      c.fillRect(w*0.12,h*0.32,w*0.76,h*0.46);
+      // top plate with pentaprism hump
+      c.fillRect(w*0.40,h*0.20,w*0.20,h*0.12);
+      // flash shoe / flash block top-right
+      c.fillRect(w*0.66,h*0.22,w*0.12,h*0.08);
+      // shutter button top-left
+      c.beginPath(); c.arc(w*0.22,h*0.30,h*0.028,0,7); c.fill();
+      // BIG round lens, concentric rings, dark glass centre
+      c.fillStyle='#000'; c.beginPath(); c.arc(w*0.50,h*0.55,h*0.205,0,7); c.fill(); // outer barrel rim
+      c.fillStyle='#fff'; c.beginPath(); c.arc(w*0.50,h*0.55,h*0.165,0,7); c.fill(); // ring
+      c.fillStyle='#000'; c.beginPath(); c.arc(w*0.50,h*0.55,h*0.115,0,7); c.fill(); // glass
+      c.fillStyle='#fff'; c.beginPath(); c.arc(w*0.455,h*0.50,h*0.035,0,7); c.fill(); // catch-light
+    },(lum)=>CYA(0.08)); }
+
+  // PREMIERE — wide cinema screen + bold play triangle + side light beams
+  function buildCinema(){ return sampleCanvas('cinema',500,360,330,26,(c,w,h)=>{
+      c.fillStyle='#fff'; c.fillRect(w*0.14,h*0.14,w*0.72,h*0.48); // wide screen bezel
+      c.fillStyle='#000'; c.fillRect(w*0.165,h*0.175,w*0.67,h*0.41);
+      // bold play triangle, centred
+      c.fillStyle='#fff'; c.beginPath();
+      c.moveTo(w*0.445,h*0.27); c.lineTo(w*0.445,h*0.49); c.lineTo(w*0.585,h*0.38); c.closePath(); c.fill();
+      // screen stand
+      c.fillRect(w*0.5-w*0.02,h*0.62,w*0.04,h*0.10);
+      c.fillRect(w*0.5-w*0.14,h*0.72,w*0.28,h*0.035);
+      // two bold light beams fanning OUT from the screen sides (theatre projection)
+      c.globalAlpha=0.85;
+      c.beginPath(); c.moveTo(w*0.14,h*0.22); c.lineTo(w*0.14,h*0.54); c.lineTo(w*0.02,h*0.66); c.lineTo(w*0.02,h*0.10); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(w*0.86,h*0.22); c.lineTo(w*0.86,h*0.54); c.lineTo(w*0.98,h*0.66); c.lineTo(w*0.98,h*0.10); c.closePath(); c.fill();
+      c.globalAlpha=1;
+    },(lum,nx)=>CYA(nx<0.16||nx>0.84?0.30:0)); }
+
+  // HOLOTWIN — one solid human + an offset, dimmer duplicate (the holographic twin)
+  function buildHolotwin(){ return sampleCanvas('holotwin',420,440,400,44,(c,w,h)=>{
+      c.lineCap='round'; c.lineJoin='round';
+      function fig(ox,ghost){ c.fillStyle='#fff'; c.strokeStyle='#fff';
+        c.beginPath(); c.arc(w*0.5+ox, h*0.13, h*0.072,0,7); c.fill();              // head
+        c.beginPath(); c.moveTo(w*0.5+ox-w*0.105,h*0.23); c.lineTo(w*0.5+ox+w*0.105,h*0.23);
+        c.lineTo(w*0.5+ox+w*0.075,h*0.56); c.lineTo(w*0.5+ox-w*0.075,h*0.56); c.closePath(); c.fill(); // torso
+        c.lineWidth=h*0.058;
+        c.beginPath(); c.moveTo(w*0.5+ox-w*0.06,h*0.28); c.lineTo(w*0.5+ox-w*0.19,h*0.48); c.stroke();
+        c.beginPath(); c.moveTo(w*0.5+ox+w*0.06,h*0.28); c.lineTo(w*0.5+ox+w*0.19,h*0.48); c.stroke();
+        c.lineWidth=h*0.068;
+        c.beginPath(); c.moveTo(w*0.5+ox-w*0.04,h*0.56); c.lineTo(w*0.5+ox-w*0.12,h*0.93); c.stroke();
+        c.beginPath(); c.moveTo(w*0.5+ox+w*0.04,h*0.56); c.lineTo(w*0.5+ox+w*0.12,h*0.93); c.stroke(); }
+      fig(w*0.10,true);    // ghost twin behind/right (drawn first)
+      fig(-w*0.10,false);  // primary in front/left
+    },(lum,nx)=>CYA(nx>0.52?0.42:0.04)); }
+
+  // PROJECTOR (#light) — base unit emitting an upward beam cone with a floating form in it
+  function buildProjector(){ return sampleCanvas('projector',440,440,400,30,(c,w,h)=>{
+      c.fillStyle='#fff';
+      c.fillRect(w*0.28,h*0.78,w*0.44,h*0.12);                  // base unit
+      c.fillRect(w*0.30,h*0.90,w*0.40,h*0.04);                  // base lip
+      c.fillRect(w*0.44,h*0.70,w*0.12,h*0.10);                  // emitter lens housing
+      // upward holographic beam cone (clear edges so the cone reads)
+      c.globalAlpha=0.55; c.beginPath();
+      c.moveTo(w*0.45,h*0.70); c.lineTo(w*0.55,h*0.70); c.lineTo(w*0.80,h*0.10); c.lineTo(w*0.20,h*0.10); c.closePath(); c.fill();
+      c.globalAlpha=1;
+      // floating projected form (a small figure/orb) inside the cone
+      c.fillStyle='#000'; c.beginPath(); c.arc(w*0.5,h*0.36,h*0.115,0,7); c.fill();
+      c.fillStyle='#fff'; c.beginPath(); c.arc(w*0.5,h*0.36,h*0.078,0,7); c.fill();
+      c.fillStyle='#000'; c.beginPath(); c.arc(w*0.5,h*0.36,h*0.038,0,7); c.fill();
+    },(lum,nx,ny)=>CYA(ny<0.18?0.30:(ny>0.74?0.10:0))); }
+
+  // GOGGLES (#ar) — VR headset front silhouette: two lenses + head strap
+  function buildGoggles(){ return sampleCanvas('goggles',520,320,300,30,(c,w,h)=>{
+      c.fillStyle='#fff';
+      // rounded headset front mass
+      c.beginPath(); c.moveTo(w*0.18,h*0.34);
+      c.lineTo(w*0.82,h*0.34); c.quadraticCurveTo(w*0.92,h*0.36,w*0.92,h*0.52);
+      c.quadraticCurveTo(w*0.92,h*0.70,w*0.80,h*0.70);
+      c.lineTo(w*0.20,h*0.70); c.quadraticCurveTo(w*0.08,h*0.70,w*0.08,h*0.52);
+      c.quadraticCurveTo(w*0.08,h*0.36,w*0.18,h*0.34); c.closePath(); c.fill();
+      // nose notch (bottom centre) so it reads as a face-worn headset
+      c.fillStyle='#000'; c.beginPath();
+      c.moveTo(w*0.46,h*0.70); c.lineTo(w*0.50,h*0.60); c.lineTo(w*0.54,h*0.70); c.closePath(); c.fill();
+      // two lenses
+      c.beginPath(); c.ellipse(w*0.355,h*0.51,w*0.105,h*0.15,0,0,7); c.fill();
+      c.beginPath(); c.ellipse(w*0.645,h*0.51,w*0.105,h*0.15,0,0,7); c.fill();
+      c.fillStyle='#fff'; // lens inner highlight rings
+      c.beginPath(); c.ellipse(w*0.355,h*0.51,w*0.045,h*0.065,0,0,7); c.fill();
+      c.beginPath(); c.ellipse(w*0.645,h*0.51,w*0.045,h*0.065,0,0,7); c.fill();
+      // head strap arcing over the top
+      c.strokeStyle='#fff'; c.lineWidth=h*0.07; c.lineCap='round';
+      c.beginPath(); c.moveTo(w*0.14,h*0.42);
+      c.bezierCurveTo(w*0.20,h*0.10,w*0.80,h*0.10,w*0.86,h*0.42); c.stroke();
+    },(lum,ny)=>CY()); }
+
+  // LIVE STREAMING — video camera on the LEFT + concentric signal arcs on the RIGHT + REC dot
+  function buildBroadcast(){ return sampleCanvas('broadcast',520,360,330,24,(c,w,h)=>{
+      c.fillStyle='#fff';
+      // camera body (left)
+      c.fillRect(w*0.08,h*0.36,w*0.30,h*0.32);
+      // lens barrel pointing right
+      c.fillRect(w*0.38,h*0.42,w*0.10,h*0.20);
+      c.fillStyle='#000'; c.beginPath(); c.arc(w*0.50,h*0.52,h*0.09,0,7); c.fill();   // lens hood
+      c.fillStyle='#fff'; c.beginPath(); c.arc(w*0.50,h*0.52,h*0.055,0,7); c.fill();
+      // film-reel hump on top
+      c.fillStyle='#fff'; c.beginPath(); c.arc(w*0.18,h*0.30,h*0.07,0,7); c.fill();
+      c.beginPath(); c.arc(w*0.30,h*0.30,h*0.07,0,7); c.fill();
+      // REC dot (top-left, with a small tail to read as a record indicator)
+      c.fillStyle='#000'; c.beginPath(); c.arc(w*0.14,h*0.22,h*0.045,0,7); c.fill();
+      c.fillStyle='#fff'; c.beginPath(); c.arc(w*0.14,h*0.22,h*0.028,0,7); c.fill();
+      // tripod legs
+      c.strokeStyle='#fff'; c.lineWidth=w*0.016;
+      c.beginPath(); c.moveTo(w*0.16,h*0.68); c.lineTo(w*0.10,h*0.94); c.stroke();
+      c.beginPath(); c.moveTo(w*0.23,h*0.68); c.lineTo(w*0.23,h*0.94); c.stroke();
+      c.beginPath(); c.moveTo(w*0.30,h*0.68); c.lineTo(w*0.36,h*0.94); c.stroke();
+      // concentric SIGNAL arcs broadcasting to the right
+      c.lineWidth=w*0.018;
+      for(let k=1;k<=4;k++){ c.beginPath(); c.arc(w*0.56,h*0.50,h*0.12*k,-Math.PI*0.42,Math.PI*0.42); c.stroke(); }
+    },(lum,nx)=>CYA(nx>0.6?0.34:0.05)); }
+
+  // TIERSTACK (#tiers) — three ascending bars (LITE / CORE / ELITE), rising left-to-right
+  function buildTierstack(){ return sampleCanvas('tierstack',460,420,360,28,(c,w,h)=>{
+      c.fillStyle='#fff';
+      const heights=[0.30,0.50,0.72], bw=w*0.22, gap=w*0.04;
+      const totalW=3*bw+2*gap, x0=(w-totalW)/2, base=h*0.90;
+      for(let i=0;i<3;i++){ const bh=h*heights[i], x=x0+i*(bw+gap), y=base-bh;
+        c.fillStyle='#fff'; c.fillRect(x,y,bw,bh);
+        // a divider notch near each bar's top so they read as stacked tiers, not solid columns
+        c.fillStyle='#000'; c.fillRect(x+w*0.02,y+h*0.04,bw-w*0.04,h*0.018);
+        c.fillStyle='#fff';
+      }
+      // ground line
+      c.fillRect(x0-w*0.04,base,totalW+w*0.08,h*0.02);
+    },(lum,nx,ny)=>CYA(ny<0.4?0.26:0.04)); }
+
+  // ---------- points geometry ----------
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions,3).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute('pcolor',   new THREE.BufferAttribute(colors,3).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute('psize',    new THREE.BufferAttribute(sizes,1));
+  // SHAPES3: small, tight, UNIFORM dot sizes — fine clean nodes, not fireworks. Less size
+  // variance so overlapping sprites don't stack into bright bloom spikes.
+  for(let i=0;i<N;i++) sizes[i]=1.5+Math.random()*0.8;
+  const mat=new THREE.ShaderMaterial({
+    // SHAPES3: NORMAL blending (was Additive). Additive stacking of overlapping sprites was
+    // what produced the star-burst rays / bloom. Normal alpha-over keeps overlaps as clean
+    // soft dots that read as a solid form, not exploding light.
+    transparent:true, depthWrite:false, depthTest:false, blending:THREE.NormalBlending,
+    uniforms:{ uPix:{value:renderer.getPixelRatio()} },
+    vertexShader:`attribute float psize; attribute vec3 pcolor; varying vec3 vC; uniform float uPix;
+      void main(){ vC=pcolor; vec4 mv=modelViewMatrix*vec4(position,1.0);
+        // tighter perspective gain clamp so near points stay small (no long blown-up sprites)
+        float gain = clamp(300.0/-mv.z, 0.45, 1.25);
+        gl_PointSize=psize*uPix*gain; gl_Position=projectionMatrix*mv; }`,
+    // SHAPES3: tight GAUSSIAN soft round dot. Alpha falls fully to 0 at the rim (no 0.7 floor,
+    // no hard square base) so there is no halo/ray; colour is flat (not core-boosted) so dense
+    // areas read as a clean lit surface instead of a bloom spike.
+    fragmentShader:`precision mediump float; varying vec3 vC;
+      void main(){ vec2 d=gl_PointCoord-0.5; float r2=dot(d,d);
+        if(r2>0.25) discard;
+        float a=exp(-r2*11.0);            // tight gaussian, ~0 at the rim
+        gl_FragColor=vec4(vC, a*0.95); }`
+  });
+  const points=new THREE.Points(geo,mat); scene.add(points);
+
+  // ---------- node-mesh lines ----------
+  const LINK_SAMPLE=SP_REDUCED?1500:2400, MAX_LINKS=4000;
+  const linkPos=new Float32Array(MAX_LINKS*2*3);
+  const lgeo=new THREE.BufferGeometry();
+  lgeo.setAttribute('position', new THREE.BufferAttribute(linkPos,3).setUsage(THREE.DynamicDrawUsage));
+  // SHAPES3: NORMAL-blended connective mesh (was additive — that glowed/bloomed over the dots).
+  // A soft cyan thread that traces the outline without adding a halo.
+  const lmat=new THREE.LineBasicMaterial({ color:new THREE.Color('#7df0ff'),
+    transparent:true, opacity:0.22, blending:THREE.NormalBlending, depthWrite:false, depthTest:false });
+  const lines=new THREE.LineSegments(lgeo,lmat); scene.add(lines);
+  const linkIdx=new Uint32Array(LINK_SAMPLE);
+  for(let i=0;i<LINK_SAMPLE;i++) linkIdx[i]=((i/LINK_SAMPLE)*N)|0;
+  // SHAPES3: per-node DEGREE CAP. The star-burst was caused by every dense contour node
+  // fanning a line to ALL its neighbours. Cap each node to MAX_DEG short links so the mesh
+  // reads as sparse connective threads tracing the form, never a radiating asterisk.
+  const MAX_DEG = 1;
+  const degree = new Uint8Array(N);
+  function rebuildLinks(){
+    const cell=20, grid=new Map();                     // tighter radius => shorter threads
+    const key=(x,y,z)=>((x/cell)|0)+'_'+((y/cell)|0)+'_'+((z/cell)|0);
+    for(let s=0;s<LINK_SAMPLE;s++){ const i=linkIdx[s];
+      degree[i]=0;
+      const x=positions[i*3],y=positions[i*3+1],z=positions[i*3+2];
+      const k=key(x,y,z); let arr=grid.get(k); if(!arr){arr=[];grid.set(k,arr);} arr.push(i); }
+    let n=0; const maxD2=cell*cell*0.9;
+    outer: for(let s=0;s<LINK_SAMPLE;s++){ const i=linkIdx[s];
+      if(degree[i]>=MAX_DEG) continue;
+      const x=positions[i*3],y=positions[i*3+1],z=positions[i*3+2];
+      const gx=(x/cell)|0,gy=(y/cell)|0,gz=(z/cell)|0;
+      for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)for(let dz=-1;dz<=1;dz++){
+        if(degree[i]>=MAX_DEG) break;
+        const arr=grid.get((gx+dx)+'_'+(gy+dy)+'_'+(gz+dz)); if(!arr)continue;
+        for(let q=0;q<arr.length;q++){ const j=arr[q]; if(j<=i)continue;
+          if(degree[j]>=MAX_DEG) continue;
+          const ddx=x-positions[j*3],ddy=y-positions[j*3+1],ddz=z-positions[j*3+2];
+          const d2=ddx*ddx+ddy*ddy+ddz*ddz;
+          if(d2<maxD2){ linkPos[n*6]=x;linkPos[n*6+1]=y;linkPos[n*6+2]=z;
+            linkPos[n*6+3]=positions[j*3];linkPos[n*6+4]=positions[j*3+1];linkPos[n*6+5]=positions[j*3+2];
+            degree[i]++; degree[j]++;
+            n++; if(n>=MAX_LINKS) break outer;
+            if(degree[i]>=MAX_DEG) break; } } } }
+    lgeo.setDrawRange(0,n*2); lgeo.attributes.position.needsUpdate=true;
+  }
+
+  // ---------- SHAPE-BLEND morph model (cross-fade between two named targets) ----------
+  const ease=gsap.parseEase('power2.inOut');
+  let curFrom='humanoid', curTo='humanoid', blend=1;     // blend: 0 = full From, 1 = full To
+  // presentation state, tweened by GSAP from the site driver
+  const view={ centerX:0, centerY:0, zoom:560, spin:0, mouseAmp:1, lineOpacity:0.40, intensity:1, spinLock:0 };
+  const mouse={x:0,y:0,tx:0,ty:0};
+  let dirty=true;
+
+  function writeMorph(){
+    const A=curFrom, B=curTo;
+    const pa=T[A], pb=T[B], ca=Tc[A], cb=Tc[B];
+    const inten=view.intensity;
+    for(let i=0;i<N;i++){
+      const j=jitter[i];
+      let lt=(blend - j*0.18)/(1 - j*0.18); lt=lt<0?0:lt>1?1:lt;
+      const e=ease(lt); const i3=i*3;
+      positions[i3]  = pa[i3]  +(pb[i3]  -pa[i3])  *e + view.centerX;
+      positions[i3+1]= pa[i3+1]+(pb[i3+1]-pa[i3+1])*e + view.centerY;
+      positions[i3+2]= pa[i3+2]+(pb[i3+2]-pa[i3+2])*e;
+      colors[i3]  =(ca[i3]  +(cb[i3]  -ca[i3])  *e)*inten;
+      colors[i3+1]=(ca[i3+1]+(cb[i3+1]-ca[i3+1])*e)*inten;
+      colors[i3+2]=(ca[i3+2]+(cb[i3+2]-ca[i3+2])*e)*inten;
+    }
+    geo.attributes.position.needsUpdate=true; geo.attributes.pcolor.needsUpdate=true;
+  }
+  function applyMouseRepel(){
+    const amp=view.mouseAmp; if(amp<=0.001) return;
+    const mx=mouse.tx*230*amp + view.centerX, my=mouse.ty*150*amp;
+    // WAVE 1 #4: gentler repel radius + push so high-parallax sections nudge (head-tracking
+    // feel) instead of shredding the formed shape into a spiky burst.
+    const R2=58*58;
+    for(let i=0;i<N;i+=3){ const i3=i*3;
+      const dx=positions[i3]-mx, dy=positions[i3+1]-my; const d2=dx*dx+dy*dy;
+      if(d2<R2&&d2>0.01){ const f=(1-d2/R2)*16/Math.sqrt(d2); positions[i3]+=dx*f; positions[i3+1]+=dy*f; } }
+    geo.attributes.position.needsUpdate=true;
+  }
+
+  function renderOnce(withMouse){
+    if(trickleActive){ writeTrickle(); }
+    else { writeMorph(); if(withMouse) applyMouseRepel(); }
+    rebuildLinks();
+    camera.position.z=view.zoom;
+    lmat.opacity=view.lineOpacity;
+    // spinLock=1 freezes the slow idle drift (used so the video frame outline stays
+    // square against the real DOM rect); mouse parallax still applies via mouseAmp.
+    const spinTerm = view.spinLock>0.5 ? 0 : view.spin;
+    points.rotation.y=lines.rotation.y=mouse.tx*0.5*view.mouseAmp + spinTerm;
+    points.rotation.x=lines.rotation.x=mouse.ty*0.32*view.mouseAmp;
+    camera.lookAt(view.centerX*0.4, 0, 0);
+    renderer.render(scene,camera);
+  }
+
+  // ---------- sizing ----------
+  function resize(){
+    // m7 FIX: clamp to the LAYOUT viewport (clientWidth/Height) rather than innerWidth,
+    // which includes the scrollbar gutter. With overflow-x:hidden that extra width was
+    // clipped, so the canvas read wider than the visible viewport. setSize(...,true)
+    // writes matching CSS px so the canvas box never exceeds the viewport.
+    const w=document.documentElement.clientWidth||window.innerWidth;
+    const h=document.documentElement.clientHeight||window.innerHeight;
+    renderer.setSize(w,h,true); camera.aspect=w/h; camera.updateProjectionMatrix();
+    mat.uniforms.uPix.value=renderer.getPixelRatio(); dirty=true;
+  }
+  window.addEventListener('resize',resize); resize();
+
+  // ---------- live loop ----------
+  window.addEventListener('pointermove',(e)=>{
+    mouse.x=(e.clientX/window.innerWidth)*2-1; mouse.y=-((e.clientY/window.innerHeight)*2-1); dirty=true;
+  },{passive:true});
+
+  let raf=null;
+  function loop(){
+    if(document.hidden){ raf=requestAnimationFrame(loop); return; }  // pause work in background tabs
+    mouse.tx+=(mouse.x-mouse.tx)*0.06; mouse.ty+=(mouse.y-mouse.ty)*0.06;
+    // keep rendering while mouse eases or a tween marked us dirty; spin always advances subtly
+    view.spin += 0.0006;
+    renderOnce(true);
+    raf=requestAnimationFrame(loop);
+  }
+
+  // ---------- transition driver ----------
+  let shapeTween=null;
+  // snapshot the CURRENT blended shape (sans view offset) into the __live slot so an
+  // interrupted morph continues smoothly from where it visually is (no pop).
+  function snapshotLive(){
+    const A=curFrom,B=curTo, pa=T[A],pb=T[B],ca=Tc[A],cb=Tc[B];
+    const lp=T['__live'], lc=Tc['__live'];
+    for(let i=0;i<N;i++){ const j=jitter[i];
+      let lt=(blend - j*0.18)/(1 - j*0.18); lt=lt<0?0:lt>1?1:lt; const e=ease(lt); const i3=i*3;
+      lp[i3]=pa[i3]+(pb[i3]-pa[i3])*e; lp[i3+1]=pa[i3+1]+(pb[i3+1]-pa[i3+1])*e; lp[i3+2]=pa[i3+2]+(pb[i3+2]-pa[i3+2])*e;
+      lc[i3]=ca[i3]+(cb[i3]-ca[i3])*e; lc[i3+1]=ca[i3+1]+(cb[i3+1]-ca[i3+1])*e; lc[i3+2]=ca[i3+2]+(cb[i3+2]-ca[i3+2])*e;
+    }
+  }
+  function setShape(key, opts={}){
+    if(!T[key] || key==='__live'){ return false; }
+    if(key===curTo && blend>=1) return true;     // already there
+    const dur = opts.duration!=null ? opts.duration : 1.2;
+    if(shapeTween) shapeTween.kill();
+    snapshotLive();
+    curFrom='__live'; curTo=key; blend=0;
+    if(SP_REDUCED || dur<=0){ blend=1; dirty=true; return true; }
+    shapeTween = gsap.to({b:0},{b:1, duration:dur, ease:'power2.inOut',
+      onUpdate:function(){ blend=this.targets()[0].b; }});
+    return true;
+  }
+  function tweenView(props, dur){
+    gsap.to(view, Object.assign({duration:dur!=null?dur:1.0, ease:'power2.out', overwrite:'auto'}, props));
+  }
+
+  // ====================================================================
+  // WAVE 2 P1 — SCREEN <-> WORLD mapping at the current zoom (FOV 52 vertical).
+  // The morph writes position = target + view.center; to make a node form line up
+  // with a real DOM rectangle on screen, we convert px -> world (at z=0 plane) and
+  // bake ABSOLUTE world coords into the target (driver sets centerX/centerY = 0).
+  // ====================================================================
+  const FOV_RAD = 52*Math.PI/180;
+  function worldPerPx(){ const z=view.zoom; return (2*z*Math.tan(FOV_RAD/2))/window.innerHeight; }
+  function pxToWorld(px,py){ const wpp=worldPerPx();
+    return { x:(px-window.innerWidth/2)*wpp, y:(window.innerHeight/2-py)*wpp, wpp }; }
+
+  // Build a clean RECTANGLE OUTLINE target (with corner ticks) tracing a screen rect.
+  // rect = {x,y,w,h} in CSS px (viewport coords). Points distribute along the 4 edges
+  // + short inward corner ticks so it reads as a framed video boundary.
+  function buildRectTarget(key, rect, colA, colB){
+    const Tp=T[key], Tcc=Tc[key];
+    const tl=pxToWorld(rect.x, rect.y), br=pxToWorld(rect.x+rect.w, rect.y+rect.h);
+    const x0=tl.x, y0=tl.y, x1=br.x, y1=br.y;           // world-space rect corners
+    const W=x1-x0, H=y0-y1;                              // width, height (y0>y1)
+    const perim=2*(Math.abs(W)+Math.abs(H));
+    const tickLen=Math.min(Math.abs(W),Math.abs(H))*0.12;
+    const ca = colA||COL_CYAN.clone().multiplyScalar(1.18);
+    const cb = colB||COL_AMBER.clone().multiplyScalar(1.05);
+    const corners=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]];
+    for(let i=0;i<N;i++){
+      const r=Math.random();
+      let x,y,onCorner=false;
+      if(r<0.16){
+        // corner ticks: pick a corner, draw an L of two short segments inward
+        const c=corners[(Math.random()*4)|0]; onCorner=true;
+        const sx=c[0]===x0?1:-1, sy=c[1]===y0?-1:1;
+        if(Math.random()<0.5){ x=c[0]+sx*Math.random()*tickLen; y=c[1]; }
+        else { x=c[0]; y=c[1]+sy*Math.random()*tickLen; }
+      } else {
+        // distribute along the perimeter (y0>y1, W signed, H=y0-y1>0)
+        const aW=Math.abs(W), aH=Math.abs(H), sx=Math.sign(W)||1;
+        let d=Math.random()*perim;
+        if(d<aW){ x=x0+sx*d; y=y0; }                       // top edge
+        else if(d<aW+aH){ d-=aW; x=x1; y=y0-d; }           // right edge (down)
+        else if(d<2*aW+aH){ d-=(aW+aH); x=x1-sx*d; y=y1; } // bottom edge
+        else { d-=(2*aW+aH); x=x0; y=y1+d; }               // left edge (up)
+      }
+      const jx=(Math.random()-0.5)*1.3, jy=(Math.random()-0.5)*1.3;
+      Tp[i*3]=x+jx; Tp[i*3+1]=y+jy; Tp[i*3+2]=(Math.random()-0.5)*10;
+      const c = onCorner ? cb : ca;
+      setC(Tcc,i,c);
+    }
+    sampled[key]=true; dirty=true;
+  }
+
+  // Build a CONVERGE target centred on a screen point (the contact headline), with a
+  // soft ring + dense core so the dissolved frame "pours" and resolves there.
+  function buildConvergeTarget(key, px, py, scalePx){
+    const Tp=T[key], Tcc=Tc[key];
+    const c=pxToWorld(px,py); const S=(scalePx||220)*c.wpp;
+    for(let i=0;i<N;i++){
+      const ringFrac=0.55;
+      let x,y,z;
+      if(i/N<ringFrac){
+        const a=Math.random()*Math.PI*2; const rr=S*(0.78+ (Math.random()-0.5)*0.10);
+        x=Math.cos(a)*rr; y=Math.sin(a)*rr*0.62; z=(Math.random()-0.5)*16;
+        setC(Tcc,i,COL_CYAN.clone().multiplyScalar(1.15));
+      } else {
+        const r=Math.pow(Math.random(),1.7)*S*0.5;
+        const a=Math.random()*Math.PI*2,b=Math.acos(2*Math.random()-1);
+        x=Math.sin(b)*Math.cos(a)*r; y=Math.cos(b)*r*0.7; z=Math.sin(b)*Math.sin(a)*r;
+        setC(Tcc,i,COL_CYAN.clone().lerp(COL_AMBER,0.28));
+      }
+      Tp[i*3]=c.x+x; Tp[i*3+1]=c.y+y; Tp[i*3+2]=z;
+    }
+    sampled[key]=true; dirty=true;
+  }
+
+  // TRICKLE-DOWN: cascade the current frame's points DOWNWARD then converge them
+  // into the contact converge target. Implemented as a per-point staggered fall:
+  // we build a __trickle scratch buffer that, at blend phase p, is a mix of
+  // (frame point dropped by p*fallDist with horizontal drift) -> converge point.
+  // Driver tweens a 0..1 value and we rewrite positions each frame.
+  let trickleActive=false, trickleP=0, trickleFall=0;
+  const trickleFrom=new Float32Array(N*3), trickleTo=new Float32Array(N*3),
+        trickleColFrom=new Float32Array(N*3), trickleColTo=new Float32Array(N*3),
+        trickleDelay=new Float32Array(N), trickleDrift=new Float32Array(N);
+  for(let i=0;i<N;i++){ trickleDelay[i]=Math.random()*0.55; trickleDrift[i]=(Math.random()-0.5); }
+  const __trickleProxy={v:0};
+  // after the trickle finishes, hand control back to the normal morph model resting
+  // on the converge target so subsequent mouse/section changes behave normally.
+  function endTrickleInto(key){
+    trickleActive=false;
+    curFrom=key; curTo=key; blend=1;
+    // m4 FIX: snap EVERY point exactly onto the (re-aimed) converge target so no
+    // orphan cluster/strands are left stranded in the contact .visual upper-left.
+    // The staggered fall can leave high-delay points short of the target; writing
+    // the resolved target straight into the live buffer parks them cleanly.
+    const Tp=T[key], Tcc=Tc[key];
+    if(Tp){
+      for(let i=0;i<N*3;i++){ positions[i]=Tp[i]; colors[i]=Tcc[i]; }
+      geo.attributes.position.needsUpdate=true; geo.attributes.pcolor.needsUpdate=true;
+    }
+    dirty=true;
+  }
+  function beginTrickle(){
+    // snapshot current resolved frame as the start, converge target as the end
+    snapshotLive();
+    const lp=T['__live'], lc=Tc['__live'];
+    const cp=T['contactconverge'], cc=Tc['contactconverge'];
+    for(let i=0;i<N*3;i++){ trickleFrom[i]=lp[i]; trickleTo[i]=cp[i]; trickleColFrom[i]=lc[i]; trickleColTo[i]=cc[i]; }
+    // fall distance ~ a full viewport in world units
+    trickleFall = window.innerHeight*worldPerPx()*1.15;
+    trickleActive=true; trickleP=0; dirty=true;
+  }
+  // re-aim the trickle's DESTINATION mid-flight (so it lands on the headline's settled
+  // on-screen position even though scroll moved after the trickle began).
+  function retargetTrickle(px,py,scale){
+    if(!trickleActive) return;
+    buildConvergeTarget('contactconverge', px, py, scale);
+    const cp=T['contactconverge'];
+    for(let i=0;i<N*3;i++){ trickleTo[i]=cp[i]; }
+  }
+  function writeTrickle(){
+    const i3max=N;
+    for(let i=0;i<N;i++){
+      const i3=i*3;
+      // staggered local progress: each point starts falling after its delay
+      let lp=(trickleP - trickleDelay[i])/(1 - trickleDelay[i]); lp=lp<0?0:lp>1?1:lp;
+      const e=ease(lp);
+      // phase 1 (0..0.6): point streams DOWN with drift, fading toward target x
+      // phase 2 (0.6..1): lands into the converge target
+      const fx=trickleFrom[i3], fy=trickleFrom[i3+1], fz=trickleFrom[i3+2];
+      const tx=trickleTo[i3], ty=trickleTo[i3+1], tz=trickleTo[i3+2];
+      // a curved path: fall first, then pull to target. Use a quadratic-ish blend.
+      const drift=trickleDrift[i]*28*(e*(1-e))*4;       // sideways shimmer mid-fall
+      const fallY=fy - trickleFall*Math.min(1,e*1.4);    // gravity drop
+      const x = fx + (tx-fx)*e + drift*(1-e);
+      const y = fallY + (ty-fallY)*e*e;                  // ease into target late
+      const z = fz + (tz-fz)*e;
+      positions[i3]=x; positions[i3+1]=y; positions[i3+2]=z;
+      const cf=e;
+      colors[i3]  =trickleColFrom[i3]  +(trickleColTo[i3]  -trickleColFrom[i3])  *cf;
+      colors[i3+1]=trickleColFrom[i3+1]+(trickleColTo[i3+1]-trickleColFrom[i3+1])*cf;
+      colors[i3+2]=trickleColFrom[i3+2]+(trickleColTo[i3+2]-trickleColFrom[i3+2])*cf;
+    }
+    geo.attributes.position.needsUpdate=true; geo.attributes.pcolor.needsUpdate=true;
+  }
+
+  // ---------- load assets ----------
+  function buildArbitrary(){
+    const builders=[buildWall,buildAvatar,buildFigure,buildSlot,buildPanel,buildBooth,
+      buildCinema,buildHolotwin,buildBroadcast,buildProjector,buildGoggles,buildTierstack];
+    for(const b of builders){ try{ b(); }catch(e){ console.warn('[spine] builder failed',e); } }
+  }
+  function loadMonogram(cb){
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1913 1946"><g fill="#fff" fill-rule="nonzero">'+MONO_PATHS+'</g></svg>';
+    const im=new Image();
+    im.onload=()=>{ monoImg=im; try{buildMonogram();}catch(e){} cb&&cb(); };
+    im.onerror=()=>{ cb&&cb(); };
+    im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  }
+  function startEngine(){
+    // initial shape = humanoid, held
+    curFrom='humanoid'; curTo='humanoid'; blend=1;
+    if(SP_REDUCED){ renderOnce(false); return; }  // static formed humanoid, no loop
+    if(!raf) loop();
+  }
+  const img=new Image();
+  img.onload=()=>{ try{sampleHumanoid(img);}catch(e){} buildArbitrary(); loadMonogram(startEngine); };
+  img.onerror=()=>{ buildArbitrary(); loadMonogram(startEngine); };
+  img.src='./hero-figure.png';
+
+  // ============ public API ============
+  window.__spine = {
+    ready:()=>true,
+    humanoidReady:()=>humanoidReady,
+    sampled:(k)=>!!sampled[k],
+    cur:()=>curTo,
+    show(on){ stage.classList.toggle('on', on!==false); },
+    setShape, tweenView,
+    // WAVE 2 P1: build a rectangle-outline target tracing a live DOM rect (CSS px)
+    buildFrame(key, rect){ buildRectTarget(key, rect); },
+    buildConverge(key, px, py, scale){ buildConvergeTarget(key, px, py, scale); },
+    // morph into a freshly-built frame outline, driver having set center to 0
+    showFrame(rect, dur){ buildRectTarget('videoframe', rect); return setShape('videoframe', {duration:dur!=null?dur:1.0}); },
+    // run the trickle-down: cascade current frame DOWN and converge into contact point.
+    // targetFn (optional) returns {x,y} in CSS px for the live headline position so the
+    // landing tracks the headline as scroll settles.
+    trickle(px, py, scale, dur, opts={}){
+      const targetFn=opts.targetFn, onDone=opts.onDone;
+      buildConvergeTarget('contactconverge', px, py, scale);
+      beginTrickle();
+      gsap.killTweensOf(__trickleProxy);
+      __trickleProxy.v=0;
+      if(SP_REDUCED || dur<=0){ trickleP=1; writeTrickle(); endTrickleInto('contactconverge'); onDone&&onDone(); return; }
+      gsap.to(__trickleProxy,{v:1, duration:dur!=null?dur:1.8, ease:'power2.inOut',
+        onUpdate(){ trickleP=__trickleProxy.v; dirty=true;
+          // re-aim toward the live headline (early-to-mid flight) so it lands on target
+          if(targetFn && trickleP<0.8){ const t=targetFn(); if(t) retargetTrickle(t.x,t.y,scale); }
+        },
+        onComplete(){
+          // m4: final re-aim at the settled target, then snap-park all points on it
+          if(targetFn){ const t=targetFn(); if(t){ buildConvergeTarget('contactconverge', t.x, t.y, scale); } }
+          endTrickleInto('contactconverge'); onDone&&onDone();
+        }});
+    },
+    isTrickling(){ return trickleActive; },
+    // set view props INSTANTLY (no tween, no render) — used so frame/converge targets are
+    // baked at the exact zoom they'll be displayed at, avoiding mid-tween misalignment.
+    seekViewOnly(props){ gsap.killTweensOf(view); Object.assign(view, props); dirty=true; },
+    setCenter(x,y,dur){ tweenView({centerX:x, centerY:y||0}, dur); },
+    setZoom(z,dur){ tweenView({zoom:z}, dur); },
+    setMouseAmp(a,dur){ tweenView({mouseAmp:a}, dur); },
+    setLineOpacity(o,dur){ tweenView({lineOpacity:o}, dur); },
+    setIntensity(v,dur){ tweenView({intensity:v}, dur); },
+    morphTo(key){ return setShape(key, {duration:0.9}); },
+    // capture/determinism hooks — stop loop, set state, render one clean frame
+    seekShape(from, to, b, viewProps){
+      if(raf){ cancelAnimationFrame(raf); raf=null; }
+      mouse.x=mouse.y=mouse.tx=mouse.ty=0;
+      if(from&&T[from]) curFrom=from;
+      if(to&&T[to]) curTo=to;
+      if(b!=null) blend=b;
+      if(viewProps) Object.assign(view, viewProps);
+      renderOnce(false);
+    },
+    snap(key, viewProps){ this.seekShape(key, key, 1, viewProps); },
+    mouse(x,y){
+      if(raf){ cancelAnimationFrame(raf); raf=null; }
+      mouse.x=mouse.tx=x; mouse.y=mouse.ty=y; renderOnce(true);
+    }
+  };
+})();
+</script>
+<script>
+const STILL = location.search.includes("still");   // ?still = one static frame, for offline/headless capture
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches || STILL;
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const worldwrap = $("#worldwrap"), ring = $("#ring"),
+      gate = $("#gate"), gateField = $("#gateField");
+
+let state = "threshold";          // threshold -> opening -> live
+let through = 0;                  // scroll progress 0..1 through the portal
+
+/* WAVE 1 #1: the hero hologram reel (2D point-cloud over world.jpg) is REMOVED.
+   The 3D node spine is now the only hero subject, on pure near-black. */
+
+/* small holographic orbs for the editorial + contact visuals */
+function makeOrb(canvas, hue){
+  const ctx = canvas.getContext("2d");
+  const DPR=Math.min(devicePixelRatio||1,2); let W,H;
+  function resize(){W=canvas.clientWidth;H=canvas.clientHeight;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+  new ResizeObserver(resize).observe(canvas); resize();
+  const ring = []; for(let i=0;i<180;i++) ring.push({a:Math.random()*6.28, r:0.2+Math.random()*0.78, sp:0.2+Math.random()*0.6, ph:Math.random()*6.28});
+  const t0=performance.now(); let raf=null, vis=false;
+  function frame(now){
+    if(!vis || document.hidden){ raf=null; return; }
+    const t=(now-t0)/1000; ctx.clearRect(0,0,W,H);
+    const cx=W*0.5, cy=H*0.5, R=Math.min(W,H)*0.42;
+    for(const p of ring){
+      const a=p.a+t*p.sp*0.4;
+      const rr=p.r*(1+Math.sin(t*0.6+p.ph)*0.06);
+      const x=cx+Math.cos(a)*R*rr;
+      const y=cy+Math.sin(a)*R*rr*0.62 + Math.sin(t+p.ph)*4;
+      const al=0.15+0.5*(0.5+0.5*Math.sin(t*1.5+p.ph));
+      ctx.fillStyle=`rgba(63,231,255,${al.toFixed(2)})`;
+      ctx.fillRect(x,y,1.4,1.4);
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  if(STILL){ vis=true; frame(performance.now()); return; }
+  new IntersectionObserver(es=>{ vis=es[0].isIntersecting; if(vis && !raf) raf=requestAnimationFrame(frame); },{rootMargin:"120px"}).observe(canvas);
+}
+$$("[data-orb]").forEach(c=>makeOrb(c));
+
+/* =====================================================================
+   WAVE 2 P3 — THREADS trail background (reactbits.dev "Threads"-style flowing
+   lines, adapted to single-file canvas — no React). A stack of horizontal lines
+   that ripple as travelling sine waves, brightening toward the centre, with a soft
+   mouse pull. Sits behind the #light projector node form so the section reads as a
+   hologram emitting light. Near-black + cyan/amber. Pauses when offscreen.
+   ===================================================================== */
+(function threads(){
+  const cv=$("#lightThreads"); if(!cv) return;
+  const ctx=cv.getContext("2d");
+  const DPR=Math.min(devicePixelRatio||1,2); let W=0,H=0;
+  function resize(){ W=cv.clientWidth; H=cv.clientHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  new ResizeObserver(resize).observe(cv); resize();
+  const LINES=reduce?0:20;
+  let mxL=0.5, myL=0.5;
+  cv.parentElement.addEventListener("pointermove",e=>{ const r=cv.getBoundingClientRect();
+    mxL=(e.clientX-r.left)/r.width; myL=(e.clientY-r.top)/r.height; });
+  const t0=performance.now(); let raf=null, vis=false;
+  function frame(now){
+    if(!vis || document.hidden){ raf=null; return; }
+    const t=(now-t0)/1000;
+    ctx.clearRect(0,0,W,H);
+    for(let li=0;li<LINES;li++){
+      const fr=li/(LINES-1);                       // 0..1 across the stack
+      const baseY=fr*H;
+      // amplitude + brightness peak toward the vertical centre, nudged by mouse y
+      const centre=Math.abs(fr-(0.5+ (myL-0.5)*0.5));
+      const amp=(1-centre*1.4)*H*0.10;
+      const bright=Math.max(0,1-centre*1.8);
+      if(bright<=0.02) continue;
+      const amber = li%5===0;
+      ctx.beginPath();
+      for(let px=0;px<=W;px+=6){
+        const nx=px/W;
+        // travelling wave + a second slower wave + mouse-x phase pull
+        const phase = t*1.1 + nx*7 + li*0.5 + (mxL-0.5)*2.0;
+        const y = baseY + Math.sin(phase)*amp*(0.6+0.4*Math.sin(t*0.6+li))
+                        + Math.sin(nx*3.0 - t*0.4)*amp*0.3;
+        if(px===0) ctx.moveTo(px,y); else ctx.lineTo(px,y);
+      }
+      const col = amber?`rgba(255,154,82,${(bright*0.30).toFixed(3)})`
+                       :`rgba(63,231,255,${(bright*0.34).toFixed(3)})`;
+      ctx.strokeStyle=col; ctx.lineWidth=1.1; ctx.stroke();
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  if(STILL){ vis=true; frame(performance.now()); return; }
+  new IntersectionObserver(es=>{ vis=es[0].isIntersecting; if(vis && !raf){ resize(); raf=requestAnimationFrame(frame);} },{rootMargin:"120px"}).observe(cv);
+})();
+
+/* =====================================================================
+   WAVE 1 #5 — STARFIELD: a depth-parallax star field that streams toward the
+   viewer, giving the #omni globe-dive its "immersing into SPACE" feeling.
+   Only animates while the #starfield layer is .on (set during the omni dive).
+   ===================================================================== */
+(function starfield(){
+  const cv = $("#starfield"); if(!cv) return;
+  const ctx = cv.getContext("2d");
+  const DPR = Math.min(devicePixelRatio||1, 2);
+  let W=0,H=0,cx=0,cy=0;
+  function resize(){
+    // m7 FIX: clamp to layout viewport (clientWidth/Height excludes scrollbar gutter)
+    W=document.documentElement.clientWidth||innerWidth;
+    H=document.documentElement.clientHeight||innerHeight; cx=W/2; cy=H/2;
+    cv.style.width=W+"px"; cv.style.height=H+"px";
+    cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  addEventListener("resize",resize); resize();
+  const NS = reduce?0:280, stars=[];
+  function spawn(s){ s.x=(Math.random()*2-1); s.y=(Math.random()*2-1); s.z=Math.random()*1+0.2; s.pz=s.z; }
+  for(let i=0;i<NS;i++){ const s={}; spawn(s); stars.push(s); }
+  let raf=null;
+  function frame(){
+    if(!cv.classList.contains("on")){ ctx.clearRect(0,0,W,H); raf=null; return; }
+    ctx.clearRect(0,0,W,H);
+    const spread=Math.min(W,H)*0.9;
+    for(const s of stars){
+      s.pz=s.z; s.z-=0.006; if(s.z<=0.05){ spawn(s); }
+      const sx=cx + (s.x/s.z)*spread*0.5;
+      const sy=cy + (s.y/s.z)*spread*0.5;
+      if(sx<0||sx>W||sy<0||sy>H) continue;
+      const px=cx + (s.x/s.pz)*spread*0.5, py=cy + (s.y/s.pz)*spread*0.5;
+      const a=Math.min(1,(1-s.z)*0.9), r=(1-s.z)*1.8+0.2;
+      ctx.strokeStyle=`rgba(180,225,255,${(a*0.7).toFixed(3)})`; ctx.lineWidth=r;
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(sx,sy); ctx.stroke();
+      ctx.fillStyle=`rgba(220,245,255,${a.toFixed(3)})`;
+      ctx.fillRect(sx-r/2,sy-r/2,r,r);
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  // expose a starter the choreography can call when omni becomes active
+  window.__starfield = { on(v){ cv.classList.toggle("on", v!==false); if(v!==false && !raf) raf=requestAnimationFrame(frame); } };
+})();
+
+/* =====================================================================
+   WAVE 1 #6 — VIDEO PLAYBACK: click the stage -> embed the Vimeo film (autoplay).
+   Vimeo id 1135167939. If the embed never reports ready, fall back to an HTML5 <video>.
+   (The ball -> video-frame morph transform is WAVE 2, not built here.)
+   ===================================================================== */
+const VIDEO = (function videoPlayer(){
+  const stage=$("#videoStage"); if(!stage) return {start(){},stop(){},play(){}};
+  const VIMEO_ID="1135167939";
+  const reel=$("#videoReel");
+  let started=false, reelRaf=null, reelVis=false, t0=0;
+
+  /* ---- LOCAL MUTED-LOOP FALLBACK REEL (canvas) ----
+     A small generated holographic "film": a scanning city/skyline of light bars with a
+     sweeping beam + drifting particles, near-black + cyan/amber. It runs muted, on loop,
+     INSIDE the node frame so the "video plays inside the outline" reads on localhost. */
+  const rctx = reel.getContext("2d");
+  const DPR=Math.min(devicePixelRatio||1,2); let RW=0,RH=0;
+  function rResize(){ RW=stage.clientWidth; RH=stage.clientHeight;
+    reel.width=RW*DPR; reel.height=RH*DPR; rctx.setTransform(DPR,0,0,DPR,0,0); }
+  new ResizeObserver(rResize).observe(stage);
+  const bars=[]; for(let i=0;i<46;i++) bars.push({x:Math.random(), w:0.006+Math.random()*0.02, h:0.1+Math.random()*0.6, ph:Math.random()*6.28, sp:0.4+Math.random()*1.0});
+  const motes=[]; for(let i=0;i<70;i++) motes.push({x:Math.random(), y:Math.random(), r:0.4+Math.random()*1.4, sp:0.02+Math.random()*0.06, ph:Math.random()*6.28});
+  function drawReel(now){
+    if(!reelVis || document.hidden){ reelRaf=null; return; }
+    const t=(now-t0)/1000;
+    rctx.clearRect(0,0,RW,RH);
+    // ground gradient
+    const g=rctx.createLinearGradient(0,0,0,RH);
+    g.addColorStop(0,"#04070e"); g.addColorStop(1,"#020306");
+    rctx.fillStyle=g; rctx.fillRect(0,0,RW,RH);
+    // horizon line
+    const horiz=RH*0.66;
+    rctx.strokeStyle="rgba(63,231,255,.25)"; rctx.lineWidth=1;
+    rctx.beginPath(); rctx.moveTo(0,horiz); rctx.lineTo(RW,horiz); rctx.stroke();
+    // skyline light bars rising from the horizon
+    for(const b of bars){
+      const bx=b.x*RW; const bh=(0.4+0.6*(0.5+0.5*Math.sin(t*b.sp+b.ph)))*b.h*horiz;
+      const amber=b.ph%2>1;
+      rctx.fillStyle=amber?"rgba(255,154,82,.5)":"rgba(63,231,255,.55)";
+      rctx.fillRect(bx, horiz-bh, b.w*RW, bh);
+      // reflection
+      rctx.globalAlpha=0.18; rctx.fillRect(bx, horiz, b.w*RW, bh*0.5); rctx.globalAlpha=1;
+    }
+    // sweeping vertical scan beam
+    const sweep=((t*0.18)%1)*RW;
+    const sg=rctx.createLinearGradient(sweep-60,0,sweep+60,0);
+    sg.addColorStop(0,"rgba(63,231,255,0)"); sg.addColorStop(0.5,"rgba(63,231,255,.16)"); sg.addColorStop(1,"rgba(63,231,255,0)");
+    rctx.fillStyle=sg; rctx.fillRect(sweep-60,0,120,RH);
+    // drifting motes
+    for(const m of motes){ const my=(m.y - (t*m.sp)%1 +1)%1;
+      rctx.fillStyle=`rgba(180,235,255,${(0.2+0.5*(0.5+0.5*Math.sin(t+m.ph))).toFixed(2)})`;
+      rctx.fillRect(m.x*RW, my*RH, m.r, m.r); }
+    // scanlines
+    rctx.globalAlpha=0.05; rctx.fillStyle="#000";
+    for(let y=0;y<RH;y+=3) rctx.fillRect(0,y,RW,1);
+    rctx.globalAlpha=1;
+    // title card lower-left
+    rctx.fillStyle="rgba(238,243,251,.7)"; rctx.font="11px 'IBM Plex Mono', monospace";
+    rctx.fillText("XR PIXELS · SHAPING TOMORROW", 16, RH-16);
+    reelRaf=requestAnimationFrame(drawReel);
+  }
+  function startReel(){ if(reelVis) return; rResize(); reelVis=true; t0=performance.now();
+    stage.classList.add("reel-on"); if(!reelRaf) reelRaf=requestAnimationFrame(drawReel); }
+  function stopReel(){ reelVis=false; stage.classList.remove("reel-on"); }
+
+  // production: click upgrades to the real Vimeo film (autoplay muted)
+  function play(){
+    if(started) return; started=true;
+    stage.classList.add("playing"); stopReel();
+    const iframe=document.createElement("iframe");
+    iframe.src=`https://player.vimeo.com/video/${VIMEO_ID}?autoplay=1&muted=1&loop=1&playsinline=1&title=0&byline=0&portrait=0`;
+    iframe.allow="autoplay; fullscreen; picture-in-picture";
+    iframe.setAttribute("allowfullscreen","");
+    iframe.title="Shaping Tomorrow with Holograms";
+    stage.appendChild(iframe);
+  }
+  stage.addEventListener("click",play);
+  stage.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); play(); } });
+
+  return { start:startReel, stop:stopReel, play, started:()=>started };
+})();
+
+/* ---- 0. THRESHOLD intro: real monogram draws in, accent field drains ---- */
+function intro(){
+  const paths = $$("#mark use, #mark path");
+  if(reduce){
+    gsap.set("#mark",{opacity:1,scale:1,rotate:0});
+    gsap.set(["#gateIdx","#welcome","#enter","#nosound"],{opacity:1,y:0});
+    return;
+  }
+  gsap.set("#mark",{opacity:0, scale:1.08, rotate:-1.2, transformOrigin:"50% 50%"});
+  gsap.set(".hl .mask i",{yPercent:110,y:0});   // headline hidden below its mask, GSAP-owned
+  const tl = gsap.timeline();
+  // 1 — the real monogram resolves: fades up + settles (analogue counterpoint wobble)
+  tl.to("#mark",{opacity:1, duration:1.0, ease:"power2.out"}, .2)
+    .fromTo("#mark",{rotate:-1.2,scale:1.08},{rotate:0,scale:1,duration:1.4,ease:"elastic.out(1,0.55)"}, .25)
+    // 2 — the accent field drains away to near-black (Indigo's frame flip)
+    .to("#gateField",{opacity:0, duration:1.2, ease:"power2.inOut"}, .9)
+    // 3 — threshold copy + affordances resolve in
+    .to("#gateIdx",{opacity:1, duration:.7}, 1.1)
+    .fromTo("#welcome",{y:10,opacity:0},{opacity:1, y:0, duration:.8, ease:"power2.out"}, 1.25)
+    .fromTo("#enter",{y:10,opacity:0},{opacity:1, y:0, duration:.7, ease:"power2.out"}, 1.5)
+    .to("#nosound",{opacity:1, duration:.7}, 1.65);
+}
+
+/* ---- 4+5. ENTER -> the world OPENS (iris wipe + headline split-reveal) ---- */
+function enterWorld(){
+  if(state!=="threshold") return;
+  state="opening";
+  if(reduce){
+    gsap.set("#gate",{display:"none"});
+    gsap.set("#worldwrap",{clipPath:"circle(150% at 50% 50%)"});
+    gsap.set(".hl .mask i",{yPercent:0, y:0});
+    gsap.set(["#topbar",".corner","#sub","#proof","#ring"],{opacity:1});
+    if(window.__spine){ window.__spine.show(true); window.__spine.snap("humanoid"); }
+    state="live"; return;
+  }
+  gsap.set("#worldwrap",{"--iris":"0.2%"});
+  gsap.set(".hl .mask i",{yPercent:110,y:0});   // own the start state in GSAP units (not the CSS %)
+  // reveal the persistent node field as the iris opens (humanoid figure of light)
+  if(window.__spine){ window.__spine.setShape("humanoid",{duration:0}); window.__spine.show(true); }
+  const tl = gsap.timeline({onComplete:()=>{ state="live"; gate.style.display="none"; }});
+  tl.to(".gate-inner",{opacity:0, y:-24, duration:.6, ease:"power3.in"}, 0)
+    .to("#gate",{opacity:0, duration:.9, ease:"power2.inOut"}, .35)
+    // iris opens: slit -> circle, calm weighty expo
+    .to("#worldwrap",{"--iris":"75%", duration:1.7, ease:"expo.out"}, .25)
+    .fromTo("#ring",{opacity:0,scale:.86},{opacity:1,scale:1,duration:1.0,ease:"power2.out"}, .5)
+    .to("#ring",{opacity:.0, duration:1.2, ease:"power2.inOut"}, 1.5)
+    .fromTo(".hl.top .mask i",{yPercent:110,y:0},{yPercent:0,y:0, duration:1.1, ease:"power4.out"}, .9)
+    .fromTo(".hl.bot .mask i",{yPercent:110,y:0},{yPercent:0,y:0, duration:1.1, ease:"power4.out"}, 1.0)
+    .to("#topbar",{opacity:1, duration:.8}, 1.2)
+    .to(".corner",{opacity:1, duration:.8, stagger:.1}, 1.3)
+    .to("#sub",{opacity:1, duration:.8}, 1.55)
+    .to("#proof",{opacity:1, duration:.8}, 1.7);
+}
+
+/* ---- 6. living idle: world drifts with pointer ---- */
+let mx=0,my=0,cx=0,cy=0;
+addEventListener("pointermove",e=>{ mx=(e.clientX/innerWidth-.5); my=(e.clientY/innerHeight-.5); });
+/* ---- 7. scroll: travel THROUGH the portal into chapter 02 ---- */
+const topbarEl = $("#topbar");
+addEventListener("scroll",()=>{
+  through=Math.min(1, scrollY/(innerHeight*1.1));
+  // WAVE 1 #2: persistent nav gains a blurred ground once scrolled off the very top
+  if(topbarEl) topbarEl.classList.toggle("scrolled", scrollY > 40);
+},{passive:true});
+
+function loop(){
+  cx+=(mx-cx)*.045; cy+=(my-cy)*.045;
+  if(state==="live"){
+    if(through>0){
+      worldwrap.style.setProperty("--iris", (75 + through*90)+"%");
+      $(".hero-copy").style.opacity = String(Math.max(0,1-through*1.8));
+      $(".sub-row").style.opacity   = String(Math.max(0,1-through*2.2));
+      $$(".corner").forEach(el=>el.style.opacity=String(Math.max(0,1-through*2.2)));
+      // WAVE 1 #2: nav is now a persistent sticky header — it must NOT fade on scroll.
+      const inCh = document.body.classList.contains("in-chapters");
+      $("#next").style.opacity = inCh ? "0" : String(Math.max(0, (through-0.55)/0.45));
+      $("#next").style.pointerEvents = (!inCh && through>0.7) ? "auto":"none";
+    } else {
+      // back at the very top: restore hero chrome opacity
+      $(".hero-copy").style.opacity = "1";
+      $(".sub-row").style.opacity   = "1";
+      $$(".corner").forEach(el=>el.style.opacity="1");
+      $("#next").style.opacity = "0";
+    }
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+
+$("#enter").addEventListener("click", enterWorld);
+$("#nosound").addEventListener("click", enterWorld);
+addEventListener("load", intro, {once:true});
+if(document.readyState==="complete") intro();
+
+/* ===== chapter reveals (Indigo-style: index + title + rule rise in) ===== */
+if(!reduce && window.ScrollTrigger){
+  gsap.registerPlugin(ScrollTrigger);
+  $$(".chapter").forEach(sec=>{
+    const items = sec.querySelectorAll("[data-reveal]");
+    gsap.to(items,{opacity:1, y:0, duration:.9, ease:"power3.out", stagger:.08,
+      scrollTrigger:{trigger:sec, start:"top 78%"}});
+  });
+} else {
+  // reduced-motion / still capture: show all chapter content statically
+  gsap.set("[data-reveal]",{opacity:1, y:0});
+}
+
+/* =====================================================================
+   M2 FIX — REDUCED-MOTION: statically retire the fixed hero stage once the
+   reader is past the hero. In reduced mode the spine choreography block below
+   (which owns the body.in-chapters toggle) never runs, so the fixed hero
+   overlays (.world-stage / .hero-copy / .next + the "Omnichannel 3D" handoff)
+   would bleed over #products / #preorder. Here we drive in-chapters off a
+   lightweight scroll check so chapters render clean with no hero overlap.
+   ===================================================================== */
+if(reduce){
+  const chaptersEl = document.getElementById("chapters");
+  const syncChapters = ()=>{
+    if(!chaptersEl) return;
+    const top = chaptersEl.getBoundingClientRect().top;
+    // once the chapters block reaches the upper viewport, retire the hero stage
+    document.body.classList.toggle("in-chapters", top <= window.innerHeight*0.85);
+  };
+  addEventListener("scroll", syncChapters, {passive:true});
+  addEventListener("resize", syncChapters, {passive:true});
+  syncChapters();
+}
+
+/* =====================================================================
+   SPINE SCROLL CHOREOGRAPHY — map each section to a node-field shape.
+   The persistent field morphs as the reader travels the page (Aldo's through-line):
+     hero      -> humanoid (figure of light); on scroll-out ZOOM IN then morph
+     #omni     -> network GLOBE, figure/field shifts LEFT (text arrives right)
+     #products -> GRID (custom 3D content)
+     #light    -> condensed holographic CORE
+     #ar       -> GLOBE held, stronger mouse-driven 3D parallax
+     #video    -> full field at its most expressive (globe, bright, fast spin)
+     #preorder -> CONVERGE to the core/ring ("comes together")
+   ===================================================================== */
+if(!reduce && window.ScrollTrigger && window.__spine){
+  const sp = window.__spine;
+
+  /* ====================================================================
+     WAVE 1 #3 — SCROLL POSITION IS THE SINGLE SOURCE OF TRUTH.
+     Every section owns one entry in SECTIONS: its authoritative shape + view.
+     applySection(id) is the ONLY thing that sets the resting shape. Returning
+     to the hero re-applies the humanoid. Hover is a TEMPORARY override that only
+     exists while #products is the active section AND the pointer is over a card;
+     it always reverts to the section shape. No sticky hover, no stale shape.
+     ==================================================================== */
+  const SECTIONS = {
+    hero:     { shape:"humanoid", view:{centerX:0,   centerY:0,   zoom:560, mouseAmp:1,   lineOpacity:0.16, intensity:1.12 } },
+    omni:     { shape:"globe",    view:{centerX:230, centerY:0,   zoom:540, mouseAmp:1,   lineOpacity:0.46, intensity:1   } },
+    products: { shape:"grid",     view:{centerX:0,   centerY:0,   zoom:600, mouseAmp:0.7, lineOpacity:0.46, intensity:1   } },
+    light:    { shape:"projector",view:{centerX:150, centerY:0,   zoom:520, mouseAmp:0.3, lineOpacity:0.42, intensity:1.18 } },
+    ar:       { shape:"goggles",  view:{centerX:-150,centerY:0,   zoom:520, mouseAmp:1.6, lineOpacity:0.42, intensity:1.18 } },
+    tiers:    { shape:"tierstack",view:{centerX:0,   centerY:60,  zoom:520, mouseAmp:0.3, lineOpacity:0.42, intensity:1.15 } },
+    // WAVE 2 P1: video + preorder are CUSTOM-driven (frame outline + trickle-down).
+    // These view values are the spine state used while the frame/converge is active
+    // (center 0 so the baked absolute world coords align to the real DOM rects).
+    video:    { shape:"videoframe",     view:{centerX:0, centerY:0, zoom:560, mouseAmp:0,   lineOpacity:0.7,  intensity:1.25} },
+    preorder: { shape:"contactconverge",view:{centerX:0, centerY:0, zoom:560, mouseAmp:0.4, lineOpacity:0.55, intensity:1.25} }
+  };
+
+  let activeId = "hero";
+  let hovering = false;          // true only while a #products card is hovered
+  // M1 FIX — single source of truth for which section dominates the viewport.
+  // An IntersectionObserver (below) keeps this current; the hero-scope scrub
+  // onUpdate only drives the humanoid zoom while the hero is genuinely the most
+  // visible section, so it can't keep re-asserting the hero on mobile while a
+  // chapter is on screen (the 300vh runway overlaps the first chapters).
+  let mostVisibleId = "hero";
+  function applySection(id, dur){
+    activeId = id;
+    hovering = false;            // any section change cancels a hover override
+    const pe = document.getElementById("products"); if(pe) pe.classList.remove("previewing");
+    const s = SECTIONS[id]; if(!s) return;
+    // fall back to grid if a dedicated sample wasn't built (keeps the field sane)
+    const builtin = ["humanoid","globe","grid","core"].includes(s.shape);
+    const key = (builtin || sp.sampled(s.shape)) ? s.shape : "grid";
+    sp.setShape(key, {duration: dur!=null?dur:1.0});
+    sp.tweenView(Object.assign({spinLock:0}, s.view), dur!=null?dur:1.0);
+  }
+
+  // retire the hero's fixed overlays the moment chapters take over (and restore on the way back)
+  ScrollTrigger.create({
+    trigger:"#chapters", start:"top 85%", end:"bottom bottom",
+    onToggle(self){ document.body.classList.toggle("in-chapters", self.isActive); }
+  });
+
+  /* --- HERO: authoritative. While the hero is on screen the shape IS the humanoid.
+     Scrolling back to the top RE-FORMS it (onEnterBack/onLeaveBack reset). The 300vh
+     hero-scope exit still drives the zoom-in feel via scrub, but the resting shape is
+     owned by applySection('hero'). */
+  ScrollTrigger.create({
+    trigger:"#hero-scope", start:"top top", end:"bottom top", scrub:true,
+    onUpdate(self){
+      const p=self.progress;                 // 0 at hero rest -> 1 at chapters
+      // M1 FIX: only drive the hero zoom while the HERO is the most-visible section.
+      // On mobile the 300vh runway stays "on screen" even after #products/#light/#ar
+      // have scrolled in; without this guard the hero zoom keeps fighting the chapter
+      // shapes and the humanoid never gives way to the grid/projector/goggles.
+      if(activeId==="hero" && mostVisibleId==="hero"){
+        // zoom INTO the humanoid as you leave the hero (immersive dive), then ease back
+        let z = p<0.55 ? gsap.utils.interpolate(560,300, p/0.55)
+                       : gsap.utils.interpolate(300,560, (p-0.55)/0.45);
+        sp.tweenView({zoom:z, intensity:1 + p*0.25}, 0.2);
+      }
+    },
+    onLeaveBack(){ if(window.__starfield) window.__starfield.on(false); applySection("hero", 0.9); }, // back to top -> reform humanoid
+    onEnterBack(){ if(window.__starfield) window.__starfield.on(false); applySection("hero", 0.9); }
+  });
+  // guarantee the resting hero shape at first paint
+  applySection("hero", 0);
+
+  const sf = window.__starfield;
+  // WAVE 1 #5: the OMNI moment — zoom DEEP into the globe (dive) then settle on the right,
+  // with the starfield streaming in so it reads as immersing into SPACE.
+  function enterOmni(){
+    activeId="omni"; hovering=false;
+    sp.setShape("globe", {duration:1.1});
+    if(sf) sf.on(true);
+    // dive: punch the camera deep into the ball, then ease back to the settled right-side rest
+    gsap.killTweensOf("__omniZoom");
+    const z={v:560};
+    gsap.to(z,{v:300, duration:0.7, ease:"power2.in", onUpdate(){ sp.setZoom(z.v,0); }});
+    gsap.to(z,{v:540, duration:1.5, ease:"power2.out", delay:0.7, onUpdate(){ sp.setZoom(z.v,0); }});
+    sp.tweenView({centerX:230, centerY:0, mouseAmp:1, lineOpacity:0.5, intensity:1.18}, 1.4);
+  }
+  function leaveOmni(){ if(sf) sf.on(false); }
+
+  /* ====================================================================
+     WAVE 2 P1 — THE VIDEO MOMENT.
+     On entering #video: measure the real .video-stage rect, morph the node field
+     into a rectangle OUTLINE tracing it (corner ticks), light the framed border,
+     and start the local muted-loop reel INSIDE the outline. The Vimeo embed stays
+     wired on click for production. On leaving DOWN -> the frame TRICKLES into contact.
+     ==================================================================== */
+  const videoStage = $("#videoStage");
+  function videoRect(){ const r=videoStage.getBoundingClientRect();
+    return { x:r.left, y:r.top, w:r.width, h:r.height }; }
+  function enterVideo(){
+    activeId="video"; hovering=false;
+    if(sf) sf.on(false);
+    const pe=$("#products"); if(pe) pe.classList.remove("previewing");
+    // snap zoom/center instantly so the rect is baked at the SAME zoom it's viewed at
+    sp.seekViewOnly({centerX:0, centerY:0, zoom:560, spinLock:1});
+    sp.tweenView({mouseAmp:0, lineOpacity:0.7, intensity:1.25}, 0.9);
+    sp.showFrame(videoRect(), 1.1);
+    videoStage.classList.add("framed");
+    if(VIDEO) VIDEO.start();              // local reel plays inside the outline immediately
+    // auto-upgrade to the real Vimeo film once the frame has formed (no click needed)
+    if(VIDEO) setTimeout(()=>{ if(activeId==="video") VIDEO.play(); }, 1200);
+  }
+  function leaveVideoUp(){
+    // scrolling back up out of video: drop the frame, restore reel off
+    videoStage.classList.remove("framed");
+  }
+
+  // M3 FIX — contact converge point = centre of the EMPTY left .visual panel (the
+  // column that holds the contact canvas), NOT the "We are waiting to hear from you"
+  // headline. On desktop the ring lands in the visual column to the left of the copy;
+  // when the layout stacks (<=980px) the .visual sits ABOVE the copy, so aiming at its
+  // centre keeps the ring clear of the headline and sub-paragraph on mobile too.
+  function contactPoint(){
+    const vis=$("#preorder .contact .visual");
+    if(vis){
+      const r=vis.getBoundingClientRect();
+      if(r.width>0 && r.height>0) return { x:r.left+r.width/2, y:r.top+r.height/2 };
+    }
+    // fallback: aim well above the copy block so it never crosses the text
+    const c=$("#preorder .ch-head")||$("#preorder");
+    const r=c.getBoundingClientRect();
+    return { x:r.left+r.width/2, y:r.top+r.height/2 };
+  }
+  let trickleArmed=false;
+  function enterPreorder(){
+    activeId="preorder"; hovering=false;
+    if(sf) sf.on(false);
+    sp.seekViewOnly({centerX:0, centerY:0, zoom:560, spinLock:1});
+    sp.tweenView({mouseAmp:0.4, lineOpacity:0.55, intensity:1.25}, 1.0);
+    // the frame DISSOLVES and POURS into the contact area, resolving on the headline.
+    // targetFn re-aims at the live headline so it lands on it even as scroll settles.
+    const p=contactPoint();
+    videoStage.classList.remove("framed");
+    sp.trickle(p.x, p.y, 200, 1.9, { targetFn:contactPoint });
+    trickleArmed=true;
+  }
+  function leavePreorderUp(){
+    // going back up to video: re-form the frame
+    if(trickleArmed){ trickleArmed=false; }
+    enterVideo();
+  }
+
+  // each section claims the field when it dominates the viewport (down AND back up)
+  function claim(id){
+    if(id==="omni"){
+      ScrollTrigger.create({
+        trigger:"#omni", start:"top 60%", end:"bottom 40%",
+        onEnter:enterOmni, onEnterBack:enterOmni,
+        onLeave:leaveOmni, onLeaveBack:leaveOmni
+      });
+      return;
+    }
+    if(id==="ar"){
+      // WAVE 2 P2: goggles-on. Apply the section shape (strong-parallax goggles) AND
+      // slide the content in from the sides with a blur-focus snap.
+      const arSec=$("#ar"); const vis=$("#ar .visual"); const lead=$("#ar .editorial > p.lead");
+      function arIn(){
+        if(sf) sf.on(false); applySection("ar");
+        arSec.classList.add("gog-in");
+        gsap.fromTo(vis,{x:"-9vw",opacity:0,filter:"blur(8px)"},
+          {x:0,opacity:1,filter:"blur(0px)",duration:1.0,ease:"power3.out",overwrite:"auto"});
+        gsap.fromTo(lead,{x:"9vw",opacity:0,filter:"blur(6px)"},
+          {x:0,opacity:1,filter:"blur(0px)",duration:1.0,ease:"power3.out",delay:0.08,overwrite:"auto"});
+      }
+      ScrollTrigger.create({
+        trigger:"#ar", start:"top 60%", end:"bottom 40%",
+        onEnter:arIn, onEnterBack:arIn,
+        onLeaveBack(){ arSec.classList.remove("gog-in"); }
+      });
+      return;
+    }
+    if(id==="video"){
+      ScrollTrigger.create({
+        trigger:"#video", start:"top 62%", end:"bottom 38%",
+        onEnter:enterVideo, onEnterBack:enterVideo,
+        onLeaveBack:leaveVideoUp
+      });
+      return;
+    }
+    if(id==="preorder"){
+      ScrollTrigger.create({
+        trigger:"#preorder", start:"top 70%", end:"bottom bottom",
+        onEnter:enterPreorder, onEnterBack:enterPreorder,
+        onLeaveBack:leavePreorderUp
+      });
+      return;
+    }
+    ScrollTrigger.create({
+      trigger:"#"+id, start:"top 60%", end:"bottom 40%",
+      onEnter(){ if(sf) sf.on(false); applySection(id); },
+      onEnterBack(){ if(sf) sf.on(false); applySection(id); }
+    });
+  }
+  ["omni","products","light","ar","tiers","video","preorder"].forEach(claim);
+
+  /* ====================================================================
+     M1 FIX — INTERSECTION-OBSERVER SINGLE SOURCE OF TRUTH.
+     The claim() ScrollTriggers above handle the rich entry choreography, but on
+     narrow/mobile viewports the 300vh hero runway overlaps the first chapters and
+     the scrub trigger could keep re-asserting the hero. This observer watches every
+     chapter (plus the hero) and elects the MOST-VISIBLE section as the authority.
+     It updates `mostVisibleId` (which guards the hero zoom) and, if the elected
+     section isn't already active, drives its shape — guaranteeing #products/#light/#ar
+     morph correctly at 390px regardless of trigger ordering. The `ar` slide-in and
+     omni/video/preorder custom moments stay owned by claim(); this observer only
+     reasserts the resting SHAPE if it drifts, so it never double-fires their effects. */
+  const goToSection = (id)=>{
+    if(id==="hero"){ if(activeId!=="hero") applySection("hero", 0.9); return; }
+    if(activeId===id) return;                 // already owned — don't re-trigger
+    if(sf) sf.on(id==="omni");
+    if(id==="omni"){ enterOmni(); return; }
+    if(id==="ar"){
+      const arSec=$("#ar");
+      applySection("ar");
+      if(arSec && !arSec.classList.contains("gog-in")) arSec.classList.add("gog-in");
+      return;
+    }
+    if(id==="video"){ enterVideo(); return; }
+    if(id==="preorder"){ enterPreorder(); return; }
+    applySection(id);                          // products / light / tiers
+  };
+
+  const OBSERVED = ["hero","omni","products","light","ar","tiers","video","preorder"];
+  const onScreen = Object.create(null);          // ids currently intersecting at all
+  OBSERVED.forEach(id=>onScreen[id]=false);
+  const elFor = (id)=> id==="hero" ? document.getElementById("hero-scope") : document.getElementById(id);
+  let ssotRaf=0;
+  // Elect by VISIBLE VIEWPORT COVERAGE (px of the viewport the section occupies), NOT by
+  // intersectionRatio — a short section (#omni is just an intro line) scores a high
+  // element-fraction while covering little screen, which would wrongly keep the globe
+  // active over #products. Coverage = clamp(min(rect.bottom,vh) - max(rect.top,0)).
+  function electSection(){
+    ssotRaf=0;
+    const vh = window.innerHeight, mid = vh*0.5;
+    let bestId="hero", best=-1;
+    for(const id of OBSERVED){
+      if(!onScreen[id]) continue;
+      const el = elFor(id); if(!el) continue;
+      const r = el.getBoundingClientRect();
+      const cover = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+      // bias toward the section crossing the vertical middle of the viewport so a
+      // section whose body sits under the reader wins over a sliver of the previous one
+      const crossesMid = (r.top <= mid && r.bottom >= mid) ? vh*0.25 : 0;
+      const score = cover + crossesMid;
+      if(score>best){ best=score; bestId=id; }
+    }
+    if(best<=0) return;
+    mostVisibleId = bestId;
+    // single source of truth for retiring the hero overlays (incl. the #next handoff card):
+    // the moment any chapter is the most-visible section, we're "in chapters".
+    document.body.classList.toggle("in-chapters", bestId!=="hero");
+    if(hovering && bestId==="products") return;   // don't yank shape during a card hover
+    goToSection(bestId);
+  }
+  const ssotObserver = new IntersectionObserver((entries)=>{
+    for(const e of entries){
+      const id = e.target===document.getElementById("hero-scope") ? "hero" : e.target.id;
+      if(id in onScreen) onScreen[id] = e.isIntersecting;
+    }
+    if(!ssotRaf) ssotRaf = requestAnimationFrame(electSection);
+  }, { threshold:[0,0.01,0.25,0.5,0.75,1] });
+  OBSERVED.forEach(id=>{ const el=elFor(id); if(el) ssotObserver.observe(el); });
+  // also re-elect on scroll (coverage changes continuously between observer thresholds)
+  addEventListener("scroll", ()=>{ if(!ssotRaf) ssotRaf = requestAnimationFrame(electSection); }, {passive:true});
+
+  /* ===== PER-CARD HOVER on #products — recognizable product node-targets =====
+     Each card morphs the field into the ACTUAL product silhouette. Hover only takes
+     effect when #products is the active section; on mouseleave OR any scroll/section
+     change it reverts to the products grid via applySection. */
+  const CARD_TARGET = {
+    "Avatar":"figure", "Slots":"slot", "Pick & Learn":"panel", "Snap Station":"booth",
+    "Premiere":"cinema", "HoloTwin":"holotwin", "Omega Wall":"wall", "Live Streaming":"broadcast"
+  };
+  const productsEl = $("#products");
+  $$("#products .card").forEach(card=>{
+    const title = (card.querySelector(".c-title")||{}).textContent.trim() || "";
+    const target = CARD_TARGET[title] || "grid";
+    card.addEventListener("mouseenter", ()=>{
+      if(activeId!=="products") return;          // hover only while products is active
+      hovering = true;
+      card.classList.add("spine-hot");
+      productsEl.classList.add("previewing");     // dim the rest of the grid so the form reads
+      const built = sp.sampled(target) ? target : "grid";
+      sp.setShape(built, {duration:0.6});
+      // SHAPES2: bright, large, viewport-centred product silhouette over the (now dimmed) grid.
+      // Edge-biased points trace the contour, so KEEP the node-mesh on (lineOpacity up) to draw
+      // the outline. Tighter zoom (520) makes the fitted shape fill ~60% vh. Low mouseAmp so the
+      // form holds its shape instead of being shredded by the repel.
+      sp.tweenView({centerX:0, centerY:-10, zoom:520, mouseAmp:0.10, lineOpacity:0.40, intensity:1.18}, 0.5);
+    });
+    card.addEventListener("mouseleave", ()=>{
+      card.classList.remove("spine-hot");
+      if(!hovering) return;
+      hovering = false;
+      productsEl.classList.remove("previewing");
+      // revert to the section shape (grid) — never leave a product silhouette stuck
+      if(activeId==="products") applySection("products", 0.6);
+    });
+  });
+}
+
+/* ===== deterministic seek hook for offline capture (bypasses rAF throttling) ===== */
+window.__hero = {
+  ready:()=>true,
+  seek(beat, opt={}){
+    gsap.globalTimeline.getChildren().forEach(t=>t.kill());
+    const showWorld=(iris)=>{ gate.style.display="none"; state="live";
+      worldwrap.style.setProperty("--iris", iris+"%"); };
+    switch(beat){
+      case "threshold-field":
+        gate.style.display="grid"; gateField.style.opacity="1";
+        gsap.set("#mark",{opacity:1,rotate:0,scale:1});
+        gsap.set(["#gateIdx","#welcome","#enter","#nosound"],{opacity:0});
+        break;
+      case "threshold-ready":
+        gate.style.display="grid"; gateField.style.opacity="0";
+        gsap.set("#mark",{opacity:1,rotate:0,scale:1});
+        gsap.set(["#gateIdx","#welcome","#enter","#nosound"],{opacity:1,y:0});
+        break;
+      case "iris-slit":
+        showWorld(14); gsap.set("#gate",{opacity:0});
+        gsap.set(".hl .mask i",{yPercent:110, y:0}); gsap.set("#ring",{opacity:.9,scale:.92});
+        gsap.set(["#topbar",".corner","#sub","#proof"],{opacity:0});
+        break;
+      case "headline":
+        showWorld(75); gsap.set("#gate",{opacity:0,display:"none"});
+        gsap.set(".hl .mask i",{yPercent:0, y:0}); gsap.set("#ring",{opacity:0});
+        gsap.set(["#topbar",".corner","#sub","#proof"],{opacity:1});
+        break;
+      case "idle":
+        showWorld(75); gsap.set("#gate",{display:"none"});
+        gsap.set(".hl .mask i",{yPercent:0, y:0});
+        gsap.set(["#topbar",".corner","#sub","#proof"],{opacity:1}); gsap.set("#ring",{opacity:0});
+        mx=opt.mx||0; my=opt.my||0;
+        break;
+      case "through":
+        showWorld(75); gsap.set("#gate",{display:"none"});
+        gsap.set(".hl .mask i",{yPercent:0, y:0});
+        through=opt.t??0.85; scrollTo(0, innerHeight*1.1*through);
+        break;
+    }
+  }
+};
+</script>
+</body>
+</html>
