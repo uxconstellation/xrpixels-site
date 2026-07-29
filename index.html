@@ -205,6 +205,32 @@
   [data-reveal]{opacity:0;transform:translateY(26px);will-change:transform,opacity}
 
   /* product grid: 8 cards, eyebrow + title + thin rule (4+4) */
+  /* real client work under Omnichannel. Same 1px hairline grid as the product cards so the
+     two read as one system. These tiles carry footage, so unlike .card they are opaque —
+     the node field runs behind the section rather than through them. */
+  .work-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+     margin-top:var(--s6);border:1px solid var(--line)}
+  .work{position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--bg-2) center/cover no-repeat;
+     transition:box-shadow .4s ease}
+  .work video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  /* legibility is a LAYER, never a text shadow */
+  /* The caption zone holds a near-solid floor rather than a steep fade. Measured over the
+     brighter clips the old .9-to-.12 ramp left a 29-36 backdrop peaking at 122, and above
+     ~112 no text colour can reach AA 4.5:1 at all — the scrim has to do the work. */
+  .work .w-scrim{position:absolute;inset:0;pointer-events:none;
+     background:linear-gradient(0deg, rgba(3,3,5,.94) 0%, rgba(3,3,5,.88) 26%, rgba(3,3,5,.10) 62%, rgba(3,3,5,.26) 100%)}
+  .work figcaption{position:absolute;left:16px;right:16px;bottom:14px;font-family:var(--mono);
+     font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink)}
+  /* --muted is tuned for body copy on the page background; at 10px over footage it does
+     not clear 4.5:1, so this line runs brighter than the site's default secondary tone. */
+  .work figcaption span{display:block;margin-top:6px;font-size:10px;letter-spacing:.1em;
+     text-transform:none;color:rgba(238,243,251,.74)}
+  .work:hover{box-shadow:inset 0 0 0 1px rgba(63,231,255,.4),0 0 40px -8px rgba(63,231,255,.5)}
+  /* reduced motion: hold the poster still rather than looping footage */
+  @media (prefers-reduced-motion: reduce){ .work video{visibility:hidden} }
+  @media (max-width:900px){ .work-grid{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:560px){ .work-grid{grid-template-columns:1fr} }
+
   .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin-top:var(--s6);border:1px solid var(--line)}
   /* translucent cards so the GRID node field reads through the product grid; backdrop-blur keeps copy crisp */
   .card{position:relative;background:rgba(4,6,12,.62);backdrop-filter:blur(3px);padding:var(--s5) var(--s4) var(--s6);min-height:230px;
@@ -462,6 +488,31 @@
           </div>
         </div>
         <p class="lead" data-reveal>We transform <b>brand activations</b> into immersive, floating <b>3D experiences.</b> Through interactive <b>AR</b> and fully <b>explorable digital environments</b>, audiences don't just see your brand, they step inside it.</p>
+
+        <!-- Real delivered work. Videos are decorative; the figcaption carries the meaning.
+             Poster doubles as the .work background so reduced-motion holds a still frame. -->
+        <div class="work-grid" data-reveal>
+          <figure class="work" style="background-image:url(work-concert.png)">
+            <video src="work-concert.mp4" poster="work-concert.png" autoplay loop muted playsinline preload="metadata" aria-hidden="true"></video>
+            <div class="w-scrim"></div>
+            <figcaption>Concert<span>Live-stage holograms</span></figcaption>
+          </figure>
+          <figure class="work" style="background-image:url(work-city.png)">
+            <video src="work-city.mp4" poster="work-city.png" autoplay loop muted playsinline preload="metadata" aria-hidden="true"></video>
+            <div class="w-scrim"></div>
+            <figcaption>City<span>3D anamorphic billboards</span></figcaption>
+          </figure>
+          <figure class="work" style="background-image:url(work-retail.png)">
+            <video src="work-retail.mp4" poster="work-retail.png" autoplay loop muted playsinline preload="metadata" aria-hidden="true"></video>
+            <div class="w-scrim"></div>
+            <figcaption>Retail<span>Transit and mall activation</span></figcaption>
+          </figure>
+          <figure class="work" style="background-image:url(work-broadcast.png)">
+            <video src="work-broadcast.mp4" poster="work-broadcast.png" autoplay loop muted playsinline preload="metadata" aria-hidden="true"></video>
+            <div class="w-scrim"></div>
+            <figcaption>Broadcast<span>3D advertising on connected TV</span></figcaption>
+          </figure>
+        </div>
       </div>
     </section>
 
