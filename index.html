@@ -330,6 +330,14 @@
   .play .disc svg{width:22px;height:22px;margin-left:4px}
   .play span{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--ink);text-transform:uppercase}
 
+  /* honeypot: off-screen rather than display:none, which some bots skip */
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  .form-status{margin-top:14px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;
+    min-height:1.2em;color:var(--muted)}
+  .form-status.ok{color:var(--cyan)}
+  .form-status.bad{color:#ff9a52}
+  .preorder button[disabled]{opacity:.55;cursor:progress}
+
   /* contact / pre-order */
   .contact{display:grid;grid-template-columns:.9fr 1.1fr;gap:var(--s7);align-items:stretch}
   .contact .visual{border:1px solid var(--line);position:relative;overflow:hidden;border-radius:2px;min-height:420px;
@@ -679,14 +687,20 @@
           <div data-reveal>
             <h4>We are waiting to hear from you</h4>
             <p class="h-sub">Tell us about your activation. We will reply with a route into a world beyond the screen.</p>
-            <form class="preorder" onsubmit="return false">
-              <div class="field"><label for="fn">Full Name *</label><input id="fn" type="text" required placeholder="Your name"></div>
+            <!-- Posts to the Pages Function at /api/contact, which mails both
+                 inboxes. The fields previously had no name attributes and the
+                 form was onsubmit="return false", so nothing was ever sent. -->
+            <form class="preorder" id="contactForm" novalidate>
+              <div class="field"><label for="fn">Full Name *</label><input id="fn" name="name" type="text" required autocomplete="name" placeholder="Your name"></div>
               <div class="row2">
-                <div class="field"><label for="ph">Phone *</label><input id="ph" type="tel" required placeholder="+00 000 000 000"></div>
-                <div class="field"><label for="em">E-mail *</label><input id="em" type="email" required placeholder="you@brand.com"></div>
+                <div class="field"><label for="ph">Phone *</label><input id="ph" name="phone" type="tel" required autocomplete="tel" placeholder="+00 000 000 000"></div>
+                <div class="field"><label for="em">E-mail *</label><input id="em" name="email" type="email" required autocomplete="email" placeholder="you@brand.com"></div>
               </div>
-              <div class="field"><label for="msg">Message</label><textarea id="msg" placeholder="What are we building?"></textarea></div>
-              <button class="btn" type="submit">Send message</button>
+              <div class="field"><label for="msg">Message</label><textarea id="msg" name="message" placeholder="What are we building?"></textarea></div>
+              <!-- honeypot: hidden from people, tempting to bots -->
+              <div class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+              <button class="btn" type="submit" id="contactSend">Send message</button>
+              <p class="form-status" id="contactStatus" role="status" aria-live="polite"></p>
             </form>
           </div>
         </div>
@@ -2281,6 +2295,56 @@ window.__hero = {
     }
   }
 };
+</script>
+
+<script>
+/* Contact form -> Pages Function that mails marketing@xrpixels.com and
+   aldo@uxconstellation.com. This site is static on GitHub Pages, so the send
+   happens server-side on the deck's Pages project.
+   Switch ENDPOINT to https://xrpixels.win/api/contact once that domain is
+   attached to the Pages project; both origins are already allowed by CORS. */
+(function () {
+  var ENDPOINT = 'https://xrpixels.pages.dev/api/contact';
+  var form = document.getElementById('contactForm');
+  if (!form) return;
+  var status = document.getElementById('contactStatus');
+  var button = document.getElementById('contactSend');
+
+  function say(msg, kind) {
+    status.textContent = msg;
+    status.className = 'form-status' + (kind ? ' ' + kind : '');
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var data = new FormData(form);
+    var name = (data.get('name') || '').trim();
+    var email = (data.get('email') || '').trim();
+
+    // Validated here as well as on the server: novalidate is set so the browser
+    // does not show its own bubble over the dark theme.
+    if (!name || !email) return say('Please add your name and e-mail.', 'bad');
+    if (!/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(email)) return say('That e-mail address does not look right.', 'bad');
+
+    button.disabled = true;
+    say('Sending…');
+
+    fetch(ENDPOINT, { method: 'POST', body: data })
+      .then(function (r) { return r.json().catch(function () { return { ok: r.ok }; }); })
+      .then(function (r) {
+        if (r && r.ok) {
+          form.reset();
+          say('Thank you. We will be in touch shortly.', 'ok');
+        } else {
+          say((r && r.error) || 'Could not send just now. Please email marketing@xrpixels.com.', 'bad');
+        }
+      })
+      .catch(function () {
+        say('Could not reach us just now. Please email marketing@xrpixels.com.', 'bad');
+      })
+      .then(function () { button.disabled = false; });
+  });
+})();
 </script>
 </body>
 </html>
