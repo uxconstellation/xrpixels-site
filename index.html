@@ -2302,9 +2302,10 @@ window.__hero = {
    aldo@uxconstellation.com through Cloudflare's own Email Routing send_email
    binding. No third-party mail provider.
    It is a Worker rather than a Pages Function because Pages Functions support
-   only a subset of bindings and send_email is not one of them. */
+   only a subset of bindings and send_email is not one of them.
+   Served on the brand domain via a Worker route (xrpixels.win/api/*). */
 (function () {
-  var ENDPOINT = 'https://xrpixels-contact.aldo-144.workers.dev';
+  var ENDPOINT = 'https://xrpixels.win/api/contact';
   var form = document.getElementById('contactForm');
   if (!form) return;
   var status = document.getElementById('contactStatus');
