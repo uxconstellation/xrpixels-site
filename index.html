@@ -2298,13 +2298,13 @@ window.__hero = {
 </script>
 
 <script>
-/* Contact form -> Pages Function that mails marketing@xrpixels.com and
-   aldo@uxconstellation.com. This site is static on GitHub Pages, so the send
-   happens server-side on the deck's Pages project.
-   Switch ENDPOINT to https://xrpixels.win/api/contact once that domain is
-   attached to the Pages project; both origins are already allowed by CORS. */
+/* Contact form -> Cloudflare Worker that mails marketing@xrpixels.com and
+   aldo@uxconstellation.com through Cloudflare's own Email Routing send_email
+   binding. No third-party mail provider.
+   It is a Worker rather than a Pages Function because Pages Functions support
+   only a subset of bindings and send_email is not one of them. */
 (function () {
-  var ENDPOINT = 'https://xrpixels.pages.dev/api/contact';
+  var ENDPOINT = 'https://xrpixels-contact.aldo-144.workers.dev';
   var form = document.getElementById('contactForm');
   if (!form) return;
   var status = document.getElementById('contactStatus');
