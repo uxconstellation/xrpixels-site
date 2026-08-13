@@ -152,12 +152,15 @@
      The pill nav is unusable under 640px, so it is swapped for a burger that opens
      a native <dialog>. Native buys the Escape key, the focus trap and the inert
      backdrop for free, which a hand-rolled div would all have to re-implement. */
-  .burger{display:none;width:44px;height:44px;align-items:center;justify-content:center;
-     background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:12px;
-     padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-  .burger span{display:block;width:18px;height:1.5px;background:var(--ink);border-radius:2px;
-     transition:transform .3s ease,opacity .2s ease}
-  .burger span + span{margin-top:5px}
+  /* A labelled pill, not a bare icon. Vishal could not tell it was a menu, and he
+     is right: three lines are only obvious to people who already know the pattern. */
+  .burger{display:none;align-items:center;gap:9px;height:44px;padding:0 14px 0 12px;
+     background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:999px;
+     cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .burger .bars{display:flex;flex-direction:column;justify-content:center;gap:4px;width:18px}
+  .burger .bars span{display:block;width:100%;height:1.5px;background:var(--ink);border-radius:2px}
+  .burger-word{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+     color:var(--ink);line-height:1}
   .burger:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 
   #navSheet{border:0;padding:0;margin:0;width:100%;max-width:none;height:100%;max-height:none;
@@ -438,6 +441,48 @@
   <!-- WAVE 1 #5: STARFIELD — fades in as #omni arrives so the globe-dive reads as immersing into space -->
   <canvas id="starfield" aria-hidden="true"></canvas>
 
+  <!-- ===================== SITE CHROME =====================
+       The header lives OUT here as a sibling of #hero-scope and #chapters, not
+       inside the hero. Nested in #hero-scope (z-index 1) its own z-index:20 was
+       scoped to that context, so #chapters (z-index 7) painted straight over it
+       and the whole header went click-dead the moment you scrolled off the hero.
+       Out here the 20 actually competes with the 7 and wins. -->
+  <header class="topbar" id="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 1913 1946" aria-hidden="true">
+        <use href="#xr-mono"/>
+      </svg>
+      <span class="brand-word">XR&nbsp;PIXELS</span>
+    </div>
+    <nav class="navpill">
+      <a href="#products">3D</a><span class="sep"></span>
+      <a href="#light">Holograms</a><span class="sep"></span>
+      <a href="#tiers">All-in-one</a><span class="sep"></span>
+      <a href="#preorder">Contact</a>
+    </nav>
+    <div class="lang">EN ⌄</div>
+    <button class="burger" id="burger" type="button" aria-label="Open menu" aria-controls="navSheet" aria-expanded="false">
+      <span class="bars" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="burger-word" aria-hidden="true">Menu</span>
+    </button>
+  </header>
+
+  <dialog id="navSheet" aria-label="Menu">
+    <div class="sheet-in">
+      <div class="sheet-top">
+        <span class="sheet-foot" style="padding:0">XR&nbsp;PIXELS</span>
+        <button class="sheet-close" id="sheetClose" type="button" aria-label="Close menu">&times;</button>
+      </div>
+      <nav class="sheet-nav">
+        <a href="#products">3D</a>
+        <a href="#light">Holograms</a>
+        <a href="#tiers">All-in-one</a>
+        <a href="#preorder">Contact</a>
+      </nav>
+      <div class="sheet-foot">Omnichannel&nbsp;3D</div>
+    </div>
+  </dialog>
+
   <!-- ===================== HERO SCOPE (fixed cinematic stage) ===================== -->
   <div id="hero-scope">
 
@@ -450,41 +495,6 @@
       <div class="scrim"></div>
     </div>
 
-    <!-- HERO chrome over the world -->
-    <header class="topbar" id="topbar">
-      <div class="brand">
-        <svg class="brand-mark" viewBox="0 0 1913 1946" aria-hidden="true">
-          <use href="#xr-mono"/>
-        </svg>
-        <span class="brand-word">XR&nbsp;PIXELS</span>
-      </div>
-      <nav class="navpill">
-        <a href="#products">3D</a><span class="sep"></span>
-        <a href="#light">Holograms</a><span class="sep"></span>
-        <a href="#tiers">All-in-one</a><span class="sep"></span>
-        <a href="#preorder">Contact</a>
-      </nav>
-      <div class="lang">EN ⌄</div>
-      <button class="burger" id="burger" type="button" aria-label="Open menu" aria-controls="navSheet" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-    </header>
-
-    <dialog id="navSheet" aria-label="Menu">
-      <div class="sheet-in">
-        <div class="sheet-top">
-          <span class="sheet-foot" style="padding:0">XR&nbsp;PIXELS</span>
-          <button class="sheet-close" id="sheetClose" type="button" aria-label="Close menu">&times;</button>
-        </div>
-        <nav class="sheet-nav">
-          <a href="#products">3D</a>
-          <a href="#light">Holograms</a>
-          <a href="#tiers">All-in-one</a>
-          <a href="#preorder">Contact</a>
-        </nav>
-        <div class="sheet-foot">Omnichannel&nbsp;3D</div>
-      </div>
-    </dialog>
     <div class="corner tl" id="ctl">XRPIXELS&nbsp;COLLECTIVE<br>OMNICHANNEL&nbsp;3D</div>
 
     <div class="hero-copy">
