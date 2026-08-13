@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "xrpixels-com",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-01",
+
+  // Custom Domains, not routes. Cloudflare creates the DNS records and issues the
+  // certificates itself, which matters here because the token used to deploy this
+  // cannot write DNS.
+  //
+  // These only attach once xrpixels.com is an active zone in the account AND the
+  // apex A record and www CNAME imported from Plesk have been deleted. Cloudflare
+  // refuses a Custom Domain on a hostname that already holds a record — that is
+  // exactly what blocked xrpixels.win.
+  "routes": [
+    { "pattern": "xrpixels.com", "custom_domain": true },
+    { "pattern": "www.xrpixels.com", "custom_domain": true }
+  ],
+
+  // The site is fully static. No worker-first here, unlike the deck: there is no
+  // gate and no private content, so letting assets serve directly is both correct
+  // and faster.
+  "assets": {
+    "directory": "../dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  },
+
+  "workers_dev": false,
+  "observability": { "enabled": true }
+}

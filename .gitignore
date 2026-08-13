@@ -1,3 +1,5 @@
 _proof*/
 node_modules/
 *.mjs
+
+dist/
