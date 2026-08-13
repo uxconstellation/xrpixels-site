@@ -148,11 +148,39 @@
   .navpill .sep{width:3px;height:3px;border-radius:50%;background:var(--muted);opacity:.6}
   .lang{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.1em}
 
+  /* ===== mobile navigation =====
+     The pill nav is unusable under 640px, so it is swapped for a burger that opens
+     a native <dialog>. Native buys the Escape key, the focus trap and the inert
+     backdrop for free, which a hand-rolled div would all have to re-implement. */
+  .burger{display:none;width:44px;height:44px;align-items:center;justify-content:center;
+     background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:12px;
+     padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .burger span{display:block;width:18px;height:1.5px;background:var(--ink);border-radius:2px;
+     transition:transform .3s ease,opacity .2s ease}
+  .burger span + span{margin-top:5px}
+  .burger:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+
+  #navSheet{border:0;padding:0;margin:0;width:100%;max-width:none;height:100%;max-height:none;
+     background:rgba(3,3,6,.97);color:var(--ink)}
+  #navSheet::backdrop{background:rgba(3,3,6,.6);backdrop-filter:blur(6px)}
+  .sheet-in{display:flex;flex-direction:column;height:100%;padding:20px}
+  .sheet-top{display:flex;align-items:center;justify-content:space-between;min-height:44px}
+  .sheet-close{width:44px;height:44px;display:grid;place-items:center;background:none;border:0;
+     color:var(--ink);font-size:26px;line-height:1;cursor:pointer;border-radius:12px}
+  .sheet-close:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+  .sheet-nav{display:flex;flex-direction:column;justify-content:center;flex:1;gap:4px}
+  /* 56px rows clear the 44px touch-target floor with room to spare */
+  .sheet-nav a{color:var(--ink);text-decoration:none;font-size:26px;font-weight:600;
+     letter-spacing:-.01em;padding:15px 0;border-bottom:1px solid var(--line)}
+  .sheet-nav a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+  .sheet-foot{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+     color:var(--muted);padding-bottom:8px}
+  @media (prefers-reduced-motion:reduce){.burger span{transition:none}}
+
   /* m5 FIX: was rgba(140,160,185,.6) = 3.27:1 (sub-AA). Raised to clear AA 4.5:1 on near-black. */
   .corner{position:fixed;z-index:6;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
      color:rgba(166,184,207,.95);line-height:1.7;opacity:0;will-change:opacity}
   .corner.tl{top:92px;left:var(--gutter)}
-  .corner.tr{top:92px;right:var(--gutter);text-align:right}
   .corner .hot{color:var(--cyan)}
 
   /* headline — split around the portal (WILD split-reveal mechanic) */
@@ -369,7 +397,7 @@
   }
   @media (max-width:640px){
     :root{--gutter:20px}
-    .topbar{padding:16px 20px}.navpill{display:none}
+    .topbar{padding:16px 20px}.navpill{display:none}.burger{display:flex}.lang{display:none}
     .hero-copy{gap:40vmin}
     .product-grid{grid-template-columns:1fr}
     .ch-head{flex-direction:column;gap:6px}
@@ -437,9 +465,27 @@
         <a href="#preorder">Contact</a>
       </nav>
       <div class="lang">EN ⌄</div>
+      <button class="burger" id="burger" type="button" aria-label="Open menu" aria-controls="navSheet" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </header>
+
+    <dialog id="navSheet" aria-label="Menu">
+      <div class="sheet-in">
+        <div class="sheet-top">
+          <span class="sheet-foot" style="padding:0">XR&nbsp;PIXELS</span>
+          <button class="sheet-close" id="sheetClose" type="button" aria-label="Close menu">&times;</button>
+        </div>
+        <nav class="sheet-nav">
+          <a href="#products">3D</a>
+          <a href="#light">Holograms</a>
+          <a href="#tiers">All-in-one</a>
+          <a href="#preorder">Contact</a>
+        </nav>
+        <div class="sheet-foot">Omnichannel&nbsp;3D</div>
+      </div>
+    </dialog>
     <div class="corner tl" id="ctl">XRPIXELS&nbsp;COLLECTIVE<br>OMNICHANNEL&nbsp;3D</div>
-    <div class="corner tr" id="ctr">01&nbsp;/&nbsp;06 · HERO<br><span class="hot">● BEYOND THE SCREEN</span></div>
 
     <div class="hero-copy">
       <div class="hl top"><span class="mask"><i>Crafting&nbsp;Worlds</i></span></div>
@@ -472,12 +518,11 @@
         <svg class="gate-mark" id="mark" viewBox="0 0 1913 1946" role="img" aria-label="XR Pixels">
           <use href="#xr-mono"/>
         </svg>
-        <p class="welcome" id="welcome">Welcome to XR Pixels, a holographic advertising studio. A journey through worlds, made to be seen.</p>
-        <button class="enter" id="enter">Enter the experience</button>
-        <div class="nosound" id="nosound">
-          <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 9v6h4l5 4V5L9 9H5z"/><path d="M19 9l-4 6M15 9l4 6"/></svg>
-          Continue without sound
-        </div>
+        <!-- The Enter button and the welcome copy are gone: the world now opens on
+             its own once the monogram settles. A website should not ask permission
+             to be looked at, and nobody reads a paragraph that is on screen for a
+             second. The monogram moment stays because it is the brand stamp, and
+             enterWorld() still drives the whole hero reveal. -->
       </div>
     </div>
 
@@ -721,7 +766,7 @@
         </div>
         <div class="foot-meta">
           <span>© XR Pixels LLC</span>
-          <a href="#">Privacy Policy</a>
+          <a href="/privacy.html">Privacy Policy</a>
           <span class="hot" style="color:var(--cyan)">09 / 09 · END</span>
         </div>
       </div>
@@ -1810,22 +1855,22 @@ function intro(){
   const paths = $$("#mark use, #mark path");
   if(reduce){
     gsap.set("#mark",{opacity:1,scale:1,rotate:0});
-    gsap.set(["#gateIdx","#welcome","#enter","#nosound"],{opacity:1,y:0});
+    gsap.set("#gateIdx",{opacity:1,y:0});
+    enterWorld();                       // no motion preference: go straight in
     return;
   }
   gsap.set("#mark",{opacity:0, scale:1.08, rotate:-1.2, transformOrigin:"50% 50%"});
   gsap.set(".hl .mask i",{yPercent:110,y:0});   // headline hidden below its mask, GSAP-owned
-  const tl = gsap.timeline();
+  // Tightened from ~2.4s to ~1.5s and then it opens itself. This is a website,
+  // not a deck: a visitor should be reading the hero within a couple of seconds,
+  // not waiting out a title sequence.
+  const tl = gsap.timeline({ onComplete: enterWorld });
   // 1 — the real monogram resolves: fades up + settles (analogue counterpoint wobble)
-  tl.to("#mark",{opacity:1, duration:1.0, ease:"power2.out"}, .2)
-    .fromTo("#mark",{rotate:-1.2,scale:1.08},{rotate:0,scale:1,duration:1.4,ease:"elastic.out(1,0.55)"}, .25)
+  tl.to("#mark",{opacity:1, duration:.7, ease:"power2.out"}, 0)
+    .fromTo("#mark",{rotate:-1.2,scale:1.08},{rotate:0,scale:1,duration:1.0,ease:"elastic.out(1,0.55)"}, .05)
     // 2 — the accent field drains away to near-black (Indigo's frame flip)
-    .to("#gateField",{opacity:0, duration:1.2, ease:"power2.inOut"}, .9)
-    // 3 — threshold copy + affordances resolve in
-    .to("#gateIdx",{opacity:1, duration:.7}, 1.1)
-    .fromTo("#welcome",{y:10,opacity:0},{opacity:1, y:0, duration:.8, ease:"power2.out"}, 1.25)
-    .fromTo("#enter",{y:10,opacity:0},{opacity:1, y:0, duration:.7, ease:"power2.out"}, 1.5)
-    .to("#nosound",{opacity:1, duration:.7}, 1.65);
+    .to("#gateField",{opacity:0, duration:.9, ease:"power2.inOut"}, .45)
+    .to("#gateIdx",{opacity:1, duration:.5}, .6);
 }
 
 /* ---- 4+5. ENTER -> the world OPENS (iris wipe + headline split-reveal) ---- */
@@ -1894,9 +1939,21 @@ function loop(){
 }
 loop();
 
-$("#enter").addEventListener("click", enterWorld);
-$("#nosound").addEventListener("click", enterWorld);
+// No click listeners any more: intro() opens the world itself on completion.
 addEventListener("load", intro, {once:true});
+
+/* ===== mobile menu =====
+   showModal() handles Escape, the focus trap and the backdrop. All that is left is
+   the open/close wiring and closing on a jump link, since an in-page anchor scrolls
+   the page underneath but leaves the dialog sitting open on top of it. */
+{
+  const sheet = $("#navSheet"), burger = $("#burger");
+  const setOpen = open => burger.setAttribute("aria-expanded", String(open));
+  burger.addEventListener("click", () => { sheet.showModal(); setOpen(true); });
+  $("#sheetClose").addEventListener("click", () => sheet.close());
+  sheet.addEventListener("close", () => setOpen(false));
+  $$("#navSheet .sheet-nav a").forEach(a => a.addEventListener("click", () => sheet.close()));
+}
 if(document.readyState==="complete") intro();
 
 /* ===== chapter reveals (Indigo-style: index + title + rule rise in) ===== */
@@ -2269,12 +2326,12 @@ window.__hero = {
       case "threshold-field":
         gate.style.display="grid"; gateField.style.opacity="1";
         gsap.set("#mark",{opacity:1,rotate:0,scale:1});
-        gsap.set(["#gateIdx","#welcome","#enter","#nosound"],{opacity:0});
+        gsap.set("#gateIdx",{opacity:0});
         break;
       case "threshold-ready":
         gate.style.display="grid"; gateField.style.opacity="0";
         gsap.set("#mark",{opacity:1,rotate:0,scale:1});
-        gsap.set(["#gateIdx","#welcome","#enter","#nosound"],{opacity:1,y:0});
+        gsap.set("#gateIdx",{opacity:1,y:0});
         break;
       case "iris-slit":
         showWorld(14); gsap.set("#gate",{opacity:0});
