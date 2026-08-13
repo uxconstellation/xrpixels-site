@@ -4,6 +4,17 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>XR Pixels — Beyond the Screen</title>
+<meta name="description" content="XR Pixels turns brand activations into immersive 3D: holograms, AR and explorable worlds that live beyond the screen.">
+<link rel="canonical" href="https://xrpixels.com/">
+<!-- Without these every share of xrpixels.com rendered as a bare URL. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://xrpixels.com/">
+<meta property="og:site_name" content="XR Pixels">
+<meta property="og:title" content="XR Pixels — Beyond the Screen">
+<meta property="og:description" content="Immersive, floating 3D experiences: holograms, AR and explorable worlds for brand activations.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="XR Pixels — Beyond the Screen">
+<meta name="twitter:description" content="Immersive, floating 3D experiences: holograms, AR and explorable worlds for brand activations.">
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -164,7 +175,7 @@
   .burger:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 
   #navSheet{border:0;padding:0;margin:0;width:100%;max-width:none;height:100%;max-height:none;
-     background:rgba(3,3,6,.97);color:var(--ink)}
+     background:var(--bg);color:var(--ink)}
   #navSheet::backdrop{background:rgba(3,3,6,.6);backdrop-filter:blur(6px)}
   .sheet-in{display:flex;flex-direction:column;height:100%;padding:20px}
   .sheet-top{display:flex;align-items:center;justify-content:space-between;min-height:44px}
@@ -187,8 +198,9 @@
   .corner .hot{color:var(--cyan)}
 
   /* headline — split around the portal (WILD split-reveal mechanic) */
+  /* margin/font reset because this is now an h1 and would otherwise inherit UA defaults */
   .hero-copy{position:fixed;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;
-     gap:46vmin;pointer-events:none}
+     gap:46vmin;pointer-events:none;margin:0;font-size:inherit;font-weight:inherit}
   .hl{font-family:var(--sans);font-weight:600;letter-spacing:-.01em;line-height:.96;
      font-size:clamp(34px,6.4vw,84px);text-align:center;
      text-shadow:0 2px 18px rgba(3,3,5,.95), 0 0 50px rgba(3,3,5,.85), 0 1px 3px rgba(3,3,5,.9)}
@@ -218,9 +230,19 @@
   #chapters{position:relative;z-index:7;background:transparent}
   .chapter{position:relative;padding-block:var(--s8)}
   /* a soft local scrim under each chapter's text column keeps copy legible over the live field */
+  /* clip, not hidden: the scrim below is deliberately 6% wider than its wrap so the
+     darkening has no visible edge, and on a full-bleed wrap that 6% landed outside
+     the viewport and panned the whole page sideways (19px at 320, 61px at 1024). */
+  .chapter{overflow-x:clip}
   .chapter > .wrap{position:relative;z-index:1}
+  /* The node spine is a fixed field BEHIND the chapters, which have no background of
+     their own, so it reads through everything. This scrim is what keeps copy legible
+     over it. It used to sit at 30% 40% and fade to transparent by 80%, which darkened
+     the empty left column and left the right one bare: on #preorder the mesh came
+     through the form labels at full strength. It now covers the whole content box and
+     never reaches zero, so the field still shows but never competes with text. */
   .chapter > .wrap::before{content:"";position:absolute;inset:-4% -6%;z-index:-1;pointer-events:none;
-     background:radial-gradient(120% 90% at 30% 40%, rgba(3,3,5,.74), rgba(3,3,5,.30) 60%, transparent 80%)}
+     background:radial-gradient(130% 110% at 45% 45%, rgba(3,3,5,.90), rgba(3,3,5,.66) 55%, rgba(3,3,5,.38) 100%)}
   .chapter + .chapter{border-top:1px solid var(--line)}
 
   /* Indigo chapter head: mono index + title + thin rule under it */
@@ -325,8 +347,11 @@
   .tier-h small{display:block;font-family:var(--mono);font-weight:400;font-size:11px;letter-spacing:.22em;color:var(--muted);margin-top:8px;text-transform:uppercase}
   .tier-body{color:var(--muted);font-size:14.5px;line-height:1.6}
   .tier-inc{list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:auto;padding-top:var(--s4);border-top:1px solid var(--line)}
-  .tier-inc li{display:flex;gap:12px;font-size:13.5px;line-height:1.5;color:var(--ink)}
-  .tier-inc li::before{content:"";flex:0 0 6px;width:6px;height:6px;margin-top:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px rgba(63,231,255,.6)}
+  /* The bullet is positioned, not a flex item. As a flex row the <b> and the <span>
+     became two columns, so a term that wrapped ("Photoreal or / stylised") stranded
+     its description up on the first line. They are one sentence; now they read as one. */
+  .tier-inc li{position:relative;padding-left:18px;font-size:13.5px;line-height:1.5;color:var(--ink)}
+  .tier-inc li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px rgba(63,231,255,.6)}
   .tier-inc li b{color:var(--ink);font-weight:600}.tier-inc li span{color:var(--muted)}
   .btn{align-self:flex-start;font-family:var(--mono);font-weight:500;letter-spacing:.14em;font-size:12px;text-transform:uppercase;
      color:var(--bg);background:var(--cyan);padding:13px 22px;border:none;cursor:pointer;text-decoration:none;
@@ -373,7 +398,7 @@
   .contact{display:grid;grid-template-columns:.9fr 1.1fr;gap:var(--s7);align-items:stretch}
   .contact .visual{border:1px solid var(--line);position:relative;overflow:hidden;border-radius:2px;min-height:420px;
      background:radial-gradient(120% 80% at 50% 100%, rgba(63,231,255,.12), transparent 55%), #05070e}
-  .contact h4{font-family:var(--sans);font-weight:600;font-size:clamp(22px,3vw,34px);letter-spacing:-.01em}
+  .contact h3{font-family:var(--sans);font-weight:600;font-size:clamp(22px,3vw,34px);letter-spacing:-.01em}
   .contact .h-sub{color:var(--muted);font-size:16px;margin-top:12px;line-height:1.55}
   form.preorder{margin-top:var(--s5);display:flex;flex-direction:column;gap:var(--s3)}
   form.preorder .field{display:flex;flex-direction:column;gap:8px}
@@ -408,16 +433,14 @@
   }
 
   /* ===== m6 FIX — visible keyboard focus across all interactive elements =====
-     Inputs previously used outline:none with only a border change; nav/cards/.enter/
+     Inputs previously used outline:none with only a border change; nav/cards/
      .btn/footer links had no focus ring at all. A cyan focus-visible ring restores a
      clear, AA-friendly keyboard indicator without affecting mouse users. */
   .navpill a:focus-visible,
   .card:focus-visible,
-  .enter:focus-visible,
   .btn:focus-visible,
   .video-stage:focus-visible,
   .foot-meta a:focus-visible,
-  .nosound:focus-visible,
   form.preorder input:focus-visible,
   form.preorder textarea:focus-visible{
     outline:none;
@@ -497,10 +520,12 @@
 
     <div class="corner tl" id="ctl">XRPIXELS&nbsp;COLLECTIVE<br>OMNICHANNEL&nbsp;3D</div>
 
-    <div class="hero-copy">
+    <!-- An h1, not a div: this IS the page heading, and the document had none at all.
+         The element only changes the semantics, every type style still comes off .hl. -->
+    <h1 class="hero-copy">
       <div class="hl top"><span class="mask"><i>Crafting&nbsp;Worlds</i></span></div>
       <div class="hl bot"><span class="mask"><i>Beyond&nbsp;the&nbsp;<span class="em">Screen</span></i></span></div>
-    </div>
+    </h1>
 
     <div class="sub-row">
       <p class="sub" id="sub">We turn brand activations into immersive, floating 3D experiences: holograms, AR and explorable worlds that live beyond the screen.</p>
@@ -514,7 +539,7 @@
     <!-- HANDOFF CHAPTER -->
     <section class="next" id="next">
       <div style="display:flex;flex-direction:column;align-items:center">
-        <div class="ch-idx">02 / 06 · THE CRAFT</div>
+        <div class="ch-idx">02 / 09 · THE CRAFT</div>
         <h2>Omnichannel<br>3D Advertising</h2>
       </div>
     </section>
@@ -745,7 +770,7 @@
         <div class="contact">
           <div class="visual" data-reveal><canvas class="holo-orb" data-orb="contact"></canvas></div>
           <div data-reveal>
-            <h4>We are waiting to hear from you</h4>
+            <h3>We are waiting to hear from you</h3>
             <p class="h-sub">Tell us about your activation. We will reply with a route into a world beyond the screen.</p>
             <!-- Posts to the Pages Function at /api/contact, which mails both
                  inboxes. The fields previously had no name attributes and the
