@@ -583,33 +583,33 @@
              Poster doubles as the .work background so reduced-motion holds a still frame. -->
         <div class="work-grid" data-reveal>
           <figure class="work" style="background-image:url(work-concert.png)">
-            <video src="work-concert.mp4" poster="work-concert.png" autoplay loop muted playsinline preload="metadata" aria-hidden="true"></video>
+            <video data-src="work-concert.mp4" poster="work-concert.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
             <figcaption>Concert<span>Live-stage holograms</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-city.png)">
-            <video src="work-city.mp4" poster="work-city.png" autoplay loop muted playsinline preload="metadata" aria-hidden="true"></video>
+            <video data-src="work-city.mp4" poster="work-city.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
             <figcaption>City<span>3D anamorphic billboards</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-retail.png)">
-            <video src="work-retail.mp4" poster="work-retail.png" autoplay loop muted playsinline preload="metadata" aria-hidden="true"></video>
+            <video data-src="work-retail.mp4" poster="work-retail.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
             <figcaption>Retail<span>Transit and mall activation</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-broadcast.png)">
-            <video src="work-broadcast.mp4" poster="work-broadcast.png" autoplay loop muted playsinline preload="metadata" aria-hidden="true"></video>
+            <video data-src="work-broadcast.mp4" poster="work-broadcast.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
             <!-- kept short: at 5 columns anything longer wraps and breaks the label baseline -->
             <figcaption>Broadcast<span>3D ads on connected TV</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-robotics.png)">
-            <video src="work-robotics.mp4" poster="work-robotics.png" autoplay loop muted playsinline preload="metadata" aria-hidden="true"></video>
+            <video data-src="work-robotics.mp4" poster="work-robotics.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
             <figcaption>Robotics<span>Brand-wrapped delivery fleet</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-merch.png)">
-            <video src="work-merch.mp4" poster="work-merch.png" autoplay loop muted playsinline preload="metadata" aria-hidden="true"></video>
+            <video data-src="work-merch.mp4" poster="work-merch.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
             <figcaption>Merch<span>Scan-to-AR on wearables</span></figcaption>
           </figure>
@@ -1976,6 +1976,37 @@ loop();
 
 // No click listeners any more: intro() opens the world itself on completion.
 addEventListener("load", intro, {once:true});
+
+/* ===== work-grid video: load on approach, pause off screen =====
+   The six tiles now run their full clips rather than 5s fragments, which is 6.1MB
+   of video. Eagerly autoplaying all of it would have every visitor download the
+   lot before they ever scroll to the grid. So each tile carries only its poster
+   until it is within a screen's reach, then gets its src and plays; when it leaves
+   it pauses, so off-screen tiles are not burning decode on a phone.
+
+   Under prefers-reduced-motion nothing loads at all: the CSS already hides these,
+   and downloading 6MB of video to hide it would be absurd. The poster remains, so
+   the tile still shows the work either way. */
+{
+  const tiles = $$('.work video[data-src]');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (tiles.length && !reduced && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        const v = e.target;
+        if (e.isIntersecting) {
+          if (!v.src) v.src = v.dataset.src;
+          // play() rejects if the tab is backgrounded or the decoder is busy; that
+          // is not an error worth surfacing, the poster is still showing.
+          v.play().catch(() => {});
+        } else if (!v.paused) {
+          v.pause();
+        }
+      }
+    }, { rootMargin: '600px 0px' });   // a screen's warning, so it is running by arrival
+    tiles.forEach(v => io.observe(v));
+  }
+}
 
 /* ===== mobile menu =====
    showModal() handles Escape, the focus trap and the backdrop. All that is left is
