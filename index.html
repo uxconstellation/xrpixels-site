@@ -1917,12 +1917,40 @@ const VIDEO = (function videoPlayer(){
   function stopReel(){ reelVis=false; stage.classList.remove("reel-on"); }
 
   // production: click upgrades to the real Vimeo film (autoplay muted)
+  //
+  // The upgrade is now GUARDED. player.vimeo.com currently answers 403 for a
+  // referer of xrpixels.com, because the film's embed privacy does not list this
+  // domain, and the old code appended the iframe regardless: it covered a working
+  // local reel with a permanently black rectangle and a dead spinner. That is
+  // strictly worse than not upgrading at all.
+  //
+  // With api=1 the player posts a "ready" message once it has actually loaded. If
+  // that has not arrived inside the watchdog window, the embed is not coming, so
+  // we tear it out and put the local reel back. Whitelisting xrpixels.com in the
+  // Vimeo video's privacy settings is the real fix; this keeps the section honest
+  // in the meantime, and stays as a safety net if the setting is ever changed back.
+  let vimeoReady=false, watchdog=null;
+  addEventListener("message", e=>{
+    if(!/player\.vimeo\.com/.test(e.origin)) return;
+    let d=e.data; if(typeof d==="string"){ try{ d=JSON.parse(d); }catch{ return; } }
+    if(d && (d.event==="ready"||d.method==="ping")) vimeoReady=true;
+  });
+  function fallBackToReel(iframe){
+    if(vimeoReady) return;
+    iframe.remove();
+    stage.classList.remove("playing");
+    started=false;                     // let a later click try again
+    startReel();
+  }
   function play(){
     if(started) return; started=true;
     stage.classList.add("playing"); stopReel();
     const iframe=document.createElement("iframe");
-    iframe.src=`https://player.vimeo.com/video/${VIMEO_ID}?autoplay=1&muted=1&loop=1&playsinline=1&title=0&byline=0&portrait=0`;
+    iframe.src=`https://player.vimeo.com/video/${VIMEO_ID}?api=1&autoplay=1&muted=1&loop=1&playsinline=1&title=0&byline=0&portrait=0`;
     iframe.allow="autoplay; fullscreen; picture-in-picture";
+    iframe.addEventListener("error", ()=>fallBackToReel(iframe));
+    clearTimeout(watchdog);
+    watchdog=setTimeout(()=>fallBackToReel(iframe), 4000);
     iframe.setAttribute("allowfullscreen","");
     iframe.title="Shaping Tomorrow with Holograms";
     stage.appendChild(iframe);
