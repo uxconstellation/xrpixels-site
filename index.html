@@ -6,6 +6,10 @@
 <title>XR Pixels — Beyond the Screen</title>
 <meta name="description" content="XR Pixels turns brand activations into immersive 3D: holograms, AR and explorable worlds that live beyond the screen.">
 <link rel="canonical" href="https://xrpixels.com/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <!-- Without these every share of xrpixels.com rendered as a bare URL. -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://xrpixels.com/">
@@ -157,7 +161,13 @@
   .navpill a{color:var(--ink);text-decoration:none;font-size:13px;padding:0 9px;opacity:.82;transition:opacity .3s}
   .navpill a:hover{opacity:1}
   .navpill .sep{width:3px;height:3px;border-radius:50%;background:var(--muted);opacity:.6}
-  .lang{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.1em}
+  /* Was a non-functional "EN" dropdown. A proposal site's top-right slot is worth
+     more as the contact action than as a language switcher for one language. */
+  .lang-cta{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+     color:var(--ink);text-decoration:none;border:1px solid rgba(238,243,251,.28);
+     border-radius:999px;padding:11px 20px;transition:border-color .35s,color .35s,background .35s}
+  .lang-cta:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(63,231,255,.06)}
+  .lang-cta:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 
   /* ===== mobile navigation =====
      The pill nav is unusable under 640px, so it is swapped for a burger that opens
@@ -200,11 +210,38 @@
   /* headline — split around the portal (WILD split-reveal mechanic) */
   /* margin/font reset because this is now an h1 and would otherwise inherit UA defaults */
   .hero-copy{position:fixed;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;
-     gap:46vmin;pointer-events:none;margin:0;font-size:inherit;font-weight:inherit}
+     gap:34px;pointer-events:none;margin:0;font-size:inherit;font-weight:inherit;
+     /* Pushed up off dead centre on purpose. The node figure is a whole human standing
+        in frame, head near the top and feet at the floor, and a dead-centre type block
+        sat straight across its chest, which turned the figure into texture behind
+        words. Sitting the type in the upper third leaves the head and shoulders above
+        it and the legs below, so the figure still reads as a figure. */
+     padding-bottom:28vh}
   .hl{font-family:var(--sans);font-weight:600;letter-spacing:-.01em;line-height:.96;
      font-size:clamp(34px,6.4vw,84px);text-align:center;
      text-shadow:0 2px 18px rgba(3,3,5,.95), 0 0 50px rgba(3,3,5,.85), 0 1px 3px rgba(3,3,5,.9)}
-  .hl .mask{display:block;overflow:hidden}
+  /* The mask needs room under the baseline or it eats descenders. line-height:.96
+     makes the line box shorter than the font's ink extent, so overflow:hidden was
+     slicing the tail off the g in "Crafting". The padding lowers where the clip
+     happens; the matching negative margin takes that space back out of the flow, so
+     the headline does not move. Keep them equal if either is ever changed. */
+  .hero-h1{margin:0;display:flex;flex-direction:column;align-items:center;gap:.02em;
+     font-size:inherit;font-weight:inherit;letter-spacing:inherit}
+  /* .hero-copy is pointer-events:none so the node field stays draggable underneath,
+     so the CTA has to opt back in or it is unclickable. */
+  /* max-width and box-sizing matter here: .hero-copy centres its children, which
+     gives this row max-content width, so at 390px the two buttons ran off the edge
+     and flex-wrap never fired because the row itself had simply grown. */
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;pointer-events:auto;opacity:0;
+     max-width:100%;box-sizing:border-box;padding:0 var(--gutter)}
+  .hcta{font-family:var(--mono);font-size:12.5px;letter-spacing:.13em;text-transform:uppercase;
+     text-decoration:none;padding:15px 26px;border-radius:999px;transition:background .35s,color .35s,border-color .35s}
+  .hcta.primary{background:var(--cyan);color:#04121a;font-weight:500}
+  .hcta.primary:hover{background:#7ff0ff}
+  .hcta.ghost{color:var(--ink);border:1px solid rgba(238,243,251,.28)}
+  .hcta.ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+  .hcta:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+  .hl .mask{display:block;overflow:hidden;padding-bottom:.18em;margin-bottom:-.18em}
   .hl .mask i{display:inline-block;font-style:normal;transform:translateY(110%);will-change:transform}
   .hl.bot .em{color:var(--cyan)}
 
@@ -425,8 +462,9 @@
   }
   @media (max-width:640px){
     :root{--gutter:20px}
-    .topbar{padding:16px 20px}.navpill{display:none}.burger{display:flex}.lang{display:none}
-    .hero-copy{gap:40vmin}
+    .topbar{padding:16px 20px}.navpill{display:none}.burger{display:flex}.lang-cta{display:none}
+    .hero-copy{gap:26px;padding-bottom:22vh}
+    .hcta{padding:14px 20px;font-size:12px}
     .product-grid{grid-template-columns:1fr}
     .ch-head{flex-direction:column;gap:6px}
     form.preorder .row2{grid-template-columns:1fr}
@@ -483,7 +521,7 @@
       <a href="#tiers">All-in-one</a><span class="sep"></span>
       <a href="#preorder">Contact</a>
     </nav>
-    <div class="lang">EN ⌄</div>
+    <a class="lang-cta" href="#preorder">Contact&nbsp;us</a>
     <button class="burger" id="burger" type="button" aria-label="Open menu" aria-controls="navSheet" aria-expanded="false">
       <span class="bars" aria-hidden="true"><span></span><span></span><span></span></span>
       <span class="burger-word" aria-hidden="true">Menu</span>
@@ -522,10 +560,20 @@
 
     <!-- An h1, not a div: this IS the page heading, and the document had none at all.
          The element only changes the semantics, every type style still comes off .hl. -->
-    <h1 class="hero-copy">
-      <div class="hl top"><span class="mask"><i>Crafting&nbsp;Worlds</i></span></div>
-      <div class="hl bot"><span class="mask"><i>Beyond&nbsp;the&nbsp;<span class="em">Screen</span></i></span></div>
-    </h1>
+    <!-- The two headline lines used to sit 46vmin apart with the node figure showing
+         between them. They now read as one heading with the CTA under it, because the
+         website's job is to get an enquiry, and a visitor who has just read the promise
+         is the moment to ask. The figure still carries the frame behind the type. -->
+    <div class="hero-copy">
+      <h1 class="hero-h1">
+        <div class="hl top"><span class="mask"><i>Crafting&nbsp;Worlds</i></span></div>
+        <div class="hl bot"><span class="mask"><i>Beyond&nbsp;the&nbsp;<span class="em">Screen</span></i></span></div>
+      </h1>
+      <div class="hero-cta" id="heroCta">
+        <a class="hcta primary" href="#preorder">Start your project</a>
+        <a class="hcta ghost" href="#omni">See the work</a>
+      </div>
+    </div>
 
     <div class="sub-row">
       <p class="sub" id="sub">We turn brand activations into immersive, floating 3D experiences: holograms, AR and explorable worlds that live beyond the screen.</p>
@@ -585,7 +633,7 @@
           <figure class="work" style="background-image:url(work-concert.png)">
             <video data-src="work-concert.mp4" poster="work-concert.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
-            <figcaption>Concert<span>Live-stage holograms</span></figcaption>
+            <figcaption>Events<span>Live holograms</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-city.png)">
             <video data-src="work-city.mp4" poster="work-city.png" loop muted playsinline preload="none" aria-hidden="true"></video>
@@ -595,23 +643,23 @@
           <figure class="work" style="background-image:url(work-retail.png)">
             <video data-src="work-retail.mp4" poster="work-retail.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
-            <figcaption>Retail<span>Transit and mall activation</span></figcaption>
+            <figcaption>Sports<span>Fan activations</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-broadcast.png)">
             <video data-src="work-broadcast.mp4" poster="work-broadcast.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
             <!-- kept short: at 5 columns anything longer wraps and breaks the label baseline -->
-            <figcaption>Broadcast<span>3D ads on connected TV</span></figcaption>
+            <figcaption>Omnichannel<span>3D activations</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-robotics.png)">
             <video data-src="work-robotics.mp4" poster="work-robotics.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
-            <figcaption>Robotics<span>Brand-wrapped delivery fleet</span></figcaption>
+            <figcaption>Brand Wraps<span>Event activations</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-merch.png)">
             <video data-src="work-merch.mp4" poster="work-merch.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
-            <figcaption>Merch<span>Scan-to-AR on wearables</span></figcaption>
+            <figcaption>AR Activation<span>Wearable tech, scanned to life</span></figcaption>
           </figure>
         </div>
       </div>
@@ -634,7 +682,7 @@
           <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">01</span></div><div><div class="c-title">Avatar</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
           <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">02</span></div><div><div class="c-title">Slots</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
           <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">03</span></div><div><div class="c-title">Pick &amp; Learn</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
-          <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">04</span></div><div><div class="c-title">Snap Station</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
+          <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">04</span></div><div><div class="c-title">Portal Booth</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
           <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">05</span></div><div><div class="c-title">Premiere</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
           <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">06</span></div><div><div class="c-title">HoloTwin</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
           <a class="card" href="#preorder"><div class="c-top"><span class="c-eyebrow">XR PIXELS</span><span class="c-num">07</span></div><div><div class="c-title">Omega Wall</div><div class="c-line"></div><div class="c-arrow">→ Pre-order</div></div></a>
@@ -695,8 +743,8 @@
         <div class="tiers" data-reveal>
           <div class="tier">
             <div class="tier-name">LITE</div>
-            <div class="tier-h">Interactive Experience <small>Snap Station</small></div>
-            <p class="tier-body">Snap Station is an interactive experience for brand activations, built to create memorable &amp; shareable moments.</p>
+            <div class="tier-h">Interactive Experience <small>Portal Booth</small></div>
+            <p class="tier-body">Portal Booth is an interactive experience for brand activations, built to create memorable &amp; shareable moments.</p>
             <ul class="tier-inc">
               <li><b>Setup &amp; Delivery:&nbsp;</b><span>full setup, install &amp; on-site support.</span></li>
               <li><b>Branded Content:&nbsp;</b><span>custom overlays &amp; screens; guests capture shareable moments.</span></li>
@@ -1123,7 +1171,7 @@
       c.lineTo(cxp+w*0.04,cyp+h*0.09); c.lineTo(cxp+w*0.085,cyp+h*0.055); c.closePath(); c.fill();
     },(lum,nx,ny)=>CYA(ny<0.45&&nx>0.40&&nx<0.62?0.45:0.04)); }
 
-  // SNAP STATION — camera body + big round lens + flash on top — used by Snap Station
+  // PORTAL BOOTH — camera body + big round lens + flash on top — used by Portal Booth
   function buildBooth(){ return sampleCanvas('booth',440,380,360,24,(c,w,h)=>{
       c.fillStyle='#fff';
       // rounded camera body
@@ -1916,7 +1964,7 @@ function enterWorld(){
     gsap.set("#gate",{display:"none"});
     gsap.set("#worldwrap",{clipPath:"circle(150% at 50% 50%)"});
     gsap.set(".hl .mask i",{yPercent:0, y:0});
-    gsap.set(["#topbar",".corner","#sub","#proof","#ring"],{opacity:1});
+    gsap.set(["#topbar",".corner","#sub","#proof","#ring","#heroCta"],{opacity:1});
     if(window.__spine){ window.__spine.show(true); window.__spine.snap("humanoid"); }
     state="live"; return;
   }
@@ -1936,7 +1984,8 @@ function enterWorld(){
     .to("#topbar",{opacity:1, duration:.8}, 1.2)
     .to(".corner",{opacity:1, duration:.8, stagger:.1}, 1.3)
     .to("#sub",{opacity:1, duration:.8}, 1.55)
-    .to("#proof",{opacity:1, duration:.8}, 1.7);
+    .to("#proof",{opacity:1, duration:.8}, 1.7)
+    .to("#heroCta",{opacity:1, duration:.8}, 1.85);
 }
 
 /* ---- 6. living idle: world drifts with pointer ---- */
@@ -2350,7 +2399,7 @@ if(!reduce && window.ScrollTrigger && window.__spine){
      effect when #products is the active section; on mouseleave OR any scroll/section
      change it reverts to the products grid via applySection. */
   const CARD_TARGET = {
-    "Avatar":"figure", "Slots":"slot", "Pick & Learn":"panel", "Snap Station":"booth",
+    "Avatar":"figure", "Slots":"slot", "Pick & Learn":"panel", "Portal Booth":"booth",
     "Premiere":"cinema", "HoloTwin":"holotwin", "Omega Wall":"wall", "Live Streaming":"broadcast"
   };
   const productsEl = $("#products");
@@ -2402,17 +2451,17 @@ window.__hero = {
       case "iris-slit":
         showWorld(14); gsap.set("#gate",{opacity:0});
         gsap.set(".hl .mask i",{yPercent:110, y:0}); gsap.set("#ring",{opacity:.9,scale:.92});
-        gsap.set(["#topbar",".corner","#sub","#proof"],{opacity:0});
+        gsap.set(["#topbar",".corner","#sub","#proof","#heroCta"],{opacity:0});
         break;
       case "headline":
         showWorld(75); gsap.set("#gate",{opacity:0,display:"none"});
         gsap.set(".hl .mask i",{yPercent:0, y:0}); gsap.set("#ring",{opacity:0});
-        gsap.set(["#topbar",".corner","#sub","#proof"],{opacity:1});
+        gsap.set(["#topbar",".corner","#sub","#proof","#heroCta"],{opacity:1});
         break;
       case "idle":
         showWorld(75); gsap.set("#gate",{display:"none"});
         gsap.set(".hl .mask i",{yPercent:0, y:0});
-        gsap.set(["#topbar",".corner","#sub","#proof"],{opacity:1}); gsap.set("#ring",{opacity:0});
+        gsap.set(["#topbar",".corner","#sub","#proof","#heroCta"],{opacity:1}); gsap.set("#ring",{opacity:0});
         mx=opt.mx||0; my=opt.my||0;
         break;
       case "through":
