@@ -353,7 +353,7 @@
 #shotBox{border:0;padding:0;background:none;position:fixed;inset:0;margin:auto;
   width:max-content;max-width:min(1100px,92vw);height:max-content;max-height:92vh}
 #shotBox::backdrop{background:rgba(3,3,5,.86);backdrop-filter:blur(8px)}
-#shotBox img{display:block;width:100%;height:auto;max-height:78vh;object-fit:contain;border-radius:12px}
+#shotBox video{display:block;width:100%;height:auto;max-height:78vh;background:#000;border-radius:12px}
 .sb-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:14px}
 .sb-label{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
 .sb-close{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
@@ -556,7 +556,7 @@
   </header>
 
   <dialog id="shotBox" aria-label="Product image">
-    <img id="sbImg" src="" alt="">
+    <video id="sbVid" playsinline controls preload="none"></video>
     <div class="sb-bar">
       <span class="sb-label" id="sbLabel"></span>
       <button class="sb-close" id="sbClose" type="button">Close</button>
@@ -700,28 +700,28 @@
       </div>
     </section>
 
-    <!-- 03 / Custom 3D Content — 8 product cards -->
+    <!-- 03 / Custom 3D Holograms — 8 product cards -->
     <section class="chapter" id="products">
       <div class="wrap">
         <div class="ch-head">
           <span class="ch-num">03 / 09</span>
           <div>
             <div class="ch-eyebrow" data-reveal>The Collective</div>
-            <h2 class="ch-title" data-reveal>Custom 3D Content</h2>
+            <h2 class="ch-title" data-reveal>Custom 3D Holograms</h2>
             <div class="rule" data-reveal></div>
           </div>
         </div>
         <p class="lead" data-reveal>The <b>Xrpixels Collective</b> can craft any bespoke hologram you imagine, powered by our cutting-edge technology.</p>
 
         <div class="product-grid" data-reveal>
-          <button class="card" type="button" data-shot="card-avatar.png" data-label="Avatar"><img class="c-shot" src="card-avatar.png" alt="Avatar" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Avatar</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
-          <button class="card" type="button" data-shot="card-slots.png" data-label="Slots"><img class="c-shot" src="card-slots.png" alt="Slots" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Slots</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
-          <button class="card" type="button" data-shot="card-picklearn.png" data-label="Pick & Learn"><img class="c-shot" src="card-picklearn.png" alt="Pick & Learn" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Pick &amp; Learn</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
-          <button class="card" type="button" data-shot="card-portalbooth.png" data-label="Portal Booth"><img class="c-shot" src="card-portalbooth.png" alt="Portal Booth" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Portal Booth</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
-          <button class="card" type="button" data-shot="card-premiere.png" data-label="Premiere"><img class="c-shot" src="card-premiere.png" alt="Premiere" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Premiere</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
-          <button class="card" type="button" data-shot="card-holotwin.png" data-label="HoloTwin"><img class="c-shot" src="card-holotwin.png" alt="HoloTwin" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">HoloTwin</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
-          <button class="card" type="button" data-shot="card-omegawall.png" data-label="Omega Wall"><img class="c-shot" src="card-omegawall.png" alt="Omega Wall" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Omega Wall</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
-          <button class="card" type="button" data-shot="card-livestreaming.png" data-label="Live Streaming"><img class="c-shot" src="card-livestreaming.png" alt="Live Streaming" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Live Streaming</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-avatar.png" data-vid="vid-avatar.mp4" data-label="Avatar"><img class="c-shot" src="card-avatar.png" alt="Avatar" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Avatar</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-slots.png" data-vid="vid-slots.mp4" data-label="Slots"><img class="c-shot" src="card-slots.png" alt="Slots" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Slots</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-picklearn.png" data-vid="vid-picklearn.mp4" data-label="Pick & Learn"><img class="c-shot" src="card-picklearn.png" alt="Pick & Learn" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Pick &amp; Learn</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-portalbooth.png" data-vid="vid-portalbooth.mp4" data-label="HoloXP Booth"><img class="c-shot" src="card-portalbooth.png" alt="HoloXP Booth" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">HoloXP Booth</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-premiere.png" data-vid="vid-premiere.mp4" data-label="Premiere"><img class="c-shot" src="card-premiere.png" alt="Premiere" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Premiere</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-holotwin.png" data-vid="vid-holotwin.mp4" data-label="HoloTwin"><img class="c-shot" src="card-holotwin.png" alt="HoloTwin" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">HoloTwin</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-omegawall.png" data-vid="vid-omegawall.mp4" data-label="Omega Wall"><img class="c-shot" src="card-omegawall.png" alt="Omega Wall" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Omega Wall</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-livestreaming.png" data-vid="vid-livestreaming.mp4" data-label="Live Streaming"><img class="c-shot" src="card-livestreaming.png" alt="Live Streaming" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Live Streaming</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
         </div>
         <p class="grid-note" data-reveal>Delivery takes 20–60 days, based on content and solution complexity.</p>
       </div>
@@ -778,8 +778,8 @@
         <div class="tiers" data-reveal>
           <div class="tier">
             <div class="tier-name">LITE</div>
-            <div class="tier-h">Interactive Experience <small>Portal Booth</small></div>
-            <p class="tier-body">Portal Booth is an interactive experience for brand activations, built to create memorable &amp; shareable moments.</p>
+            <div class="tier-h">Interactive Experience <small>HoloXP Booth</small></div>
+            <p class="tier-body">HoloXP Booth is an interactive experience for brand activations, built to create memorable &amp; shareable moments.</p>
             <ul class="tier-inc">
               <li><b>Setup &amp; Delivery:&nbsp;</b><span>full setup, install &amp; on-site support.</span></li>
               <li><b>Branded Content:&nbsp;</b><span>custom overlays &amp; screens; guests capture shareable moments.</span></li>
@@ -1206,7 +1206,7 @@
       c.lineTo(cxp+w*0.04,cyp+h*0.09); c.lineTo(cxp+w*0.085,cyp+h*0.055); c.closePath(); c.fill();
     },(lum,nx,ny)=>CYA(ny<0.45&&nx>0.40&&nx<0.62?0.45:0.04)); }
 
-  // PORTAL BOOTH — camera body + big round lens + flash on top — used by Portal Booth
+  // HOLOXP BOOTH — camera body + big round lens + flash on top — used by HoloXP Booth
   function buildBooth(){ return sampleCanvas('booth',440,380,360,24,(c,w,h)=>{
       c.fillStyle='#fff';
       // rounded camera body
@@ -2125,21 +2125,23 @@ addEventListener("load", intro, {once:true});
    you could do with a product was ask about it. They now carry the shot and open it
    full size. <dialog> gives Escape, the focus trap and the backdrop without code. */
 {
-  const box=$("#shotBox"), img=$("#sbImg"), label=$("#sbLabel");
+  const box=$("#shotBox"), vid=$("#sbVid"), label=$("#sbLabel");
   if (box) {
     $$(".card[data-shot]").forEach(card=>{
       card.addEventListener("click", ()=>{
-        img.src = card.dataset.shot;
-        img.alt = card.dataset.label + " — XR Pixels";
+        // the still is only the door: clicking opens the actual film
+        vid.poster = card.dataset.shot;
+        vid.src    = card.dataset.vid;
         label.textContent = card.dataset.label;
         box.showModal();
+        vid.play().catch(()=>{});   // rejects if the browser wants a gesture; controls are there
       });
     });
     $("#sbClose").addEventListener("click", ()=>box.close());
     // click the backdrop to dismiss: the dialog box itself is the img + bar, so a
     // click landing on the dialog element rather than its children is the backdrop
     box.addEventListener("click", e=>{ if(e.target===box) box.close(); });
-    box.addEventListener("close", ()=>{ img.src=""; });
+    box.addEventListener("close", ()=>{ vid.pause(); vid.removeAttribute("src"); vid.load(); });
   }
 }
 
@@ -2485,7 +2487,7 @@ if(!reduce && window.ScrollTrigger && window.__spine){
      effect when #products is the active section; on mouseleave OR any scroll/section
      change it reverts to the products grid via applySection. */
   const CARD_TARGET = {
-    "Avatar":"figure", "Slots":"slot", "Pick & Learn":"panel", "Portal Booth":"booth",
+    "Avatar":"figure", "Slots":"slot", "Pick & Learn":"panel", "HoloXP Booth":"booth",
     "Premiere":"cinema", "HoloTwin":"holotwin", "Omega Wall":"wall", "Live Streaming":"broadcast"
   };
   const productsEl = $("#products");
