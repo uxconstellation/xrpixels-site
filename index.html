@@ -1771,20 +1771,31 @@ function makeOrb(canvas, hue){
   const DPR=Math.min(devicePixelRatio||1,2); let W,H;
   function resize(){W=canvas.clientWidth;H=canvas.clientHeight;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
   new ResizeObserver(resize).observe(canvas); resize();
-  const ring = []; for(let i=0;i<180;i++) ring.push({a:Math.random()*6.28, r:0.2+Math.random()*0.78, sp:0.2+Math.random()*0.6, ph:Math.random()*6.28});
+  /* 180 points at 1.4px lit 0.4% of the panel: measured, and it read as an empty
+     bordered box in three sections rather than as a hologram. Denser field, varied
+     point size, and a soft core so the thing has a centre to look at. */
+  const ring = []; for(let i=0;i<620;i++) ring.push({
+    a:Math.random()*6.28, r:0.12+Math.random()*0.86, sp:0.2+Math.random()*0.6,
+    ph:Math.random()*6.28, sz:0.9+Math.random()*1.9, tilt:0.5+Math.random()*0.35});
   const t0=performance.now(); let raf=null, vis=false;
   function frame(now){
     if(!vis || document.hidden){ raf=null; return; }
     const t=(now-t0)/1000; ctx.clearRect(0,0,W,H);
     const cx=W*0.5, cy=H*0.5, R=Math.min(W,H)*0.42;
+    // core: the glow the point field orbits, so the panel has a subject
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,R*1.15);
+    g.addColorStop(0,"rgba(63,231,255,0.20)");
+    g.addColorStop(0.45,"rgba(63,231,255,0.07)");
+    g.addColorStop(1,"rgba(63,231,255,0)");
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     for(const p of ring){
       const a=p.a+t*p.sp*0.4;
       const rr=p.r*(1+Math.sin(t*0.6+p.ph)*0.06);
       const x=cx+Math.cos(a)*R*rr;
-      const y=cy+Math.sin(a)*R*rr*0.62 + Math.sin(t+p.ph)*4;
-      const al=0.15+0.5*(0.5+0.5*Math.sin(t*1.5+p.ph));
+      const y=cy+Math.sin(a)*R*rr*p.tilt + Math.sin(t+p.ph)*4;
+      const al=0.22+0.58*(0.5+0.5*Math.sin(t*1.5+p.ph));
       ctx.fillStyle=`rgba(63,231,255,${al.toFixed(2)})`;
-      ctx.fillRect(x,y,1.4,1.4);
+      ctx.fillRect(x,y,p.sz,p.sz);
     }
     raf=requestAnimationFrame(frame);
   }
@@ -1968,7 +1979,7 @@ const VIDEO = (function videoPlayer(){
   addEventListener("message", e=>{
     if(!/player\.vimeo\.com/.test(e.origin)) return;
     let d=e.data; if(typeof d==="string"){ try{ d=JSON.parse(d); }catch{ return; } }
-    if(d && (d.event==="ready"||d.method==="ping")) vimeoReady=true;
+    if(d && (d.event==="ready"||d.method==="ping")){ vimeoReady=true; stopReel(); }
   });
   function fallBackToReel(iframe){
     if(vimeoReady) return;
@@ -1979,13 +1990,15 @@ const VIDEO = (function videoPlayer(){
   }
   function play(){
     if(started) return; started=true;
-    stage.classList.add("playing"); stopReel();
+    // The reel keeps running UNDER the iframe. Killing it up front is what left a
+    // black rectangle on screen for the whole watchdog window when Vimeo 401s.
+    stage.classList.add("playing");
     const iframe=document.createElement("iframe");
     iframe.src=`https://player.vimeo.com/video/${VIMEO_ID}?api=1&autoplay=1&muted=1&loop=1&playsinline=1&title=0&byline=0&portrait=0`;
     iframe.allow="autoplay; fullscreen; picture-in-picture";
     iframe.addEventListener("error", ()=>fallBackToReel(iframe));
     clearTimeout(watchdog);
-    watchdog=setTimeout(()=>fallBackToReel(iframe), 4000);
+    watchdog=setTimeout(()=>fallBackToReel(iframe), 2500);
     iframe.setAttribute("allowfullscreen","");
     iframe.title="Shaping Tomorrow with Holograms";
     stage.appendChild(iframe);
