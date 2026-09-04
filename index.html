@@ -2599,10 +2599,13 @@ window.__hero = {
     var data = new FormData(form);
     var name = (data.get('name') || '').trim();
     var email = (data.get('email') || '').trim();
+    var phone = (data.get('phone') || '').trim();
 
     // Validated here as well as on the server: novalidate is set so the browser
     // does not show its own bubble over the dark theme.
-    if (!name || !email) return say('Please add your name and e-mail.', 'bad');
+    // Phone is marked required in the label and is a lead-quality field, so it is
+    // checked here too. It was labelled required and never validated.
+    if (!name || !email || !phone) return say('Please add your name, e-mail and phone number.', 'bad');
     if (!/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(email)) return say('That e-mail address does not look right.', 'bad');
 
     button.disabled = true;
