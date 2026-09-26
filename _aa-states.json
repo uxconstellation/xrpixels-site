@@ -1,0 +1,5 @@
+[ { "name": "top",        "scroll": 0 },
+  { "name": "mid",        "scroll": 0.5 },
+  { "name": "end",        "scroll": 1.0 },
+  { "name": "menu-open",  "click": "#burger" },
+  { "name": "lightbox",   "eval": "document.querySelector('.card[data-shot=\"card-avatar.png\"]').click()", "settle": 1200 } ]
