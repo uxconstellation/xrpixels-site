@@ -300,7 +300,8 @@
      the node field runs behind the section rather than through them. */
   /* Six tiles now Scannable Merch joined. Three columns over two rows rather than
      six across: at 1180px, six tiles leave ~196px each and the labels stop fitting. */
-  .work-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+  /* ponytail: layout assumes exactly five tiles (3 then 2). Revisit if a tile is added. */
+  .work-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);
      margin-top:var(--s6);border:1px solid var(--line)}
   .work{position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--bg-2) center/cover no-repeat;
      transition:box-shadow .4s ease}
@@ -320,7 +321,9 @@
   .work:hover{box-shadow:inset 0 0 0 1px rgba(63,231,255,.4),0 0 40px -8px rgba(63,231,255,.5)}
   /* reduced motion: hold the poster still rather than looping footage */
   @media (prefers-reduced-motion: reduce){ .work video{visibility:hidden} }
-  @media (max-width:860px){ .work-grid{grid-template-columns:repeat(2,1fr)} }
+  .work{grid-column:span 2} .work:nth-child(n+4){grid-column:span 3}
+  @media (max-width:860px){ .work-grid{grid-template-columns:repeat(2,1fr)}
+    .work,.work:nth-child(n+4){grid-column:auto} .work:last-child{grid-column:1/-1} }
   @media (max-width:560px){ .work-grid{grid-template-columns:1fr} }
 
   .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin-top:var(--s6);border:1px solid var(--line)}
@@ -660,7 +663,7 @@
             <div class="rule" data-reveal></div>
           </div>
         </div>
-        <p class="lead" data-reveal>We transform <b>brand activations</b> into immersive, floating <b>3D experiences.</b> Through interactive <b>AR</b> and fully <b>explorable digital environments</b>, audiences don't just see your brand, they step inside it.</p>
+        <p class="lead" data-reveal>We transform <b>brand and event activations</b> into immersive, floating <b>3D experiences.</b> Through interactive <b>AR</b> and fully <b>explorable digital environments</b>, audiences don't just see your brand, they step inside it.</p>
 
         <!-- Real delivered work. Videos are decorative; the figcaption carries the meaning.
              Poster doubles as the .work background so reduced-motion holds a still frame. -->
@@ -685,11 +688,6 @@
             <div class="w-scrim"></div>
             <!-- kept short: at 5 columns anything longer wraps and breaks the label baseline -->
             <figcaption>Omnichannel<span>3D activations</span></figcaption>
-          </figure>
-          <figure class="work" style="background-image:url(work-robotics.png)">
-            <video data-src="work-robotics.mp4" poster="work-robotics.png" loop muted playsinline preload="none" aria-hidden="true"></video>
-            <div class="w-scrim"></div>
-            <figcaption>Brand Wraps<span>Event activations</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-merch.png)">
             <video data-src="work-merch.mp4" poster="work-merch.png" loop muted playsinline preload="none" aria-hidden="true"></video>
@@ -2103,7 +2101,7 @@ loop();
 addEventListener("load", intro, {once:true});
 
 /* ===== work-grid video: load on approach, pause off screen =====
-   The six tiles now run their full clips rather than 5s fragments, which is 6.1MB
+   The five tiles run their full clips rather than 5s fragments, which is ~5MB
    of video. Eagerly autoplaying all of it would have every visitor download the
    lot before they ever scroll to the grid. So each tile carries only its poster
    until it is within a screen's reach, then gets its src and plays; when it leaves
