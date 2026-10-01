@@ -530,6 +530,20 @@
 .btn.ghost{background:transparent}
 @media(max-width:640px){.gate-mark{width:128px;height:112px}}
 </style>
+<style>
+.gate{display:none;z-index:30;background:#030305}
+.gate.loader-active{display:grid}
+.gate-inner{width:100%;height:100%}
+#logoReveal{width:100%;height:100%;border:0;pointer-events:none}
+#gateIdx,#mark,.gate-grain,.gate-field{display:none}
+#skipReveal{position:absolute;right:24px;bottom:24px;min-height:44px;padding:10px 16px;background:#030305;color:#fff;border:1px solid #9d8aff;font:14px var(--sans);cursor:pointer}
+#skipReveal:focus-visible{outline:2px solid #fff;outline-offset:4px}
+#topbar,.corner,#sub,#proof,#heroCta{opacity:1}
+.hl .mask i{transform:none}
+#worldwrap{--iris:150%;clip-path:none}
+html:not(.site-js) [data-reveal],html:not(.site-js) #ar .editorial .visual,html:not(.site-js) #ar .editorial > p.lead{opacity:1;transform:none;filter:none}
+@media(prefers-reduced-motion:reduce){.gate.loader-active{display:none}}
+</style>
 </head>
 <body>
 
@@ -636,10 +650,12 @@
     </section>
 
     <!-- THRESHOLD GATE (Indigo's Enter the experience) -->
-    <div class="gate" id="gate">
+    <div class="gate" id="gate" role="dialog" aria-modal="true" aria-label="XR Pixels introduction" hidden>
       <div class="gate-field" id="gateField"></div>
       <div class="gate-grain"></div>
       <div class="gate-inner">
+        <iframe id="logoReveal" title="XR Pixels logo reveal" tabindex="-1" aria-hidden="true"></iframe>
+        <button id="skipReveal" type="button">Skip intro</button>
         <div class="gate-idx" id="gateIdx">[ XR PIXELS · 5 WORLDS, ONE LIGHT ]</div>
         <svg class="gate-mark" id="mark" viewBox="0 0 128 112" role="img" aria-label="XR Pixels">
           <use href="#xr-mono"/>
@@ -903,6 +919,51 @@
   </svg>
 
 <!-- node-spine engine deps (local) -->
+<script>
+(() => {
+  const gate = document.getElementById('gate'), frame = document.getElementById('logoReveal');
+  const skip = document.getElementById('skipReveal'), motion = matchMedia('(prefers-reduced-motion: reduce)');
+  let timer, finished = false;
+  const background = [];
+  function finish() {
+    if (finished) return;
+    finished = true; clearTimeout(timer);
+    const focused = document.activeElement === skip;
+    gate.classList.remove('loader-active'); gate.hidden = true;
+    background.forEach(([el,inert]) => { el.inert = inert; });
+    try { frame.contentWindow.__timelines?.['xr-sting']?.pause(); } catch {}
+    if (focused) {
+      const next = document.querySelector('#topbar a');
+      next?.focus({preventScroll:true});
+    }
+  }
+  let seen = false;
+  try { seen = sessionStorage.getItem('xr-logo-seen') === '1'; sessionStorage.setItem('xr-logo-seen','1'); } catch {}
+  skip.addEventListener('click', finish);
+  addEventListener('keydown', e => { if(e.key === 'Escape') finish(); });
+  motion.addEventListener('change', () => { if(motion.matches) finish(); });
+  window.__logoLoader = {finish};
+  if(seen || motion.matches || location.search.includes('still')) { finish(); return; }
+  gate.hidden = false; gate.classList.add('loader-active');
+  document.body.appendChild(gate);
+  [...document.body.children].forEach(el => {
+    if(el !== gate && el.tagName !== 'SCRIPT') { background.push([el,el.inert]); el.inert = true; }
+  });
+  skip.focus({preventScroll:true});
+  // Deadline starts before dependencies load, including when a script never arrives.
+  timer = setTimeout(finish, 2200);
+  frame.addEventListener('load', () => {
+    try {
+      if(frame.contentWindow.location.href === 'about:blank') return;
+      const tl = frame.contentWindow.__timelines?.['xr-sting'];
+      if (!tl) { finish(); return; }
+      if(finished) { tl.pause(); return; }
+      tl.eventCallback('onComplete', finish);
+    } catch { finish(); }
+  });
+  frame.src = './logo-reveal.html';
+})();
+</script>
 <script src="./vendor/three.min.js"></script>
 <script src="./mono-paths.js"></script>
 
@@ -1984,59 +2045,17 @@ const VIDEO = (function videoPlayer(){
 })();
 
 /* ---- 0. THRESHOLD intro: real monogram draws in, accent field drains ---- */
-function intro(){
-  const paths = $$("#mark use, #mark path");
-  if(reduce){
-    gsap.set("#mark",{opacity:1,scale:1,rotate:0});
-    gsap.set("#gateIdx",{opacity:1,y:0});
-    enterWorld();                       // no motion preference: go straight in
-    return;
-  }
-  gsap.set("#mark",{opacity:0, scale:1.08, rotate:-1.2, transformOrigin:"50% 50%"});
-  gsap.set(".hl .mask i",{yPercent:110,y:0});   // headline hidden below its mask, GSAP-owned
-  // Tightened from ~2.4s to ~1.5s and then it opens itself. This is a website,
-  // not a deck: a visitor should be reading the hero within a couple of seconds,
-  // not waiting out a title sequence.
-  const tl = gsap.timeline({ onComplete: enterWorld });
-  // 1 , the real monogram resolves: fades up + settles (analogue counterpoint wobble)
-  tl.to("#mark",{opacity:1, duration:.7, ease:"power2.out"}, 0)
-    .fromTo("#mark",{rotate:-1.2,scale:1.08},{rotate:0,scale:1,duration:1.0,ease:"elastic.out(1,0.55)"}, .05)
-    // 2 , the accent field drains away to near-black (Indigo's frame flip)
-    .to("#gateField",{opacity:0, duration:.9, ease:"power2.inOut"}, .45)
-    .to("#gateIdx",{opacity:1, duration:.5}, .6);
+function intro(){ enterWorld(); }
+
+function enterWorld(){
+  if(state !== "threshold") return;
+  gsap.set("#worldwrap",{clipPath:"none"});
+  gsap.set(".hl .mask i",{yPercent:0,y:0});
+  gsap.set(["#topbar",".corner","#sub","#proof","#heroCta"],{opacity:1});
+  if(window.__spine){ window.__spine.show(true); window.__spine.snap("humanoid"); }
+  state="live";
 }
 
-/* ---- 4+5. ENTER -> the world OPENS (iris wipe + headline split-reveal) ---- */
-function enterWorld(){
-  if(state!=="threshold") return;
-  state="opening";
-  if(reduce){
-    gsap.set("#gate",{display:"none"});
-    gsap.set("#worldwrap",{clipPath:"circle(150% at 50% 50%)"});
-    gsap.set(".hl .mask i",{yPercent:0, y:0});
-    gsap.set(["#topbar",".corner","#sub","#proof","#ring","#heroCta"],{opacity:1});
-    if(window.__spine){ window.__spine.show(true); window.__spine.snap("humanoid"); }
-    state="live"; return;
-  }
-  gsap.set("#worldwrap",{"--iris":"0.2%"});
-  gsap.set(".hl .mask i",{yPercent:110,y:0});   // own the start state in GSAP units (not the CSS %)
-  // reveal the persistent node field as the iris opens (humanoid figure of light)
-  if(window.__spine){ window.__spine.setShape("humanoid",{duration:0}); window.__spine.show(true); }
-  const tl = gsap.timeline({onComplete:()=>{ state="live"; gate.style.display="none"; }});
-  tl.to(".gate-inner",{opacity:0, y:-24, duration:.6, ease:"power3.in"}, 0)
-    .to("#gate",{opacity:0, duration:.9, ease:"power2.inOut"}, .35)
-    // iris opens: slit -> circle, calm weighty expo
-    .to("#worldwrap",{"--iris":"75%", duration:1.7, ease:"expo.out"}, .25)
-    .fromTo("#ring",{opacity:0,scale:.86},{opacity:1,scale:1,duration:1.0,ease:"power2.out"}, .5)
-    .to("#ring",{opacity:.0, duration:1.2, ease:"power2.inOut"}, 1.5)
-    .fromTo(".hl.top .mask i",{yPercent:110,y:0},{yPercent:0,y:0, duration:1.1, ease:"power4.out"}, .9)
-    .fromTo(".hl.bot .mask i",{yPercent:110,y:0},{yPercent:0,y:0, duration:1.1, ease:"power4.out"}, 1.0)
-    .to("#topbar",{opacity:1, duration:.8}, 1.2)
-    .to(".corner",{opacity:1, duration:.8, stagger:.1}, 1.3)
-    .to("#sub",{opacity:1, duration:.8}, 1.55)
-    .to("#proof",{opacity:1, duration:.8}, 1.7)
-    .to("#heroCta",{opacity:1, duration:.8}, 1.85);
-}
 
 /* ---- 6. living idle: world drifts with pointer ---- */
 let mx=0,my=0,cx=0,cy=0;
@@ -2150,6 +2169,7 @@ if(document.readyState==="complete") intro();
 
 /* ===== chapter reveals (Indigo-style: index + title + rule rise in) ===== */
 if(!reduce && window.ScrollTrigger){
+  document.documentElement.classList.add('site-js');
   gsap.registerPlugin(ScrollTrigger);
   $$(".chapter").forEach(sec=>{
     const items = sec.querySelectorAll("[data-reveal]");
