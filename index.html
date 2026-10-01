@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>XR Pixels — Beyond the Screen</title>
+<title>XR Pixels: Beyond the Screen</title>
 <meta name="description" content="XR Pixels turns brand activations into immersive 3D: holograms, AR and explorable worlds that live beyond the screen.">
 <link rel="canonical" href="https://xrpixels.com/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -14,28 +14,25 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://xrpixels.com/">
 <meta property="og:site_name" content="XR Pixels">
-<meta property="og:title" content="XR Pixels — Beyond the Screen">
+<meta property="og:title" content="XR Pixels: Beyond the Screen">
 <meta property="og:description" content="Immersive, floating 3D experiences: holograms, AR and explorable worlds for brand activations.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="XR Pixels — Beyond the Screen">
+<meta name="twitter:title" content="XR Pixels: Beyond the Screen">
 <meta name="twitter:description" content="Immersive, floating 3D experiences: holograms, AR and explorable worlds for brand activations.">
-<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
-<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:'Hubot Sans';src:url('./fonts/HubotSans-VF.ttf') format('truetype');font-weight:200 900;font-stretch:75% 125%;font-display:swap}
+@font-face{font-family:'Host Grotesk';src:url('./fonts/HostGrotesk-VF.ttf') format('truetype');font-weight:300 800;font-display:swap}
   :root{
     --bg:#030305;          /* near-black ground (Indigo rgb(3,3,3) deviated holographic) */
-    --bg-2:#05070d;        /* chapter ground, a half-step up */
-    --ink:#eef3fb;
-    --muted:#7e879b;
-    --line:rgba(238,243,251,.12);  /* the thin rule under chapter titles (Indigo div.line) */
-    --cyan:#3fe7ff;        /* the one saturated accent — XR portal-light (Indigo's single-accent discipline) */
-    --amber:#ff9a52;       /* warm counter-glow, used sparingly */
-    --accent-field:#1b1140;/* the threshold field tint (deviated from Indigo indigo rgb(106,21,255)) */
-    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-    --sans:"General Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+    --bg-2:#030305;        /* chapter ground, a half-step up */
+    --ink:#ffffff;
+    --muted:#9d8aff;
+    --line:rgba(255,255,255,.12);  /* the thin rule under chapter titles (Indigo div.line) */
+    --cyan:#9d8aff;        /* the one saturated accent , XR portal-light (Indigo's single-accent discipline) */
+    --amber:#9d8aff;       /* warm counter-glow, used sparingly */
+    --accent-field:#030305;/* the threshold field tint (deviated from Indigo indigo rgb(106,21,255)) */
+    --mono:"Host Grotesk",system-ui,sans-serif;
+    --sans:"Host Grotesk",system-ui,sans-serif;
 
     /* ===== SHARED TOKENS (design-lead fix #4) ===== */
     --container:1270px;    /* captured XR Pixels container max-width */
@@ -49,7 +46,7 @@
   html,body{min-height:100%}
   body{background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
-  /* ============ NODE SPINE — persistent morphing field behind the whole site ============ */
+  /* ============ NODE SPINE , persistent morphing field behind the whole site ============ */
   /* fixed full-viewport canvas: above the near-black ground, below all text/cards/chapters */
   #spine-stage{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;
      transition:opacity 1.1s ease;will-change:opacity}
@@ -64,7 +61,7 @@
   #spine-stage canvas{display:block;max-width:100%;max-height:100%}
   /* once the reader is into the chapters, retire the hero's leftover FIXED overlays so they
      can't bleed through the now-translucent chapter grounds (spine field stays).
-     WAVE 1 #2: #topbar is DELIBERATELY excluded — the nav is persistent on every section. */
+     WAVE 1 #2: #topbar is DELIBERATELY excluded , the nav is persistent on every section. */
   body.in-chapters .world-stage,
   body.in-chapters .hero-copy,
   body.in-chapters .sub-row,
@@ -75,17 +72,17 @@
      out of flow so the per-frame loop can never re-show it over a chapter (e.g. AR). */
   body.in-chapters #next{ display:none !important }
 
-  /* per-section colour washes — break the flat single-black ground. Semi-transparent
+  /* per-section colour washes , break the flat single-black ground. Semi-transparent
      so the node spine still reads through the translucent chapters. Each section gets a
      distinct hue pinned to a corner, very low alpha, near-black base preserved. */
   .chapter{ position:relative; }
-  #omni{     background:radial-gradient(120% 90% at 82% 22%, rgba(28,86,120,.20), transparent 62%); }
-  #products{ background:radial-gradient(110% 90% at 16% 18%, rgba(70,40,128,.16), transparent 60%); }
-  #light{    background:radial-gradient(120% 90% at 74% 52%, rgba(22,96,104,.20), transparent 60%); }
-  #ar{       background:radial-gradient(120% 95% at 24% 64%, rgba(96,44,132,.18), transparent 62%); }
-  #tiers{    background:radial-gradient(120% 80% at 50% 14%, rgba(26,64,116,.16), transparent 60%); }
-  #video{    background:radial-gradient(120% 100% at 50% 28%, rgba(40,84,130,.22), transparent 64%); }
-  #preorder{ background:radial-gradient(110% 95% at 50% 96%, rgba(74,40,124,.18), transparent 62%); }
+  #omni{     background:var(--bg); }
+  #products{ background:var(--bg); }
+  #light{    background:var(--bg); }
+  #ar{       background:var(--bg); }
+  #tiers{    background:var(--bg); }
+  #video{    background:var(--bg); }
+  #preorder{ background:var(--bg); }
   /* chapters ride ABOVE the spine; their ground is translucent so the field reads through */
   @media (prefers-reduced-motion: reduce){ #spine-stage{transition:none} }
 
@@ -96,39 +93,37 @@
 
   /* ============ THE WORLD (pure near-black ground; the NODE figure is the only hero subject) ============ */
   /* WAVE 1 #1: photographic backdrop (world.jpg) + legacy 2D hologram reel REMOVED. The hero is the
-     3D node spine on pure #030305 — no image, no video behind it. Only the iris + soft glows remain. */
+     3D node spine on pure #030305 , no image, no video behind it. Only the iris + soft glows remain. */
   .world-stage{position:fixed;inset:0;z-index:1;overflow:hidden;display:grid;place-items:center;background:var(--bg)}
   .floorglow{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;
-     background:radial-gradient(46% 42% at 50% 52%, rgba(63,231,255,.10), transparent 70%)}
+     background:radial-gradient(46% 42% at 50% 52%, rgba(157,138,255,.10), transparent 70%)}
   .worldwrap{position:absolute;inset:0;display:grid;place-items:center;
      /* iris mask: a slit that opens into a full circle, then floods the frame */
      -webkit-clip-path:circle(var(--iris,0.2%) at 50% 50%);
              clip-path:circle(var(--iris,0.2%) at 50% 50%);
      will-change:clip-path;
      /* the iris now opens onto the pure near-black ground; the node spine reads above it */
-     background:radial-gradient(60% 55% at 50% 48%, rgba(63,231,255,.05), var(--bg) 72%)}
+     background:var(--bg)}
   /* legibility scrim: darken the top/bottom bands where the two headline lines sit, keep the bright centre */
   .scrim{position:absolute;inset:0;z-index:2;pointer-events:none;
      background:linear-gradient(180deg, rgba(3,3,5,.82) 0%, rgba(3,3,5,.52) 30%, rgba(3,3,5,0) 46%,
         rgba(3,3,5,0) 54%, rgba(3,3,5,.52) 70%, rgba(3,3,5,.84) 100%)}
-  /* holographic atmosphere — a soft vignette that frames the node figure on near-black */
+  /* holographic atmosphere , a soft vignette that frames the node figure on near-black */
   .haze{position:absolute;inset:0;pointer-events:none;
      background:radial-gradient(60% 55% at 50% 46%, transparent 42%, rgba(3,3,5,.62) 100%)}
   .portal-ring{position:absolute;left:50%;top:50%;width:64vmin;height:64vmin;transform:translate(-50%,-50%);
      border-radius:50%;pointer-events:none;opacity:0;
-     box-shadow:0 0 0 1px rgba(63,231,255,.16), 0 0 80px -10px rgba(63,231,255,.45), inset 0 0 90px -20px rgba(63,231,255,.35);
+     box-shadow:0 0 0 1px rgba(157,138,255,.16), 0 0 80px -10px rgba(157,138,255,.45), inset 0 0 90px -20px rgba(157,138,255,.35);
      will-change:opacity,transform}
 
   /* ============ THRESHOLD GATE (Indigo's "Enter the experience") ============ */
   .gate{position:fixed;inset:0;z-index:5;display:grid;place-items:center;background:var(--bg);
      will-change:opacity,clip-path}
   .gate-field{position:absolute;inset:0;z-index:0;
-     background:radial-gradient(120% 120% at 50% 40%, var(--accent-field) 0%, #06040e 60%, var(--bg) 100%);
+     background:var(--bg);
      opacity:1;will-change:opacity}
   .gate-grain{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;mix-blend-mode:screen;
-     background:radial-gradient(40% 30% at 50% 38%, rgba(120,80,255,.20), transparent 70%)}
-
-  .gate-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:30px;width:min(640px,90vw);text-align:center}
+     background:none;z-index:2;display:flex;flex-direction:column;align-items:center;gap:30px;width:min(640px,90vw);text-align:center}
   /* the real XR Pixels monogram, inline + animatable */
   .gate-mark{width:clamp(120px,18vw,190px);height:auto;will-change:transform,opacity}
   .gate-mark path{will-change:opacity,transform}
@@ -136,22 +131,22 @@
      max-width:420px;opacity:0;will-change:opacity,transform}
   .gate-idx{font-family:var(--mono);font-size:12px;letter-spacing:.3em;color:var(--muted);opacity:0}
   .enter{position:relative;font-family:var(--mono);font-weight:500;letter-spacing:.22em;font-size:13px;text-transform:uppercase;
-     color:var(--ink);padding:14px 26px;border:1px solid rgba(238,243,251,.5);background:transparent;cursor:pointer;
+     color:var(--ink);padding:14px 26px;border:1px solid rgba(255,255,255,.5);background:transparent;cursor:pointer;
      overflow:hidden;opacity:0;will-change:opacity,transform}
   .enter::before{content:"";position:absolute;inset:0;background:var(--ink);transform:scaleY(0);transform-origin:bottom;
      transition:transform .5s cubic-bezier(.7,0,.2,1);z-index:-1}
-  .enter:hover{color:#08080c}.enter:hover::before{transform:scaleY(1)}
+  .enter:hover{color:#030305}.enter:hover::before{transform:scaleY(1)}
   .nosound{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;
      display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;cursor:pointer}
   .nosound .glyph{width:18px;height:24px;opacity:.7}
 
   /* ============ HERO OVER THE WORLD (after open) ============ */
-  /* WAVE 1 #2: PERSISTENT sticky header — sits above the chapters (#chapters z-index:7) on every
+  /* WAVE 1 #2: PERSISTENT sticky header , sits above the chapters (#chapters z-index:7) on every
      section, never vanishes. Gains a translucent blurred ground once the reader scrolls. */
   .topbar{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
      padding:18px var(--gutter);opacity:0;will-change:opacity;
      transition:background .4s ease,border-color .4s ease,backdrop-filter .4s ease,padding .4s ease}
-  .topbar.scrolled{padding:12px var(--gutter);background:rgba(3,3,6,.62);backdrop-filter:blur(12px) saturate(1.1);
+  .topbar.scrolled{padding:12px var(--gutter);background:rgba(3,3,5,.62);backdrop-filter:blur(12px) saturate(1.1);
      border-bottom:1px solid var(--line)}
   .brand{display:flex;align-items:center;gap:12px}
   .brand-mark{width:30px;height:30px;display:block}
@@ -164,9 +159,9 @@
   /* Was a non-functional "EN" dropdown. A proposal site's top-right slot is worth
      more as the contact action than as a language switcher for one language. */
   .lang-cta{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
-     color:var(--ink);text-decoration:none;border:1px solid rgba(238,243,251,.28);
+     color:var(--ink);text-decoration:none;border:1px solid rgba(255,255,255,.28);
      border-radius:999px;padding:11px 20px;transition:border-color .35s,color .35s,background .35s}
-  .lang-cta:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(63,231,255,.06)}
+  .lang-cta:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(157,138,255,.06)}
   .lang-cta:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 
   /* ===== mobile navigation =====
@@ -186,7 +181,7 @@
 
   #navSheet{border:0;padding:0;margin:0;width:100%;max-width:none;height:100%;max-height:none;
      background:var(--bg);color:var(--ink)}
-  #navSheet::backdrop{background:rgba(3,3,6,.6);backdrop-filter:blur(6px)}
+  #navSheet::backdrop{background:rgba(3,3,5,.6);backdrop-filter:blur(6px)}
   .sheet-in{display:flex;flex-direction:column;height:100%;padding:20px}
   .sheet-top{display:flex;align-items:center;justify-content:space-between;min-height:44px}
   .sheet-close{width:44px;height:44px;display:grid;place-items:center;background:none;border:0;
@@ -203,11 +198,11 @@
 
   /* m5 FIX: was rgba(140,160,185,.6) = 3.27:1 (sub-AA). Raised to clear AA 4.5:1 on near-black. */
   .corner{position:fixed;z-index:6;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
-     color:rgba(166,184,207,.95);line-height:1.7;opacity:0;will-change:opacity}
+     color:rgba(241,238,255,.95);line-height:1.7;opacity:0;will-change:opacity}
   .corner.tl{top:92px;left:var(--gutter)}
   .corner .hot{color:var(--cyan)}
 
-  /* headline — split around the portal (WILD split-reveal mechanic) */
+  /* headline , split around the portal (WILD split-reveal mechanic) */
   /* margin/font reset because this is now an h1 and would otherwise inherit UA defaults */
   .hero-copy{position:fixed;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;
      gap:34px;pointer-events:none;margin:0;font-size:inherit;font-weight:inherit;
@@ -236,9 +231,9 @@
      max-width:100%;box-sizing:border-box;padding:0 var(--gutter)}
   .hcta{font-family:var(--mono);font-size:12.5px;letter-spacing:.13em;text-transform:uppercase;
      text-decoration:none;padding:15px 26px;border-radius:999px;transition:background .35s,color .35s,border-color .35s}
-  .hcta.primary{background:var(--cyan);color:#04121a;font-weight:500}
-  .hcta.primary:hover{background:#7ff0ff}
-  .hcta.ghost{color:var(--ink);border:1px solid rgba(238,243,251,.28)}
+  .hcta.primary{background:var(--cyan);color:#030305;font-weight:500}
+  .hcta.primary:hover{background:#f1eeff}
+  .hcta.ghost{color:var(--ink);border:1px solid rgba(255,255,255,.28)}
   .hcta.ghost:hover{border-color:var(--cyan);color:var(--cyan)}
   .hcta:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
   .hl .mask{display:block;overflow:hidden;padding-bottom:.18em;margin-bottom:-.18em}
@@ -254,7 +249,7 @@
 
   /* ============ HANDOFF CHAPTER (proves the through-scroll handoff) ============ */
   .next{position:fixed;inset:0;z-index:3;display:grid;place-items:center;opacity:0;pointer-events:none;
-     background:linear-gradient(180deg,#030305,#05070d);will-change:opacity}
+     background:linear-gradient(180deg,#030305,#030305);will-change:opacity}
   .next .ch-idx{font-family:var(--mono);font-size:12px;letter-spacing:.34em;color:var(--cyan);margin-bottom:20px}
   .next h2{font-family:var(--sans);font-weight:600;font-size:clamp(28px,5vw,64px);letter-spacing:-.01em;color:var(--ink);text-align:center;line-height:1}
 
@@ -295,7 +290,7 @@
 
   /* product grid: 8 cards, eyebrow + title + thin rule (4+4) */
   /* real client work under Omnichannel. Same 1px hairline grid as the product cards so the
-     two read as one system. These tiles carry footage, so unlike .card they are opaque —
+     two read as one system. These tiles carry footage, so unlike .card they are opaque ,
      the node field runs behind the section rather than through them. */
   /* Six tiles now Scannable Merch joined. Three columns over two rows rather than
      six across: at 1180px, six tiles leave ~196px each and the labels stop fitting. */
@@ -308,7 +303,7 @@
   /* legibility is a LAYER, never a text shadow */
   /* The caption zone holds a near-solid floor rather than a steep fade. Measured over the
      brighter clips the old .9-to-.12 ramp left a 29-36 backdrop peaking at 122, and above
-     ~112 no text colour can reach AA 4.5:1 at all — the scrim has to do the work. */
+     ~112 no text colour can reach AA 4.5:1 at all , the scrim has to do the work. */
   .work .w-scrim{position:absolute;inset:0;pointer-events:none;
      background:linear-gradient(0deg, rgba(3,3,5,.94) 0%, rgba(3,3,5,.88) 26%, rgba(3,3,5,.10) 62%, rgba(3,3,5,.26) 100%)}
   .work figcaption{position:absolute;left:16px;right:16px;bottom:14px;font-family:var(--mono);
@@ -316,8 +311,8 @@
   /* --muted is tuned for body copy on the page background; at 10px over footage it does
      not clear 4.5:1, so this line runs brighter than the site's default secondary tone. */
   .work figcaption span{display:block;margin-top:6px;font-size:11.5px;letter-spacing:.1em;
-     text-transform:none;color:rgba(238,243,251,.74)}
-  .work:hover{box-shadow:inset 0 0 0 1px rgba(63,231,255,.4),0 0 40px -8px rgba(63,231,255,.5)}
+     text-transform:none;color:rgba(255,255,255,.74)}
+  .work:hover{box-shadow:inset 0 0 0 1px rgba(157,138,255,.4),0 0 40px -8px rgba(157,138,255,.5)}
   /* reduced motion: hold the poster still rather than looping footage */
   @media (prefers-reduced-motion: reduce){ .work video{visibility:hidden} }
   .work{grid-column:span 2} .work:nth-child(n+4){grid-column:span 3}
@@ -327,12 +322,12 @@
 
   .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin-top:var(--s6);border:1px solid var(--line)}
   /* translucent cards so the GRID node field reads through the product grid; backdrop-blur keeps copy crisp */
-  .card{position:relative;background:rgba(4,6,12,.62);backdrop-filter:blur(3px);padding:0;min-height:230px;
+  .card{position:relative;background:rgba(3,3,5,.62);backdrop-filter:blur(3px);padding:0;min-height:230px;
      display:flex;flex-direction:column;justify-content:space-between;text-decoration:none;color:inherit;
      transition:background .4s ease}
-  .card:hover{background:rgba(7,9,18,.72)}
-  /* hovered card glows a cyan edge — signals the field is now reshaping to this product */
-  .card.spine-hot{background:rgba(7,11,22,.66);box-shadow:inset 0 0 0 1px rgba(63,231,255,.4),0 0 40px -8px rgba(63,231,255,.5)}
+  .card:hover{background:rgba(3,3,5,.72)}
+  /* hovered card glows a cyan edge , signals the field is now reshaping to this product */
+  .card.spine-hot{background:rgba(3,3,5,.66);box-shadow:inset 0 0 0 1px rgba(157,138,255,.4),0 0 40px -8px rgba(157,138,255,.5)}
   /* WAVE 1: while a product is being previewed, dim the rest of the grid so the node
      silhouette of THAT product reads clearly over the cards instead of competing with them. */
   #products.previewing .card{transition:opacity .45s ease,background .4s ease;
@@ -341,7 +336,7 @@
   background:none;border:0;padding:0;margin:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
 /* Full frame: the shot is the card, edge to edge, with the label under it. The old
    version floated a rounded thumbnail inside padding, which read as a placeholder. */
-.c-shot{display:block;width:100%;aspect-ratio:16/10;object-fit:contain;background:#0a0c12;
+.c-shot{display:block;width:100%;aspect-ratio:16/10;object-fit:contain;background:#030305;
   opacity:.9;transition:opacity .4s ease,transform .6s ease}
 .card{overflow:hidden}
 .card:hover .c-shot,.card:focus-visible .c-shot{opacity:1;transform:scale(1.03)}
@@ -359,16 +354,16 @@
 .sb-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:14px}
 .sb-label{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
 .sb-close{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
-  background:none;border:1px solid rgba(238,243,251,.3);color:var(--ink);border-radius:999px;
+  background:none;border:1px solid rgba(255,255,255,.3);color:var(--ink);border-radius:999px;
   padding:10px 18px;cursor:pointer}
 .sb-close:hover{border-color:var(--cyan);color:var(--cyan)}
 .sb-close:focus-visible,#shotBox:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
   #products.previewing .card:not(.spine-hot){opacity:.16}
-  #products.previewing .card.spine-hot{background:rgba(4,6,12,.30)}
+  #products.previewing .card.spine-hot{background:rgba(3,3,5,.30)}
   #products.previewing .ch-head,#products.previewing .lead,#products.previewing .grid-note{opacity:.22;transition:opacity .45s ease}
   .card .c-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.28em;color:var(--muted)}
   /* m5 FIX: was rgba(140,160,185,.5) = 2.60:1 (sub-AA). Raised to clear AA 4.5:1 on near-black. */
-  .card .c-num{font-family:var(--mono);font-size:10.5px;color:rgba(164,182,205,.92)}
+  .card .c-num{font-family:var(--mono);font-size:10.5px;color:rgba(241,238,255,.92)}
   .card .c-top{display:flex;justify-content:space-between;align-items:center}
   .card .c-title{font-family:var(--sans);font-weight:600;font-size:clamp(22px,2.4vw,30px);letter-spacing:-.01em}
   .card .c-line{height:1px;background:var(--line);margin-top:18px;position:relative;overflow:hidden}
@@ -384,18 +379,18 @@
   /* WAVE 1: editorial visual frame is now translucent so the section's node shape (projector /
      goggles) reads THROUGH it as a holographic display, not behind a solid panel. */
   .editorial .visual{aspect-ratio:4/3;border:1px solid var(--line);position:relative;overflow:hidden;border-radius:2px;
-     background:radial-gradient(120% 120% at 30% 20%, rgba(63,231,255,.08), transparent 55%), rgba(5,7,14,.30);
+     background:radial-gradient(120% 120% at 30% 20%, rgba(157,138,255,.08), transparent 55%), rgba(3,3,5,.30);
      backdrop-filter:blur(2px)}
-  /* explicit 100% box so the canvas's intrinsic (attribute) size can't drive layout —
+  /* explicit 100% box so the canvas's intrinsic (attribute) size can't drive layout ,
      without this an abs-positioned replaced element with inset:0 lets the growing
      canvas.width feed back through the ResizeObserver and blow the box up to millions
      of px (white-out). Matches .threads / .video-reel which already pin width/height. */
   .holo-orb{position:absolute;inset:0;width:100%;height:100%;z-index:2}
   /* WAVE 2 P3: flowing-lines "Threads" trail bg (reactbits-inspired, single-file canvas)
-     behind the #light projector form — reads as the hologram emitting light. */
+     behind the #light projector form , reads as the hologram emitting light. */
   .threads{position:absolute;inset:0;width:100%;height:100%;z-index:1;display:block;pointer-events:none}
 
-  /* WAVE 2 P2: #ar GOGGLES-ON slide-in — the visual enters from the left, the copy from
+  /* WAVE 2 P2: #ar GOGGLES-ON slide-in , the visual enters from the left, the copy from
      the right, both with a slight blur-focus, so reaching #ar feels like the headset
      snapping over your eyes. GSAP owns the actual animation; these are the rest states. */
   #ar .editorial .visual{transform:translateX(-9vw);opacity:0;filter:blur(8px);will-change:transform,opacity,filter}
@@ -417,19 +412,19 @@
      became two columns, so a term that wrapped ("Photoreal or / stylised") stranded
      its description up on the first line. They are one sentence; now they read as one. */
   .tier-inc li{position:relative;padding-left:18px;font-size:13.5px;line-height:1.5;color:var(--ink)}
-  .tier-inc li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px rgba(63,231,255,.6)}
+  .tier-inc li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px rgba(157,138,255,.6)}
   .tier-inc li b{color:var(--ink);font-weight:600}.tier-inc li span{color:var(--muted)}
   .btn{align-self:flex-start;font-family:var(--mono);font-weight:500;letter-spacing:.14em;font-size:12px;text-transform:uppercase;
      color:var(--bg);background:var(--cyan);padding:13px 22px;border:none;cursor:pointer;text-decoration:none;
      position:relative;overflow:hidden;transition:transform .3s}
   .btn:hover{transform:translateY(-2px)}
-  .btn.ghost{color:var(--ink);background:transparent;border:1px solid rgba(238,243,251,.4)}
+  .btn.ghost{color:var(--ink);background:transparent;border:1px solid rgba(255,255,255,.4)}
   .btn.ghost:hover{border-color:var(--cyan);color:var(--cyan)}
 
   /* shaping tomorrow video */
   .video-band{text-align:center}
   .video-stage{position:relative;margin-top:var(--s6);aspect-ratio:16/7;border:1px solid var(--line);overflow:hidden;border-radius:3px;
-     display:grid;place-items:center;background:radial-gradient(80% 120% at 50% 0%, rgba(63,231,255,.12), transparent 60%), #04060c;cursor:pointer}
+     display:grid;place-items:center;background:radial-gradient(80% 120% at 50% 0%, rgba(157,138,255,.12), transparent 60%), #030305;cursor:pointer}
   /* COVER the frame: size the iframe to 16:9 and let it overflow-crop, so the film fills
      the stage with no black letterbox / no side reel showing (was inset:0 -> Vimeo letterboxed). */
   .video-stage iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
@@ -441,13 +436,13 @@
   .video-stage.reel-on .video-reel{opacity:1}
   /* WAVE 2 P1: glowing node-frame border around the playing video (the outline of points
      sits here too; this CSS edge reinforces the "framed by the field" read) */
-  .video-stage.framed{border-color:rgba(63,231,255,.55);
-     box-shadow:0 0 0 1px rgba(63,231,255,.35),0 0 60px -8px rgba(63,231,255,.45),inset 0 0 50px -16px rgba(63,231,255,.35)}
+  .video-stage.framed{border-color:rgba(157,138,255,.55);
+     box-shadow:0 0 0 1px rgba(157,138,255,.35),0 0 60px -8px rgba(157,138,255,.45),inset 0 0 50px -16px rgba(157,138,255,.35)}
   .video-stage.playing{cursor:default}
   .video-stage.playing .play{opacity:0;pointer-events:none}
   .play{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:16px;transition:opacity .4s ease}
-  .play .disc{width:84px;height:84px;border-radius:50%;border:1px solid rgba(238,243,251,.5);display:grid;place-items:center;
-     backdrop-filter:blur(4px);background:rgba(3,3,8,.3);transition:transform .3s,border-color .3s}
+  .play .disc{width:84px;height:84px;border-radius:50%;border:1px solid rgba(255,255,255,.5);display:grid;place-items:center;
+     backdrop-filter:blur(4px);background:rgba(3,3,5,.3);transition:transform .3s,border-color .3s}
   .video-stage:hover .play .disc{transform:scale(1.06);border-color:var(--cyan)}
   .play .disc svg{width:22px;height:22px;margin-left:4px}
   .play span{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--ink);text-transform:uppercase}
@@ -457,19 +452,19 @@
   .form-status{margin-top:14px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;
     min-height:1.2em;color:var(--muted)}
   .form-status.ok{color:var(--cyan)}
-  .form-status.bad{color:#ff9a52}
+  .form-status.bad{color:#9d8aff}
   .preorder button[disabled]{opacity:.55;cursor:progress}
 
   /* contact / pre-order */
   .contact{display:grid;grid-template-columns:.9fr 1.1fr;gap:var(--s7);align-items:stretch}
   .contact .visual{border:1px solid var(--line);position:relative;overflow:hidden;border-radius:2px;min-height:420px;
-     background:radial-gradient(120% 80% at 50% 100%, rgba(63,231,255,.12), transparent 55%), #05070e}
+     background:radial-gradient(120% 80% at 50% 100%, rgba(157,138,255,.12), transparent 55%), #030305}
   .contact h3{font-family:var(--sans);font-weight:600;font-size:clamp(22px,3vw,34px);letter-spacing:-.01em}
   .contact .h-sub{color:var(--muted);font-size:16px;margin-top:12px;line-height:1.55}
   form.preorder{margin-top:var(--s5);display:flex;flex-direction:column;gap:var(--s3)}
   form.preorder .field{display:flex;flex-direction:column;gap:8px}
   form.preorder label{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
-  form.preorder input,form.preorder textarea{background:#06080f;border:1px solid var(--line);color:var(--ink);
+  form.preorder input,form.preorder textarea{background:#030305;border:1px solid var(--line);color:var(--ink);
      font-family:var(--sans);font-size:15px;padding:14px 16px;border-radius:2px;outline:none;transition:border-color .3s}
   form.preorder input:focus,form.preorder textarea:focus{border-color:var(--cyan)}
   form.preorder textarea{resize:vertical;min-height:96px}
@@ -499,7 +494,7 @@
     form.preorder .row2{grid-template-columns:1fr}
   }
 
-  /* ===== m6 FIX — visible keyboard focus across all interactive elements =====
+  /* ===== m6 FIX , visible keyboard focus across all interactive elements =====
      Inputs previously used outline:none with only a border change; nav/cards/
      .btn/footer links had no focus ring at all. A cyan focus-visible ring restores a
      clear, AA-friendly keyboard indicator without affecting mouse users. */
@@ -522,13 +517,25 @@
     html{scroll-behavior:auto}
     [data-reveal]{opacity:1;transform:none}
   }
+
+/* Approved identity, dimensions follow whole pixels per module. */
+.brand-mark,.foot-brand > svg,.brand > svg{width:32px;height:28px;flex-shrink:0}
+.brand-word,.foot-word{display:block;line-height:0}
+.brand-word svg,.foot-word svg,.brand .brand-word svg{width:auto;height:24px;display:block}
+.gate-mark{width:192px;height:168px}
+.hl,.next h2,.ch-title,.card .c-title,.contact h3,h1{font-family:'Hubot Sans',sans-serif;font-weight:700;font-stretch:112.5%;font-feature-settings:'ss04';letter-spacing:0}
+.tier-h{font-family:'Host Grotesk',sans-serif;font-weight:600;letter-spacing:0}
+.hcta.primary,.btn{background:#5b3cf0;color:#ffffff}
+.hcta.primary:hover,.btn:not(.ghost):hover{background:#5b3cf0;color:#ffffff}
+.btn.ghost{background:transparent}
+@media(max-width:640px){.gate-mark{width:128px;height:112px}}
 </style>
 </head>
 <body>
 
   <!-- ===================== NODE SPINE (persistent morphing field, fixed behind all) ===================== -->
   <div id="spine-stage" aria-hidden="true"></div>
-  <!-- WAVE 1 #5: STARFIELD — fades in as #omni arrives so the globe-dive reads as immersing into space -->
+  <!-- WAVE 1 #5: STARFIELD , fades in as #omni arrives so the globe-dive reads as immersing into space -->
   <canvas id="starfield" aria-hidden="true"></canvas>
 
   <!-- ===================== SITE CHROME =====================
@@ -539,10 +546,10 @@
        Out here the 20 actually competes with the 7 and wins. -->
   <header class="topbar" id="topbar">
     <div class="brand">
-      <svg class="brand-mark" viewBox="0 0 1913 1946" aria-hidden="true">
+      <svg class="brand-mark" viewBox="0 0 128 112" aria-hidden="true">
         <use href="#xr-mono"/>
       </svg>
-      <span class="brand-word">XR&nbsp;PIXELS</span>
+      <span class="brand-word"><svg viewBox="0 0 861.404 192" role="img" aria-label="XR Pixels"><path fill="#9d8aff" transform="translate(44.681 144) scale(0.1316872)" d="M25.200078947772475 0.0 327.47455283025386 -380.3332661910107 46.23372722313789 -729.0H266.47400352949364L444.84430136603595 -486.0678600893768H453.97777141645037L633.4148490467021 -729.0H848.3550272920972L571.0475846516886 -381.93328328064587L870.3219669840432 0.0H648.0482132986733L449.177565523063 -264.33181967397513H439.4108248047877L241.04029096355504 0.0Z"/><path fill="#9d8aff" transform="translate(160.83 144) scale(0.1316872)" d="M58.367022309233604 0.0V-729.0H491.646871332571Q577.9816430678666 -729.0 636.2658854177098 -701.1165584305724Q694.5501277675529 -673.2331168611447 723.9338684055954 -623.0163358564328Q753.317609043638 -572.7995548517207 753.317609043638 -505.23284017678094Q753.317609043638 -444.89886393771565 728.9170513868555 -399.83189595879367Q704.5164937300732 -354.76492797987163 660.4822340861535 -327.6315515135676Q616.4479744422338 -300.49817504726354 556.080195303321 -293.03170125231645L548.7800117941847 -293.53159341988965L551.8134138949415 -305.4985107380152L786.9856571398626 0.0H562.111961643115L365.4077099413278 -262.5313106335749H224.87176474556804V-400.2675992784302H457.44548013154673Q506.34551796990155 -400.2675992784302 532.1289068445491 -421.9838777640065Q557.9122957191965 -443.7001562495828 557.9122957191965 -481.132882083103V-508.69828653877477Q557.9122957191965 -546.6308760640968 531.8456441081814 -568.0473067312885Q505.7789924971662 -589.4637373984802 457.44548013154673 -589.4637373984802H240.4717818352032V0.0Z"/><path fill="#9d8aff" transform="translate(285.801 144) scale(0.1316872)" d="M58.367022309233604 0.0V-729.0H448.8788916053176Q500.2461336265107 -729.0 543.5633823629792 -718.6999456801191Q586.8806310994477 -708.3998913602381 620.9811802114125 -688.1330834996402Q655.0817293233773 -667.8662756390422 678.7654652853435 -638.549401249446Q702.4492012473097 -609.2325268598496 714.9327809596932 -570.9822684761236Q727.4163606720766 -532.7320100923976 727.4163606720766 -485.9983052535107Q727.4163606720766 -407.964587801839 692.6658439098399 -353.64755166881787Q657.9153271476031 -299.33051553579674 595.2143896501063 -271.1136124607723Q532.5134521526097 -242.89670938574778 447.71218221456303 -242.89670938574778H224.87176474556804V-380.3328328273199H427.9108980177692Q479.01085204347976 -380.3328328273199 507.1276993727486 -404.265845525553Q535.2445467020175 -428.1988582237861 535.2445467020175 -469.0983833730868V-497.6980322282314Q535.2445467020175 -540.230744631201 506.8610949626715 -563.347125046479Q478.47764322332546 -586.4635054617572 427.9108980177692 -586.4635054617572H240.4717818352032V0.0Z"/><path fill="#9d8aff" transform="translate(384.039 144) scale(0.1316872)" d="M58.367022309233604 0.0V-729.0H240.8051172025202V0.0Z"/><path fill="#9d8aff" transform="translate(421.57 144) scale(0.1316872)" d="M25.200078947772475 0.0 327.47455283025386 -380.3332661910107 46.23372722313789 -729.0H266.47400352949364L444.84430136603595 -486.0678600893768H453.97777141645037L633.4148490467021 -729.0H848.3550272920972L571.0475846516886 -381.93328328064587L870.3219669840432 0.0H648.0482132986733L449.177565523063 -264.33181967397513H439.4108248047877L241.04029096355504 0.0Z"/><path fill="#9d8aff" transform="translate(537.719 144) scale(0.1316872)" d="M58.367022309233604 0.0V-729.0H686.1172167997956V-586.9969523205855H240.4717818352032V-143.1031034251701H687.1503035496373V0.0ZM224.53842937825107 -304.8986096271723V-435.9676802497557H553.0136698410163V-304.8986096271723Z"/><path fill="#9d8aff" transform="translate(631.348 144) scale(0.1316872)" d="M58.367022309233604 0.0V-729.0H240.4717818352032V-143.43651610472807H645.2501823179521V0.0Z"/><path fill="#9d8aff" transform="translate(718.525 144) scale(0.1316872)" d="M379.1749084519594 10.3667496719758Q269.1724711136768 10.3667496719758 194.07073893771565 -18.333367921486477Q118.96900676175446 -47.03348551494876 78.53463400122264 -99.46687357704587Q38.10026124069082 -151.900261639143 31.099939787824834 -223.10003133795155H212.33830771682142Q216.97181438937264 -185.2008561172883 238.7057145324149 -161.30130044780185Q260.43961467545716 -137.4017447783154 297.8403818847114 -126.5352585698095Q335.24114909396565 -115.66877236130361 384.40858073667675 -115.66877236130361Q417.50918783803763 -115.66877236130361 444.1930102651714 -120.58536070395279Q470.87683269230513 -125.50194904660196 490.02717875741666 -135.55183450933055Q509.17752482252814 -145.60171997205913 519.5610630270417 -161.3849745724921Q529.9446012315552 -177.16822917292507 529.9446012315552 -199.5015787781278Q529.9446012315552 -224.50099284480007 518.1446659310113 -241.58392843523362Q506.3447306304673 -258.66686402566717 481.8945825220346 -269.683157158012Q457.44443441360187 -280.69945029035694 419.5772208786109 -287.49901734597967L274.0396765335945 -313.76439289613575Q201.63729899860414 -326.49708453995504 151.1027189188102 -351.63034707188126Q100.5681388390163 -376.76360960380754 74.2176833163772 -416.6805316032247Q47.86722779373812 -456.59745360264196 47.86722779373812 -513.8645300220996Q47.86722779373812 -566.7983585563998 70.66772868777304 -608.1820829225729Q93.46822958180795 -649.5658072887461 136.23585429546478 -678.8327728248016Q179.0034790091216 -708.099738360857 239.0715954638868 -723.3165570046976Q299.139711918652 -738.5333756485383 373.7416678954014 -738.5333756485383Q472.97688437009344 -738.5333756485383 544.428450530221 -712.5834065723916Q615.8800166903485 -686.6334374962449 656.7977311245897 -638.4002087347061Q697.7154455588311 -590.1669799731673 705.3824377463311 -521.6004667043339H525.0106913170467Q518.1770670510332 -554.9996744791666 497.74322021088005 -575.3324534163498Q477.3093733707269 -595.6652323535332 445.2421470132942 -605.3483081209062Q413.17492065586146 -615.0313838882792 369.807859700938 -615.0313838882792Q325.7073014360467 -615.0313838882792 296.6068601565087 -605.3314931361499Q267.50641887697066 -595.6316023840208 252.77280356465758 -578.0984200056542Q238.0391882523445 -560.5652376272877 238.0391882523445 -537.3320475218694Q238.0391882523445 -515.2659024979572 249.5891042248282 -499.2662412396844Q261.1390201973119 -483.26657998141167 285.03910279373815 -472.4502396481288Q308.93918539016437 -461.63389931484585 345.8397176117202 -454.73443723990044L476.84341836678493 -432.3687841771841Q549.3453104618441 -420.03631348240367 604.2467500800242 -395.23669149879106Q659.1481896982043 -370.4370695151784 689.8156671159788 -326.7700824126376Q720.4831445337534 -283.10309531009676 720.4831445337534 -212.36859497497971Q720.4831445337534 -158.83482666328547 697.0159790070354 -117.45114095323282Q673.5488134803176 -76.06745524318018 629.03113078248 -47.43383056828378Q584.5134480846425 -18.80020589338738 521.3618965712835 -4.216728110705789Q458.2103450579245 10.3667496719758 379.1749084519594 10.3667496719758Z"/></svg></span>
     </div>
     <nav class="navpill">
       <a href="#products">3D</a><span class="sep"></span>
@@ -584,7 +591,7 @@
   <!-- ===================== HERO SCOPE (fixed cinematic stage) ===================== -->
   <div id="hero-scope">
 
-    <!-- THE WORLD (revealed) — pure near-black ground; the node spine is the only subject -->
+    <!-- THE WORLD (revealed) , pure near-black ground; the node spine is the only subject -->
     <div class="world-stage">
       <div class="worldwrap" id="worldwrap"></div>
       <div class="floorglow"></div>
@@ -634,7 +641,7 @@
       <div class="gate-grain"></div>
       <div class="gate-inner">
         <div class="gate-idx" id="gateIdx">[ XR PIXELS · 5 WORLDS, ONE LIGHT ]</div>
-        <svg class="gate-mark" id="mark" viewBox="0 0 1913 1946" role="img" aria-label="XR Pixels">
+        <svg class="gate-mark" id="mark" viewBox="0 0 128 112" role="img" aria-label="XR Pixels">
           <use href="#xr-mono"/>
         </svg>
         <!-- The Enter button and the welcome copy are gone: the world now opens on
@@ -666,37 +673,37 @@
         <!-- Real delivered work. Videos are decorative; the figcaption carries the meaning.
              Poster doubles as the .work background so reduced-motion holds a still frame. -->
         <div class="work-grid" data-reveal>
-          <figure class="work" style="background-image:url(work-concert.png)">
-            <video data-src="work-concert.mp4" poster="work-concert.png" loop muted playsinline preload="none" aria-hidden="true"></video>
+          <figure class="work" style="background-image:url(card-avatar.png)">
+            <video poster="card-avatar.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
-            <figcaption>Events<span>Live holograms</span></figcaption>
+            <figcaption>Avatar<span>Holographic avatar installation</span></figcaption>
           </figure>
           <figure class="work" style="background-image:url(work-city.png)">
             <video data-src="work-city.mp4" poster="work-city.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
             <figcaption>City<span>3D anamorphic billboards</span></figcaption>
           </figure>
-          <figure class="work" style="background-image:url(work-retail.png)">
-            <video data-src="work-retail.mp4" poster="work-retail.png" loop muted playsinline preload="none" aria-hidden="true"></video>
+          <figure class="work" style="background-image:url(work-sports-safe.png)">
+            <video data-src="work-sports-safe.mp4" poster="work-sports-safe.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
             <figcaption>Sports<span>Fan activations</span></figcaption>
           </figure>
-          <figure class="work" style="background-image:url(work-broadcast.png)">
-            <video data-src="work-broadcast.mp4" poster="work-broadcast.png" loop muted playsinline preload="none" aria-hidden="true"></video>
+          <figure class="work" style="background-image:url(card-portalbooth.png)">
+            <video data-src="vid-portalbooth.mp4" poster="card-portalbooth.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
             <!-- kept short: at 5 columns anything longer wraps and breaks the label baseline -->
-            <figcaption>Omnichannel<span>3D activations</span></figcaption>
+            <figcaption>HoloXP Booth<span>Capture and share your hologram</span></figcaption>
           </figure>
-          <figure class="work" style="background-image:url(work-merch.png)">
-            <video data-src="work-merch.mp4" poster="work-merch.png" loop muted playsinline preload="none" aria-hidden="true"></video>
+          <figure class="work" style="background-image:url(card-picklearn.png)">
+            <video data-src="vid-picklearn.mp4" poster="card-picklearn.png" loop muted playsinline preload="none" aria-hidden="true"></video>
             <div class="w-scrim"></div>
-            <figcaption>AR Activation<span>Wearable tech, scanned to life</span></figcaption>
+            <figcaption>Pick &amp; Learn<span>Holographic product display</span></figcaption>
           </figure>
         </div>
       </div>
     </section>
 
-    <!-- 03 / Custom 3D Holograms — 8 product cards -->
+    <!-- 03 / Custom 3D Holograms , 8 product cards -->
     <section class="chapter" id="products">
       <div class="wrap">
         <div class="ch-head">
@@ -710,14 +717,14 @@
         <p class="lead" data-reveal>The <b>Xrpixels Collective</b> can craft any bespoke hologram you imagine, powered by our cutting-edge technology.</p>
 
         <div class="product-grid" data-reveal>
-          <button class="card" type="button" data-shot="card-avatar.png" data-vid="vid-avatar.mp4" data-label="Avatar"><img class="c-shot" src="card-avatar.png" alt="Avatar" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Avatar</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-avatar.png" data-label="Avatar"><img class="c-shot" src="card-avatar.png" alt="Avatar" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Avatar</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
           <button class="card" type="button" data-shot="card-slots.png" data-vid="vid-slots.mp4" data-label="Slots"><img class="c-shot" src="card-slots.png" alt="Slots" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Slots</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
           <button class="card" type="button" data-shot="card-picklearn.png" data-vid="vid-picklearn.mp4" data-label="Pick & Learn"><img class="c-shot" src="card-picklearn.png" alt="Pick & Learn" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Pick &amp; Learn</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
           <button class="card" type="button" data-shot="card-portalbooth.png" data-vid="vid-portalbooth.mp4" data-label="HoloXP Booth"><img class="c-shot" src="card-portalbooth.png" alt="HoloXP Booth" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">HoloXP Booth</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
           <button class="card" type="button" data-shot="card-premiere.png" data-vid="vid-premiere.mp4" data-label="Premiere"><img class="c-shot" src="card-premiere.png" alt="Premiere" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Premiere</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
-          <button class="card" type="button" data-shot="card-holotwin.png" data-vid="vid-holotwin.mp4" data-label="HoloTwin"><img class="c-shot" src="card-holotwin.png" alt="HoloTwin" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">HoloTwin</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-holotwin.png" data-label="HoloTwin"><img class="c-shot" src="card-holotwin.png" alt="HoloTwin" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">HoloTwin</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
           <button class="card" type="button" data-shot="card-omegawall.png" data-vid="vid-omegawall.mp4" data-label="Omega Wall"><img class="c-shot" src="card-omegawall.png" alt="Omega Wall" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Omega Wall</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
-          <button class="card" type="button" data-shot="card-livestreaming.png" data-vid="vid-livestreaming.mp4" data-label="Live Streaming"><img class="c-shot" src="card-livestreaming.png" alt="Live Streaming" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Live Streaming</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-livestreaming.png" data-label="Live Streaming"><img class="c-shot" src="card-livestreaming.png" alt="Live Streaming" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Live Streaming</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
         </div>
         <p class="grid-note" data-reveal>Delivery takes 20–60 days, based on content and solution complexity.</p>
       </div>
@@ -815,7 +822,7 @@
         <div class="ch-head" style="justify-content:center">
           <span class="ch-num">07 / 09</span>
           <div>
-            <div class="ch-eyebrow" data-reveal>Feature Film</div>
+            <div class="ch-eyebrow" data-reveal>Premiere Display</div>
             <h2 class="ch-title" data-reveal>Shaping Tomorrow<br>with&nbsp;<span class="em">Holograms</span></h2>
             <div class="rule" data-reveal></div>
           </div>
@@ -829,7 +836,7 @@
           <canvas id="videoReel" class="video-reel" aria-hidden="true"></canvas>
           <div class="play" id="videoPlay">
             <div class="disc"><svg viewBox="0 0 24 24" fill="var(--ink)"><path d="M8 5v14l11-7z"/></svg></div>
-            <span>Watch Film</span>
+            <span>Watch Premiere</span>
           </div>
         </div>
       </div>
@@ -875,8 +882,8 @@
     <footer class="site">
       <div class="wrap foot-row">
         <div class="foot-brand">
-          <svg viewBox="0 0 1913 1946" aria-hidden="true"><use href="#xr-mono"/></svg>
-          <span class="foot-word">XR&nbsp;PIXELS</span>
+          <svg viewBox="0 0 128 112" aria-hidden="true"><use href="#xr-mono"/></svg>
+          <span class="foot-word"><svg viewBox="0 0 861.404 192" role="img" aria-label="XR Pixels"><path fill="#9d8aff" transform="translate(44.681 144) scale(0.1316872)" d="M25.200078947772475 0.0 327.47455283025386 -380.3332661910107 46.23372722313789 -729.0H266.47400352949364L444.84430136603595 -486.0678600893768H453.97777141645037L633.4148490467021 -729.0H848.3550272920972L571.0475846516886 -381.93328328064587L870.3219669840432 0.0H648.0482132986733L449.177565523063 -264.33181967397513H439.4108248047877L241.04029096355504 0.0Z"/><path fill="#9d8aff" transform="translate(160.83 144) scale(0.1316872)" d="M58.367022309233604 0.0V-729.0H491.646871332571Q577.9816430678666 -729.0 636.2658854177098 -701.1165584305724Q694.5501277675529 -673.2331168611447 723.9338684055954 -623.0163358564328Q753.317609043638 -572.7995548517207 753.317609043638 -505.23284017678094Q753.317609043638 -444.89886393771565 728.9170513868555 -399.83189595879367Q704.5164937300732 -354.76492797987163 660.4822340861535 -327.6315515135676Q616.4479744422338 -300.49817504726354 556.080195303321 -293.03170125231645L548.7800117941847 -293.53159341988965L551.8134138949415 -305.4985107380152L786.9856571398626 0.0H562.111961643115L365.4077099413278 -262.5313106335749H224.87176474556804V-400.2675992784302H457.44548013154673Q506.34551796990155 -400.2675992784302 532.1289068445491 -421.9838777640065Q557.9122957191965 -443.7001562495828 557.9122957191965 -481.132882083103V-508.69828653877477Q557.9122957191965 -546.6308760640968 531.8456441081814 -568.0473067312885Q505.7789924971662 -589.4637373984802 457.44548013154673 -589.4637373984802H240.4717818352032V0.0Z"/><path fill="#9d8aff" transform="translate(285.801 144) scale(0.1316872)" d="M58.367022309233604 0.0V-729.0H448.8788916053176Q500.2461336265107 -729.0 543.5633823629792 -718.6999456801191Q586.8806310994477 -708.3998913602381 620.9811802114125 -688.1330834996402Q655.0817293233773 -667.8662756390422 678.7654652853435 -638.549401249446Q702.4492012473097 -609.2325268598496 714.9327809596932 -570.9822684761236Q727.4163606720766 -532.7320100923976 727.4163606720766 -485.9983052535107Q727.4163606720766 -407.964587801839 692.6658439098399 -353.64755166881787Q657.9153271476031 -299.33051553579674 595.2143896501063 -271.1136124607723Q532.5134521526097 -242.89670938574778 447.71218221456303 -242.89670938574778H224.87176474556804V-380.3328328273199H427.9108980177692Q479.01085204347976 -380.3328328273199 507.1276993727486 -404.265845525553Q535.2445467020175 -428.1988582237861 535.2445467020175 -469.0983833730868V-497.6980322282314Q535.2445467020175 -540.230744631201 506.8610949626715 -563.347125046479Q478.47764322332546 -586.4635054617572 427.9108980177692 -586.4635054617572H240.4717818352032V0.0Z"/><path fill="#9d8aff" transform="translate(384.039 144) scale(0.1316872)" d="M58.367022309233604 0.0V-729.0H240.8051172025202V0.0Z"/><path fill="#9d8aff" transform="translate(421.57 144) scale(0.1316872)" d="M25.200078947772475 0.0 327.47455283025386 -380.3332661910107 46.23372722313789 -729.0H266.47400352949364L444.84430136603595 -486.0678600893768H453.97777141645037L633.4148490467021 -729.0H848.3550272920972L571.0475846516886 -381.93328328064587L870.3219669840432 0.0H648.0482132986733L449.177565523063 -264.33181967397513H439.4108248047877L241.04029096355504 0.0Z"/><path fill="#9d8aff" transform="translate(537.719 144) scale(0.1316872)" d="M58.367022309233604 0.0V-729.0H686.1172167997956V-586.9969523205855H240.4717818352032V-143.1031034251701H687.1503035496373V0.0ZM224.53842937825107 -304.8986096271723V-435.9676802497557H553.0136698410163V-304.8986096271723Z"/><path fill="#9d8aff" transform="translate(631.348 144) scale(0.1316872)" d="M58.367022309233604 0.0V-729.0H240.4717818352032V-143.43651610472807H645.2501823179521V0.0Z"/><path fill="#9d8aff" transform="translate(718.525 144) scale(0.1316872)" d="M379.1749084519594 10.3667496719758Q269.1724711136768 10.3667496719758 194.07073893771565 -18.333367921486477Q118.96900676175446 -47.03348551494876 78.53463400122264 -99.46687357704587Q38.10026124069082 -151.900261639143 31.099939787824834 -223.10003133795155H212.33830771682142Q216.97181438937264 -185.2008561172883 238.7057145324149 -161.30130044780185Q260.43961467545716 -137.4017447783154 297.8403818847114 -126.5352585698095Q335.24114909396565 -115.66877236130361 384.40858073667675 -115.66877236130361Q417.50918783803763 -115.66877236130361 444.1930102651714 -120.58536070395279Q470.87683269230513 -125.50194904660196 490.02717875741666 -135.55183450933055Q509.17752482252814 -145.60171997205913 519.5610630270417 -161.3849745724921Q529.9446012315552 -177.16822917292507 529.9446012315552 -199.5015787781278Q529.9446012315552 -224.50099284480007 518.1446659310113 -241.58392843523362Q506.3447306304673 -258.66686402566717 481.8945825220346 -269.683157158012Q457.44443441360187 -280.69945029035694 419.5772208786109 -287.49901734597967L274.0396765335945 -313.76439289613575Q201.63729899860414 -326.49708453995504 151.1027189188102 -351.63034707188126Q100.5681388390163 -376.76360960380754 74.2176833163772 -416.6805316032247Q47.86722779373812 -456.59745360264196 47.86722779373812 -513.8645300220996Q47.86722779373812 -566.7983585563998 70.66772868777304 -608.1820829225729Q93.46822958180795 -649.5658072887461 136.23585429546478 -678.8327728248016Q179.0034790091216 -708.099738360857 239.0715954638868 -723.3165570046976Q299.139711918652 -738.5333756485383 373.7416678954014 -738.5333756485383Q472.97688437009344 -738.5333756485383 544.428450530221 -712.5834065723916Q615.8800166903485 -686.6334374962449 656.7977311245897 -638.4002087347061Q697.7154455588311 -590.1669799731673 705.3824377463311 -521.6004667043339H525.0106913170467Q518.1770670510332 -554.9996744791666 497.74322021088005 -575.3324534163498Q477.3093733707269 -595.6652323535332 445.2421470132942 -605.3483081209062Q413.17492065586146 -615.0313838882792 369.807859700938 -615.0313838882792Q325.7073014360467 -615.0313838882792 296.6068601565087 -605.3314931361499Q267.50641887697066 -595.6316023840208 252.77280356465758 -578.0984200056542Q238.0391882523445 -560.5652376272877 238.0391882523445 -537.3320475218694Q238.0391882523445 -515.2659024979572 249.5891042248282 -499.2662412396844Q261.1390201973119 -483.26657998141167 285.03910279373815 -472.4502396481288Q308.93918539016437 -461.63389931484585 345.8397176117202 -454.73443723990044L476.84341836678493 -432.3687841771841Q549.3453104618441 -420.03631348240367 604.2467500800242 -395.23669149879106Q659.1481896982043 -370.4370695151784 689.8156671159788 -326.7700824126376Q720.4831445337534 -283.10309531009676 720.4831445337534 -212.36859497497971Q720.4831445337534 -158.83482666328547 697.0159790070354 -117.45114095323282Q673.5488134803176 -76.06745524318018 629.03113078248 -47.43383056828378Q584.5134480846425 -18.80020589338738 521.3618965712835 -4.216728110705789Q458.2103450579245 10.3667496719758 379.1749084519594 10.3667496719758Z"/></svg></span>
         </div>
         <div class="foot-meta">
           <span>© XR Pixels LLC</span>
@@ -891,20 +898,7 @@
   <!-- ===== inline real XR Pixels monogram (Logo_white.svg), defined once, animatable ===== -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
-      <g id="xr-mono" fill="#fff" fill-rule="nonzero">
-        <path d="M1625.746,1272.096c-3.813,-4.175 -8.275,-7.917 -11.362,-12.571c-74,-111.646 -147.846,-223.367 -221.717,-335.083c-1.854,-2.792 -3.862,-5.508 -5.417,-8.45c-5.017,-9.479 -2.254,-20.792 6.796,-26.146c5.742,-3.387 12.021,-5.833 18.037,-8.742c68.271,-33.033 125.792,-79.146 169.917,-141.283c46.6,-65.642 70.279,-138.975 67.096,-219.396c-4.442,-112.375 -50.767,-205.188 -137.258,-277.087c-55.208,-45.879 -119.121,-74.013 -189.458,-86.758c-25.408,-4.6 -51.396,-6.058 -77.183,-8.296c-8.975,-0.779 -18.108,0.4 -26.833,0.679c-5.071,7.617 -9.383,13.725 -13.346,20.087c-113.8,182.562 -227.583,365.154 -341.363,547.746c-3.108,4.971 -6.146,9.979 -9.258,14.958c-9.354,15.029 -9.633,29.908 0.754,44.596c3.392,4.771 6.696,9.625 10.062,14.404c123.508,175.125 247.046,350.221 370.554,525.367c4.817,6.833 9.908,13.55 13.95,20.862c18.487,33.513 8.275,74.542 -23.354,95.154c-31.55,20.571 -73.117,13.175 -96.4,-17.242c-3.029,-3.971 -5.562,-8.346 -8.275,-12.571c-117.138,-182.438 -234.254,-364.904 -351.367,-547.342c-4.062,-6.333 -8.329,-12.571 -12.067,-19.104c-31.129,-54.529 -30.675,-108.825 3.917,-161.271c35.012,-53.096 71.608,-105.158 107.579,-157.65c93.717,-136.708 187.421,-273.417 281.308,-410.029c5.142,-7.492 10.738,-15.158 17.688,-20.817c13.217,-10.783 28.342,-15.383 46.254,-14.908c77.833,2.063 152.929,16.088 223.446,49.85c114.833,55.004 197.454,141.133 236.213,263.288c49.342,155.488 15.65,294.308 -95.771,413.45c-40.483,43.263 -88.796,76.071 -142.371,101.133c-7.354,3.446 -14.6,7.137 -23.429,11.467c5.267,9.45 9.45,17.446 14.067,25.167c61.908,103.425 123.967,206.771 185.75,310.271c5.017,8.396 12.462,15.908 12.288,26.8l0.525,-0.5l0.029,-0.029l0,-0.004Z"/>
-        <path d="M62.163,111.754c22.675,27.854 45.4,55.658 68,83.563c110.592,136.533 221.137,273.117 331.704,409.675c5.796,7.137 11.288,14.629 17.733,21.117c10.913,10.987 24.808,10.004 34.767,-2.038c3.712,-4.5 6.796,-9.529 10.108,-14.354c64.013,-93.067 128.35,-185.908 191.862,-279.325c21.621,-31.8 41.421,-64.888 61.704,-97.567c38.408,-61.842 76.554,-123.838 114.888,-185.729c4.388,-7.113 8.6,-14.429 13.867,-20.892c23.933,-29.288 66.3,-34.717 97,-12.771c29.8,21.292 38.708,61.817 20.342,93.971c-3.717,6.512 -8.408,12.471 -12.946,18.479c-35.267,46.758 -71.308,92.967 -105.804,140.279c-80.442,110.338 -170.012,213.233 -257.129,318.142c-24.583,29.613 -48.987,59.379 -74.146,88.517c-26.438,30.621 -66.925,40.55 -104.9,27.1c-16.204,-5.729 -29.7,-15.158 -40.133,-28.808c-4.062,-5.304 -7.775,-10.883 -11.488,-16.467c-114.004,-171.375 -228.033,-342.754 -342.038,-514.129c-5.896,-8.875 -11.587,-17.85 -17.383,-26.8l3.988,-1.987l0,0.025l0.004,-0Z"/>
-        <path d="M912.825,1333.408c-5.342,-5.958 -10.892,-11.737 -16.033,-17.875c-114.079,-135.904 -228.108,-271.833 -342.138,-407.763c-9.154,-10.908 -18.263,-21.821 -27.442,-32.679c-3.237,-3.821 -6.321,-7.867 -10.083,-11.158c-9.483,-8.271 -22.95,-6.842 -30.679,3.342c-4.542,5.988 -8.379,12.521 -12.467,18.833c-109.337,169.512 -218.654,339.029 -327.992,508.521c-4.992,7.742 -9.733,15.717 -15.5,22.825c-24.733,30.367 -67.925,35.471 -98.929,12.092c-29.7,-22.396 -36.975,-64.908 -16.379,-96.783c3.613,-5.604 7.975,-10.758 12.142,-15.987c130.058,-162.833 260.267,-325.562 390.075,-488.592c16.829,-21.146 36.171,-37.354 63.438,-41.279c35.746,-5.133 66.071,5.125 88.946,34.113c3.612,4.604 6.746,9.583 10.058,14.408c106.729,157.167 213.462,314.367 320.146,471.592c5.392,7.971 10.358,16.242 15.525,24.362c-0.879,0.654 -1.758,1.333 -2.638,1.987l-0.05,0.05l0,-0.008Z"/>
-        <path d="M1090.237,1770.563c-30.75,1.008 -59.671,0.25 -88.567,0.554c-28.921,0.3 -57.871,-0.854 -87.946,0.875c-4.538,21.875 -1.958,43.396 -2.108,64.688c-0.146,21.417 -1.779,42.987 1.558,65.917c7.979,0.354 15.25,0.979 22.55,0.979c47.658,0.075 95.321,0 142.979,0.075c7.292,0 14.592,0.554 22.171,0.854c4.242,11.417 2.587,21.596 1.383,32.729c-4.412,0.883 -8.633,2.446 -12.85,2.467c-68.5,0.154 -137.029,0.154 -205.529,0.05c-4.292,0 -8.554,-0.929 -13.875,-1.554c-0.6,-5.304 -1.425,-9.554 -1.558,-13.854c-2.704,-96.258 -1.204,-328.5 2.408,-350.071c3.812,-0.575 8.025,-1.783 12.242,-1.783c68.508,-0.125 137.038,-0.125 205.538,0c4.263,0 8.504,1.033 13.625,1.688c1.729,10.613 1.729,20.033 0.325,29.113c-5.821,6.283 -12.896,4.471 -19.317,4.471c-48.408,0.154 -96.796,0.054 -145.208,0.125c-8,0 -16.025,0.554 -23.029,0.804c-1.604,2.946 -2.883,4.2 -2.904,5.458c-0.275,36.554 -0.45,73.104 -0.525,109.658c0,2.842 0.85,5.679 1.529,9.729c6.146,0.529 11.888,1.429 17.608,1.429c45.425,0.125 90.85,0.029 136.275,0.125c7.3,0 14.571,0.604 22.454,0.958c3.258,11.283 2.008,21.467 0.775,34.513l-0.004,0.004Z"/>
-        <path d="M1733.808,1613.821c-4.967,10.908 -9.258,20.312 -14.2,31.071c-5.771,-3.721 -10.663,-6.658 -15.325,-9.958c-40.208,-28.325 -84.629,-35.117 -132.013,-25.238c-8.608,1.783 -17.133,5.404 -24.833,9.7c-24.583,13.75 -35.975,38.417 -31.283,66.242c2.808,16.542 11.592,29.417 26.792,36.325c12.117,5.479 24.929,9.804 37.85,12.971c20.971,5.133 42.421,8.221 63.367,13.375c15.125,3.721 30.175,8.396 44.496,14.458c25.283,10.658 44.242,28.258 49.458,56.438c5.521,29.888 1.133,58.05 -19.208,82.154c-11.817,14.008 -26.696,23.633 -43.396,30.696c-15.975,6.762 -32.812,9.908 -49.917,11.367c-39.958,3.388 -78.837,-1.512 -116.037,-17c-8.904,-3.717 -17.379,-8.521 -25.733,-13.425c-5.721,-3.342 -10.842,-7.688 -17.237,-12.321c2.108,-5.883 3.737,-11.408 6.046,-16.637c2.354,-5.383 5.342,-10.508 8.65,-16.867c5.75,3.242 10.938,5.758 15.679,8.925c41.267,27.404 87.112,33.258 134.975,28.083c10.883,-1.179 22.025,-4.7 31.933,-9.45c26.113,-12.471 37.771,-39.575 30.35,-67.604c-3.008,-11.387 -9.633,-20.487 -20.038,-25.696c-9.938,-4.95 -20.296,-9.654 -30.979,-12.321c-21.65,-5.404 -43.8,-8.846 -65.492,-14.096c-16.608,-4 -33.537,-7.896 -49.121,-14.658c-62.454,-27.125 -77.025,-104.804 -29.517,-154.104c18.812,-19.533 42.417,-30.492 68.529,-35.146c37.975,-6.762 75.8,-5.229 112.371,8.271c19.667,7.242 37.933,17.146 53.783,34.467l0.05,-0.021Z"/>
-        <path d="M1.133,1573.771c7.4,-0.554 13.196,-1.333 18.988,-1.333c43.896,-0.104 87.792,-0.05 131.688,-0.05c16.429,0 32.683,1.458 48.488,6.333c40.938,12.617 66.221,43.917 68.454,86.804c0.729,14.008 0.554,28.688 -2.833,42.133c-10.383,41.383 -39.483,63.508 -79.917,71.575c-13.042,2.612 -26.588,3.321 -39.933,3.596c-26.763,0.529 -53.554,0.071 -80.342,0.221c-6.496,0.029 -12.992,0.779 -20.871,1.304c-1.854,18.075 -0.704,35.125 -0.904,52.071c-0.2,16.388 0,32.804 -0.05,49.196c-0.075,16.992 -0.275,33.992 -0.45,51.488c-14.475,4.175 -27.442,3.042 -41.762,1.283c-0.629,-4.125 -1.629,-7.617 -1.629,-11.112c-0.075,-114.083 -0.075,-228.146 0,-342.229c0,-2.917 0.525,-5.804 1.079,-11.312l0,0.029l-0.004,0.004Zm42.842,171.021c6.146,0.883 9.733,1.812 13.321,1.842c29.775,0.125 59.575,0.325 89.321,-0.104c9.608,-0.154 19.392,-1.304 28.771,-3.367c28.267,-6.258 45.55,-24.562 49.692,-53.367c1.354,-9.383 0.779,-19.362 -0.704,-28.783c-3.787,-24.438 -18.288,-40.633 -41.712,-47.542c-11.263,-3.321 -23.329,-5 -35.092,-5.304c-29.75,-0.729 -59.55,-0.325 -89.321,-0.175c-4.187,0 -8.379,1.104 -14.271,1.958c-0.075,45.05 -0.1,88.846 0,134.875l0,-0.029l-0.004,-0.004Z"/>
-        <path d="M634.721,1785.471c-39.333,53.321 -76.454,103.654 -113.075,153.3c-16.354,1.688 -30.979,1.283 -46.629,0.529c-0.704,-8.221 4.212,-12.262 7.5,-16.696c37.8,-50.929 75.779,-101.708 113.654,-152.596c4.392,-5.904 8.479,-12.042 13.217,-18.8c-43.017,-58.854 -86.512,-116.271 -129.808,-175.354c4.312,-1.729 6.196,-3.113 8.1,-3.138c13.346,-0.2 26.688,-0.104 40.433,-0.104c7.55,10.208 14.625,19.717 21.646,29.292c7.075,9.604 14.121,19.258 21.146,28.908c7.025,9.654 14.046,19.304 21.071,28.958c7.025,9.654 13.871,19.438 21.146,28.908c7.125,9.304 12.792,19.862 23.204,28.917c35.821,-48.321 69.533,-96.438 104.725,-144c15.804,-1.783 31.225,-1.737 46.658,-0.104c2.104,7.721 -3.637,11.467 -6.925,15.917c-35.517,47.967 -71.263,95.779 -106.904,143.646c-4.392,5.908 -8.529,11.992 -13.496,18.979c23.075,31.05 45.725,61.512 68.354,91.987c22.55,30.367 45.604,60.363 67.879,91.688c-15.2,5.05 -23.679,5.404 -48.967,2.312c-17.858,-24.237 -36.346,-49.479 -55.008,-74.592c-18.608,-25.042 -36.546,-50.554 -57.917,-77.937l0,-0.021l-0.004,-0Z"/>
-        <path d="M1194.633,1573.867c13.5,-2.283 25.862,-1.958 39.583,-0.3c0.85,5.2 2.333,10.054 2.379,14.929c0.229,29.821 0.125,59.633 0.125,89.471c0,65.617 -0.021,131.2 0.054,196.821c0,8.042 0.5,16.092 0.825,25.438c7.825,0.554 14.304,1.362 20.771,1.383c46.125,0.133 92.233,0 138.358,0.104c7.3,0 14.6,0.575 22.729,0.929c3.308,11.867 2.354,22.721 1.004,34.667c-4.367,0.854 -8.533,2.387 -12.717,2.387c-66.95,0.154 -133.896,0.125 -200.846,0.05c-3.583,0 -7.175,-0.7 -11.083,-1.133c-3.967,-8.521 -2.558,-16.763 -2.558,-24.738c-0.104,-93.946 -0.075,-187.867 -0.075,-281.812c0,-14.908 -0.075,-29.821 0.104,-44.721c0.05,-4.279 0.871,-8.575 1.425,-13.5l-0.075,0.021l-0.004,0.004Z"/>
-        <path d="M358.5,1938.271l0,-363.571c13.471,-3.821 26.488,-2.437 39.354,-1.179c5.921,6.833 3.663,14.604 3.688,21.742c0.175,65.617 0.1,131.2 0.1,196.821c0,41 0.05,82.008 -0.05,123.008c0,7.292 -0.6,14.554 -0.954,22.575c-14.296,3.321 -27.217,2.667 -42.167,0.625l0.025,-0.021l0.004,0Z"/>
-        <path d="M1741.533,1511.45c0,-5.658 -0.325,-11.342 0.075,-16.992c0.775,-10.708 6.517,-16.721 17.179,-17.146c11.837,-0.479 23.754,-0.479 35.592,0.021c10.138,0.429 15.954,5.612 16.529,15.792c0.754,12.971 0.679,26.042 -0.175,38.992c-0.579,8.771 -5.571,13.721 -14.2,14.175c-13.492,0.708 -27.117,0.679 -40.608,-0.075c-8.304,-0.471 -13.3,-6.054 -14.1,-14.404c-0.621,-6.737 -0.125,-13.575 -0.125,-20.362l-0.175,0l0.008,-0Z"/>
-        <path d="M1812.321,1567.388c3.112,-1.208 5.167,-2.667 7.25,-2.717c11.283,-0.279 22.6,-0.529 33.892,-0.154c6.471,0.2 9.508,3.242 9.729,9.508c0.4,10.729 0.429,21.513 0.104,32.279c-0.2,6.383 -3.312,9.825 -9.258,10.054c-11.283,0.404 -22.6,0.25 -33.892,0c-4.388,-0.075 -7.921,-2.617 -8.325,-7.062c-1.204,-14.029 -1.508,-28.083 0.525,-41.938l-0.029,0.029l0.004,-0Z"/>
-        <path d="M1889.254,1520.979c15.95,0 17.354,1.429 17.304,17.446c-0.05,15.592 -1.729,17.196 -17.763,17.146c-15.7,-0.05 -17.458,-1.804 -17.4,-17.596c0.021,-15.158 1.625,-16.821 16.15,-16.992l1.708,0l-0,-0.004Z"/>
-      </g>
+      <g id="xr-mono"><path fill="#9d8aff" d="M16 16h80v16h-80ZM32 32h16v16h-16ZM80 32h16v16h-16ZM48 48h48v16h-48ZM32 64h16v16h-16ZM80 64h16v16h-16ZM16 80h16v16h-16ZM96 80h16v16h-16ZM32 32L32 34.8A2.8 2.8 0 0 0 29.2 32ZM32 80L25.6 80A6.4 6.4 0 0 0 32 73.6ZM32 80L38.4 80A6.4 6.4 0 0 0 32 86.4ZM48 32L50.8 32A2.8 2.8 0 0 0 48 34.8ZM48 48L48 41.6A6.4 6.4 0 0 0 54.4 48ZM48 48L48 54.4A6.4 6.4 0 0 0 41.6 48ZM48 64L41.6 64A6.4 6.4 0 0 0 48 57.6ZM48 64L54.4 64A6.4 6.4 0 0 0 48 70.4ZM80 32L80 34.8A2.8 2.8 0 0 0 77.2 32ZM80 48L77.2 48A2.8 2.8 0 0 0 80 45.2ZM80 64L80 66.8A2.8 2.8 0 0 0 77.2 64ZM96 80L96 73.6A6.4 6.4 0 0 0 102.4 80ZM96 80L96 86.4A6.4 6.4 0 0 0 89.6 80Z"/></g>
     </defs>
   </svg>
 
@@ -916,7 +910,7 @@
 <script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 
 <!-- ============================================================================
-     NODE SPINE ENGINE — the persistent morphing field that carries the whole site.
+     NODE SPINE ENGINE , the persistent morphing field that carries the whole site.
      Ported from node-spine.html: ~16k point field + near-neighbour node-mesh that
      MORPHS between sampled target shapes. Decoupled from its own scroll page; index.html
      drives it via window.__spine (setShape / setCenter / mouse / capture hooks).
@@ -928,13 +922,13 @@
   const SP_REDUCED = matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const SP_STILL = location.search.includes("still");
   const N = SP_REDUCED ? 9000 : 16000;       // particle count (lighter when reduced)
-  const COL_CYAN  = new THREE.Color('#3fe7ff');
-  const COL_AMBER = new THREE.Color('#ff9a52');
+  const COL_CYAN  = new THREE.Color('#9d8aff');
+  const COL_AMBER = new THREE.Color('#9d8aff');
   const MONO_PATHS = window.__MONO_PATHS__;
 
   const stage = document.getElementById('spine-stage');
   const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
-  renderer.setClearColor(0x000000, 0);       // transparent — the near-black page bg shows through
+  renderer.setClearColor(0x000000, 0);       // transparent , the near-black page bg shows through
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
   stage.appendChild(renderer.domElement);
 
@@ -1048,7 +1042,7 @@
 
   // ============ generic 2D-canvas sampler ============
   // SHAPES2: the silhouette is auto-fit to TARGET_H world units (filling ~55-65% of the
-  // viewport) and EDGE-BIASED — ~58% of points snap to the silhouette contour so the
+  // viewport) and EDGE-BIASED , ~58% of points snap to the silhouette contour so the
   // form's outline reads as a clear line-traced figure, not a faint filled blob.
   const sampled={};
   // viewport at zoom 560 / FOV 52 shows ~546 world units of height; ~330 -> ~60% vh.
@@ -1099,9 +1093,9 @@
   }
   let monoImg=null;
   function buildMonogram(){ if(!monoImg) return false;
-    return sampleCanvas('monogram',360,366,420,26,(ctx,cw,ch)=>{ctx.drawImage(monoImg,0,0,cw,ch);},
+    return sampleCanvas('monogram',360,315,420,26,(ctx,cw,ch)=>{ctx.drawImage(monoImg,0,0,cw,ch);},
       (lum)=>COL_CYAN.clone().multiplyScalar(1.30).lerp(COL_AMBER, lum>0.9?0.18:0)); }
-  // OMEGA WALL — large screen on a stand with a tile grid (thicker, clearer)
+  // OMEGA WALL , large screen on a stand with a tile grid (thicker, clearer)
   function buildWall(){ return sampleCanvas('wall',420,360,360,30,(c,w,h)=>{
       c.fillStyle='#fff'; const pw=w*0.74,ph=h*0.52,px=(w-pw)/2,py=h*0.08; c.fillRect(px,py,pw,ph); // bezel
       c.fillStyle='#000'; c.fillRect(px+w*0.03,py+h*0.04,pw-w*0.06,ph-h*0.08);                     // screen
@@ -1126,7 +1120,7 @@
     },(lum)=>COL_CYAN.clone().multiplyScalar(1.30)); }
 
   // ====================================================================
-  // WAVE 1 — DEDICATED SHAPE TARGETS. Each draws a white-on-black icon/silhouette
+  // WAVE 1 , DEDICATED SHAPE TARGETS. Each draws a white-on-black icon/silhouette
   // that reads as the real thing, then samples its bright pixels into a target buffer.
   // ====================================================================
   // SHAPES3: with NORMAL blending each dot is drawn once (no additive accumulation), so the
@@ -1134,7 +1128,7 @@
   const CY = ()=>COL_CYAN.clone().multiplyScalar(1.05);
   const CYA = (t)=>COL_CYAN.clone().multiplyScalar(1.05).lerp(COL_AMBER,t);
 
-  // a standing human FIGURE (head + filled torso + arms + legs) — used by Avatar card
+  // a standing human FIGURE (head + filled torso + arms + legs) , used by Avatar card
   function buildFigure(){ return sampleCanvas('figure',300,440,400,24,(c,w,h)=>{
       c.fillStyle='#fff'; c.strokeStyle='#fff'; c.lineCap='round'; c.lineJoin='round';
       const cx=w/2;
@@ -1150,7 +1144,7 @@
       c.beginPath(); c.moveTo(cx+w*0.06,h*0.58); c.lineTo(cx+w*0.17,h*0.94); c.stroke(); // R leg
     },(lum)=>CY()); }
 
-  // SLOT MACHINE — cabinet, 3 distinct reels, side lever, coin slot — used by Slots card
+  // SLOT MACHINE , cabinet, 3 distinct reels, side lever, coin slot , used by Slots card
   function buildSlot(){ return sampleCanvas('slot',380,440,400,26,(c,w,h)=>{
       c.fillStyle='#fff'; c.lineCap='round'; c.lineJoin='round';
       // arched-top cabinet
@@ -1159,7 +1153,7 @@
       c.quadraticCurveTo(w*0.18,h*0.06,w*0.40,h*0.06);
       c.lineTo(w*0.58,h*0.06); c.quadraticCurveTo(w*0.78,h*0.06,w*0.78,h*0.20);
       c.lineTo(w*0.78,h*0.94); c.closePath(); c.fill();
-      // 3 distinct reel windows — wide dark gaps + bright vertical separators so they read as 3
+      // 3 distinct reel windows , wide dark gaps + bright vertical separators so they read as 3
       const reelY=h*0.22, reelH=h*0.32, rw=w*0.135, sep=w*0.045, grpX=w*0.235;
       // dark window behind all three
       c.fillStyle='#000'; c.fillRect(grpX-w*0.015,reelY-h*0.02,3*rw+2*sep+w*0.03,reelH+h*0.04);
@@ -1182,7 +1176,7 @@
       c.fillStyle='#fff'; c.beginPath(); c.arc(w*0.91,h*0.17,w*0.055,0,7); c.fill();
     },(lum)=>CYA(0.12)); }
 
-  // interactive PANEL: 3x2 grid of tiles, one tile highlighted, + a cursor — Pick & Learn
+  // interactive PANEL: 3x2 grid of tiles, one tile highlighted, + a cursor , Pick & Learn
   function buildPanel(){ return sampleCanvas('panel',460,380,360,22,(c,w,h)=>{
       c.fillStyle='#fff'; c.fillRect(w*0.08,h*0.10,w*0.70,h*0.66);  // screen bezel
       c.fillStyle='#000'; c.fillRect(w*0.11,h*0.14,w*0.64,h*0.58);  // screen
@@ -1202,7 +1196,7 @@
       c.lineTo(cxp+w*0.04,cyp+h*0.09); c.lineTo(cxp+w*0.085,cyp+h*0.055); c.closePath(); c.fill();
     },(lum,nx,ny)=>CYA(ny<0.45&&nx>0.40&&nx<0.62?0.45:0.04)); }
 
-  // HOLOXP BOOTH — camera body + big round lens + flash on top — used by HoloXP Booth
+  // HOLOXP BOOTH , camera body + big round lens + flash on top , used by HoloXP Booth
   function buildBooth(){ return sampleCanvas('booth',440,380,360,24,(c,w,h)=>{
       c.fillStyle='#fff';
       // rounded camera body
@@ -1220,7 +1214,7 @@
       c.fillStyle='#fff'; c.beginPath(); c.arc(w*0.455,h*0.50,h*0.035,0,7); c.fill(); // catch-light
     },(lum)=>CYA(0.08)); }
 
-  // PREMIERE — wide cinema screen + bold play triangle + side light beams
+  // PREMIERE , wide cinema screen + bold play triangle + side light beams
   function buildCinema(){ return sampleCanvas('cinema',500,360,330,26,(c,w,h)=>{
       c.fillStyle='#fff'; c.fillRect(w*0.14,h*0.14,w*0.72,h*0.48); // wide screen bezel
       c.fillStyle='#000'; c.fillRect(w*0.165,h*0.175,w*0.67,h*0.41);
@@ -1237,7 +1231,7 @@
       c.globalAlpha=1;
     },(lum,nx)=>CYA(nx<0.16||nx>0.84?0.30:0)); }
 
-  // HOLOTWIN — one solid human + an offset, dimmer duplicate (the holographic twin)
+  // HOLOTWIN , one solid human + an offset, dimmer duplicate (the holographic twin)
   function buildHolotwin(){ return sampleCanvas('holotwin',420,440,400,44,(c,w,h)=>{
       c.lineCap='round'; c.lineJoin='round';
       function fig(ox,ghost){ c.fillStyle='#fff'; c.strokeStyle='#fff';
@@ -1254,7 +1248,7 @@
       fig(-w*0.10,false);  // primary in front/left
     },(lum,nx)=>CYA(nx>0.52?0.42:0.04)); }
 
-  // PROJECTOR (#light) — base unit emitting an upward beam cone with a floating form in it
+  // PROJECTOR (#light) , base unit emitting an upward beam cone with a floating form in it
   function buildProjector(){ return sampleCanvas('projector',440,440,400,30,(c,w,h)=>{
       c.fillStyle='#fff';
       c.fillRect(w*0.28,h*0.78,w*0.44,h*0.12);                  // base unit
@@ -1270,7 +1264,7 @@
       c.fillStyle='#000'; c.beginPath(); c.arc(w*0.5,h*0.36,h*0.038,0,7); c.fill();
     },(lum,nx,ny)=>CYA(ny<0.18?0.30:(ny>0.74?0.10:0))); }
 
-  // GOGGLES (#ar) — VR headset front silhouette: two lenses + head strap
+  // GOGGLES (#ar) , VR headset front silhouette: two lenses + head strap
   function buildGoggles(){ return sampleCanvas('goggles',520,320,300,30,(c,w,h)=>{
       c.fillStyle='#fff';
       // rounded headset front mass
@@ -1294,7 +1288,7 @@
       c.bezierCurveTo(w*0.20,h*0.10,w*0.80,h*0.10,w*0.86,h*0.42); c.stroke();
     },(lum,ny)=>CY()); }
 
-  // LIVE STREAMING — video camera on the LEFT + concentric signal arcs on the RIGHT + REC dot
+  // LIVE STREAMING , video camera on the LEFT + concentric signal arcs on the RIGHT + REC dot
   function buildBroadcast(){ return sampleCanvas('broadcast',520,360,330,24,(c,w,h)=>{
       c.fillStyle='#fff';
       // camera body (left)
@@ -1319,7 +1313,7 @@
       for(let k=1;k<=4;k++){ c.beginPath(); c.arc(w*0.56,h*0.50,h*0.12*k,-Math.PI*0.42,Math.PI*0.42); c.stroke(); }
     },(lum,nx)=>CYA(nx>0.6?0.34:0.05)); }
 
-  // TIERSTACK (#tiers) — three ascending bars (LITE / CORE / ELITE), rising left-to-right
+  // TIERSTACK (#tiers) , three ascending bars (LITE / CORE / ELITE), rising left-to-right
   function buildTierstack(){ return sampleCanvas('tierstack',460,420,360,28,(c,w,h)=>{
       c.fillStyle='#fff';
       const heights=[0.30,0.50,0.72], bw=w*0.22, gap=w*0.04;
@@ -1339,7 +1333,7 @@
   geo.setAttribute('position', new THREE.BufferAttribute(positions,3).setUsage(THREE.DynamicDrawUsage));
   geo.setAttribute('pcolor',   new THREE.BufferAttribute(colors,3).setUsage(THREE.DynamicDrawUsage));
   geo.setAttribute('psize',    new THREE.BufferAttribute(sizes,1));
-  // SHAPES3: small, tight, UNIFORM dot sizes — fine clean nodes, not fireworks. Less size
+  // SHAPES3: small, tight, UNIFORM dot sizes , fine clean nodes, not fireworks. Less size
   // variance so overlapping sprites don't stack into bright bloom spikes.
   for(let i=0;i<N;i++) sizes[i]=1.5+Math.random()*0.8;
   const mat=new THREE.ShaderMaterial({
@@ -1369,9 +1363,9 @@
   const linkPos=new Float32Array(MAX_LINKS*2*3);
   const lgeo=new THREE.BufferGeometry();
   lgeo.setAttribute('position', new THREE.BufferAttribute(linkPos,3).setUsage(THREE.DynamicDrawUsage));
-  // SHAPES3: NORMAL-blended connective mesh (was additive — that glowed/bloomed over the dots).
+  // SHAPES3: NORMAL-blended connective mesh (was additive , that glowed/bloomed over the dots).
   // A soft cyan thread that traces the outline without adding a halo.
-  const lmat=new THREE.LineBasicMaterial({ color:new THREE.Color('#7df0ff'),
+  const lmat=new THREE.LineBasicMaterial({ color:new THREE.Color('#9d8aff'),
     transparent:true, opacity:0.22, blending:THREE.NormalBlending, depthWrite:false, depthTest:false });
   const lines=new THREE.LineSegments(lgeo,lmat); scene.add(lines);
   const linkIdx=new Uint32Array(LINK_SAMPLE);
@@ -1518,7 +1512,7 @@
   }
 
   // ====================================================================
-  // WAVE 2 P1 — SCREEN <-> WORLD mapping at the current zoom (FOV 52 vertical).
+  // WAVE 2 P1 , SCREEN <-> WORLD mapping at the current zoom (FOV 52 vertical).
   // The morph writes position = target + view.center; to make a node form line up
   // with a real DOM rectangle on screen, we convert px -> world (at z=0 plane) and
   // bake ABSOLUTE world coords into the target (driver sets centerX/centerY = 0).
@@ -1668,7 +1662,7 @@
     for(const b of builders){ try{ b(); }catch(e){ console.warn('[spine] builder failed',e); } }
   }
   function loadMonogram(cb){
-    const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1913 1946"><g fill="#fff" fill-rule="nonzero">'+MONO_PATHS+'</g></svg>';
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 112"><g fill="#fff" fill-rule="nonzero">'+MONO_PATHS+'</g></svg>';
     const im=new Image();
     im.onload=()=>{ monoImg=im; try{buildMonogram();}catch(e){} cb&&cb(); };
     im.onerror=()=>{ cb&&cb(); };
@@ -1720,7 +1714,7 @@
         }});
     },
     isTrickling(){ return trickleActive; },
-    // set view props INSTANTLY (no tween, no render) — used so frame/converge targets are
+    // set view props INSTANTLY (no tween, no render) , used so frame/converge targets are
     // baked at the exact zoom they'll be displayed at, avoiding mid-tween misalignment.
     seekViewOnly(props){ gsap.killTweensOf(view); Object.assign(view, props); dirty=true; },
     setCenter(x,y,dur){ tweenView({centerX:x, centerY:y||0}, dur); },
@@ -1729,7 +1723,7 @@
     setLineOpacity(o,dur){ tweenView({lineOpacity:o}, dur); },
     setIntensity(v,dur){ tweenView({intensity:v}, dur); },
     morphTo(key){ return setShape(key, {duration:0.9}); },
-    // capture/determinism hooks — stop loop, set state, render one clean frame
+    // capture/determinism hooks , stop loop, set state, render one clean frame
     seekShape(from, to, b, viewProps){
       if(raf){ cancelAnimationFrame(raf); raf=null; }
       mouse.x=mouse.y=mouse.tx=mouse.ty=0;
@@ -1780,9 +1774,9 @@ function makeOrb(canvas, hue){
     const cx=W*0.5, cy=H*0.5, R=Math.min(W,H)*0.42;
     // core: the glow the point field orbits, so the panel has a subject
     const g=ctx.createRadialGradient(cx,cy,0,cx,cy,R*1.15);
-    g.addColorStop(0,"rgba(63,231,255,0.20)");
-    g.addColorStop(0.45,"rgba(63,231,255,0.07)");
-    g.addColorStop(1,"rgba(63,231,255,0)");
+    g.addColorStop(0,"rgba(157,138,255,0.20)");
+    g.addColorStop(0.45,"rgba(157,138,255,0.07)");
+    g.addColorStop(1,"rgba(157,138,255,0)");
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     for(const p of ring){
       const a=p.a+t*p.sp*0.4;
@@ -1790,7 +1784,7 @@ function makeOrb(canvas, hue){
       const x=cx+Math.cos(a)*R*rr;
       const y=cy+Math.sin(a)*R*rr*p.tilt + Math.sin(t+p.ph)*4;
       const al=0.22+0.58*(0.5+0.5*Math.sin(t*1.5+p.ph));
-      ctx.fillStyle=`rgba(63,231,255,${al.toFixed(2)})`;
+      ctx.fillStyle=`rgba(157,138,255,${al.toFixed(2)})`;
       ctx.fillRect(x,y,p.sz,p.sz);
     }
     raf=requestAnimationFrame(frame);
@@ -1801,8 +1795,8 @@ function makeOrb(canvas, hue){
 $$("[data-orb]").forEach(c=>makeOrb(c));
 
 /* =====================================================================
-   WAVE 2 P3 — THREADS trail background (reactbits.dev "Threads"-style flowing
-   lines, adapted to single-file canvas — no React). A stack of horizontal lines
+   WAVE 2 P3 , THREADS trail background (reactbits.dev "Threads"-style flowing
+   lines, adapted to single-file canvas , no React). A stack of horizontal lines
    that ripple as travelling sine waves, brightening toward the centre, with a soft
    mouse pull. Sits behind the #light projector node form so the section reads as a
    hologram emitting light. Near-black + cyan/amber. Pauses when offscreen.
@@ -1840,8 +1834,8 @@ $$("[data-orb]").forEach(c=>makeOrb(c));
                         + Math.sin(nx*3.0 - t*0.4)*amp*0.3;
         if(px===0) ctx.moveTo(px,y); else ctx.lineTo(px,y);
       }
-      const col = amber?`rgba(255,154,82,${(bright*0.30).toFixed(3)})`
-                       :`rgba(63,231,255,${(bright*0.34).toFixed(3)})`;
+      const col = amber?`rgba(157,138,255,${(bright*0.30).toFixed(3)})`
+                       :`rgba(157,138,255,${(bright*0.34).toFixed(3)})`;
       ctx.strokeStyle=col; ctx.lineWidth=1.1; ctx.stroke();
     }
     raf=requestAnimationFrame(frame);
@@ -1851,7 +1845,7 @@ $$("[data-orb]").forEach(c=>makeOrb(c));
 })();
 
 /* =====================================================================
-   WAVE 1 #5 — STARFIELD: a depth-parallax star field that streams toward the
+   WAVE 1 #5 , STARFIELD: a depth-parallax star field that streams toward the
    viewer, giving the #omni globe-dive its "immersing into SPACE" feeling.
    Only animates while the #starfield layer is .on (set during the omni dive).
    ===================================================================== */
@@ -1882,9 +1876,9 @@ $$("[data-orb]").forEach(c=>makeOrb(c));
       if(sx<0||sx>W||sy<0||sy>H) continue;
       const px=cx + (s.x/s.pz)*spread*0.5, py=cy + (s.y/s.pz)*spread*0.5;
       const a=Math.min(1,(1-s.z)*0.9), r=(1-s.z)*1.8+0.2;
-      ctx.strokeStyle=`rgba(180,225,255,${(a*0.7).toFixed(3)})`; ctx.lineWidth=r;
+      ctx.strokeStyle=`rgba(157,138,255,${(a*0.7).toFixed(3)})`; ctx.lineWidth=r;
       ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(sx,sy); ctx.stroke();
-      ctx.fillStyle=`rgba(220,245,255,${a.toFixed(3)})`;
+      ctx.fillStyle=`rgba(241,238,255,${a.toFixed(3)})`;
       ctx.fillRect(sx-r/2,sy-r/2,r,r);
     }
     raf=requestAnimationFrame(frame);
@@ -1894,13 +1888,12 @@ $$("[data-orb]").forEach(c=>makeOrb(c));
 })();
 
 /* =====================================================================
-   WAVE 1 #6 — VIDEO PLAYBACK: click the stage -> embed the Vimeo film (autoplay).
+   WAVE 1 #6 , VIDEO PLAYBACK: click the stage -> embed the Vimeo film (autoplay).
    Vimeo id 1135167939. If the embed never reports ready, fall back to an HTML5 <video>.
    (The ball -> video-frame morph transform is WAVE 2, not built here.)
    ===================================================================== */
 const VIDEO = (function videoPlayer(){
   const stage=$("#videoStage"); if(!stage) return {start(){},stop(){},play(){}};
-  const VIMEO_ID="1135167939";
   const reel=$("#videoReel");
   let started=false, reelRaf=null, reelVis=false, t0=0;
 
@@ -1921,17 +1914,17 @@ const VIDEO = (function videoPlayer(){
     rctx.clearRect(0,0,RW,RH);
     // ground gradient
     const g=rctx.createLinearGradient(0,0,0,RH);
-    g.addColorStop(0,"#04070e"); g.addColorStop(1,"#020306");
+    g.addColorStop(0,"#030305"); g.addColorStop(1,"#030305");
     rctx.fillStyle=g; rctx.fillRect(0,0,RW,RH);
     // horizon line
     const horiz=RH*0.66;
-    rctx.strokeStyle="rgba(63,231,255,.25)"; rctx.lineWidth=1;
+    rctx.strokeStyle="rgba(157,138,255,.25)"; rctx.lineWidth=1;
     rctx.beginPath(); rctx.moveTo(0,horiz); rctx.lineTo(RW,horiz); rctx.stroke();
     // skyline light bars rising from the horizon
     for(const b of bars){
       const bx=b.x*RW; const bh=(0.4+0.6*(0.5+0.5*Math.sin(t*b.sp+b.ph)))*b.h*horiz;
       const amber=b.ph%2>1;
-      rctx.fillStyle=amber?"rgba(255,154,82,.5)":"rgba(63,231,255,.55)";
+      rctx.fillStyle=amber?"rgba(157,138,255,.5)":"rgba(157,138,255,.55)";
       rctx.fillRect(bx, horiz-bh, b.w*RW, bh);
       // reflection
       rctx.globalAlpha=0.18; rctx.fillRect(bx, horiz, b.w*RW, bh*0.5); rctx.globalAlpha=1;
@@ -1939,18 +1932,18 @@ const VIDEO = (function videoPlayer(){
     // sweeping vertical scan beam
     const sweep=((t*0.18)%1)*RW;
     const sg=rctx.createLinearGradient(sweep-60,0,sweep+60,0);
-    sg.addColorStop(0,"rgba(63,231,255,0)"); sg.addColorStop(0.5,"rgba(63,231,255,.16)"); sg.addColorStop(1,"rgba(63,231,255,0)");
+    sg.addColorStop(0,"rgba(157,138,255,0)"); sg.addColorStop(0.5,"rgba(157,138,255,.16)"); sg.addColorStop(1,"rgba(157,138,255,0)");
     rctx.fillStyle=sg; rctx.fillRect(sweep-60,0,120,RH);
     // drifting motes
     for(const m of motes){ const my=(m.y - (t*m.sp)%1 +1)%1;
-      rctx.fillStyle=`rgba(180,235,255,${(0.2+0.5*(0.5+0.5*Math.sin(t+m.ph))).toFixed(2)})`;
+      rctx.fillStyle=`rgba(241,238,255,${(0.2+0.5*(0.5+0.5*Math.sin(t+m.ph))).toFixed(2)})`;
       rctx.fillRect(m.x*RW, my*RH, m.r, m.r); }
     // scanlines
     rctx.globalAlpha=0.05; rctx.fillStyle="#000";
     for(let y=0;y<RH;y+=3) rctx.fillRect(0,y,RW,1);
     rctx.globalAlpha=1;
     // title card lower-left
-    rctx.fillStyle="rgba(238,243,251,.7)"; rctx.font="11px 'IBM Plex Mono', monospace";
+    rctx.fillStyle="rgba(255,255,255,.7)"; rctx.font="11px 'Host Grotesk', sans-serif";
     rctx.fillText("XR PIXELS · SHAPING TOMORROW", 16, RH-16);
     reelRaf=requestAnimationFrame(drawReel);
   }
@@ -1971,32 +1964,17 @@ const VIDEO = (function videoPlayer(){
   // we tear it out and put the local reel back. Whitelisting xrpixels.com in the
   // Vimeo video's privacy settings is the real fix; this keeps the section honest
   // in the meantime, and stays as a safety net if the setting is ever changed back.
-  let vimeoReady=false, watchdog=null;
-  addEventListener("message", e=>{
-    if(!/player\.vimeo\.com/.test(e.origin)) return;
-    let d=e.data; if(typeof d==="string"){ try{ d=JSON.parse(d); }catch{ return; } }
-    if(d && (d.event==="ready"||d.method==="ping")){ vimeoReady=true; stopReel(); }
-  });
-  function fallBackToReel(iframe){
-    if(vimeoReady) return;
-    iframe.remove();
-    stage.classList.remove("playing");
-    started=false;                     // let a later click try again
-    startReel();
-  }
   function play(){
     if(started) return; started=true;
     // The reel keeps running UNDER the iframe. Killing it up front is what left a
     // black rectangle on screen for the whole watchdog window when Vimeo 401s.
     stage.classList.add("playing");
     const iframe=document.createElement("iframe");
-    iframe.src=`https://player.vimeo.com/video/${VIMEO_ID}?api=1&autoplay=1&muted=1&loop=1&playsinline=1&title=0&byline=0&portrait=0`;
+    iframe.srcdoc='<html><head><style>html,body{margin:0;width:100%;height:100%;background:#030305}video{width:100%;height:100%;object-fit:contain}</style></head><body><video src="./vid-premiere.mp4" autoplay muted loop playsinline controls aria-label="Premiere holographic display case"></video></body></html>';
     iframe.allow="autoplay; fullscreen; picture-in-picture";
-    iframe.addEventListener("error", ()=>fallBackToReel(iframe));
-    clearTimeout(watchdog);
-    watchdog=setTimeout(()=>fallBackToReel(iframe), 2500);
+    iframe.addEventListener("load", stopReel, {once:true});
     iframe.setAttribute("allowfullscreen","");
-    iframe.title="Shaping Tomorrow with Holograms";
+    iframe.title="Hologram capture touchscreen hardware";
     stage.appendChild(iframe);
   }
   stage.addEventListener("click",play);
@@ -2020,10 +1998,10 @@ function intro(){
   // not a deck: a visitor should be reading the hero within a couple of seconds,
   // not waiting out a title sequence.
   const tl = gsap.timeline({ onComplete: enterWorld });
-  // 1 — the real monogram resolves: fades up + settles (analogue counterpoint wobble)
+  // 1 , the real monogram resolves: fades up + settles (analogue counterpoint wobble)
   tl.to("#mark",{opacity:1, duration:.7, ease:"power2.out"}, 0)
     .fromTo("#mark",{rotate:-1.2,scale:1.08},{rotate:0,scale:1,duration:1.0,ease:"elastic.out(1,0.55)"}, .05)
-    // 2 — the accent field drains away to near-black (Indigo's frame flip)
+    // 2 , the accent field drains away to near-black (Indigo's frame flip)
     .to("#gateField",{opacity:0, duration:.9, ease:"power2.inOut"}, .45)
     .to("#gateIdx",{opacity:1, duration:.5}, .6);
 }
@@ -2079,7 +2057,7 @@ function loop(){
       $(".hero-copy").style.opacity = String(Math.max(0,1-through*1.8));
       $(".sub-row").style.opacity   = String(Math.max(0,1-through*2.2));
       $$(".corner").forEach(el=>el.style.opacity=String(Math.max(0,1-through*2.2)));
-      // WAVE 1 #2: nav is now a persistent sticky header — it must NOT fade on scroll.
+      // WAVE 1 #2: nav is now a persistent sticky header , it must NOT fade on scroll.
       const inCh = document.body.classList.contains("in-chapters");
       $("#next").style.opacity = inCh ? "0" : String(Math.max(0, (through-0.55)/0.45));
       $("#next").style.pointerEvents = (!inCh && through>0.7) ? "auto":"none";
@@ -2138,12 +2116,14 @@ addEventListener("load", intro, {once:true});
   if (box) {
     $$(".card[data-shot]").forEach(card=>{
       card.addEventListener("click", ()=>{
-        // the still is only the door: clicking opens the actual film
+        // Missing cleared product footage opens its existing hardware still.
         vid.poster = card.dataset.shot;
-        vid.src    = card.dataset.vid;
+        vid.controls = Boolean(card.dataset.vid);
+        if(card.dataset.vid) vid.src = card.dataset.vid;
+        else { vid.removeAttribute("src"); vid.load(); }
         label.textContent = card.dataset.label;
         box.showModal();
-        vid.play().catch(()=>{});   // rejects if the browser wants a gesture; controls are there
+        if(card.dataset.vid) vid.play().catch(()=>{});
       });
     });
     $("#sbClose").addEventListener("click", ()=>box.close());
@@ -2182,7 +2162,7 @@ if(!reduce && window.ScrollTrigger){
 }
 
 /* =====================================================================
-   M2 FIX — REDUCED-MOTION: statically retire the fixed hero stage once the
+   M2 FIX , REDUCED-MOTION: statically retire the fixed hero stage once the
    reader is past the hero. In reduced mode the spine choreography block below
    (which owns the body.in-chapters toggle) never runs, so the fixed hero
    overlays (.world-stage / .hero-copy / .next + the "Omnichannel 3D" handoff)
@@ -2203,7 +2183,7 @@ if(reduce){
 }
 
 /* =====================================================================
-   SPINE SCROLL CHOREOGRAPHY — map each section to a node-field shape.
+   SPINE SCROLL CHOREOGRAPHY , map each section to a node-field shape.
    The persistent field morphs as the reader travels the page (Aldo's through-line):
      hero      -> humanoid (figure of light); on scroll-out ZOOM IN then morph
      #omni     -> network GLOBE, figure/field shifts LEFT (text arrives right)
@@ -2217,7 +2197,7 @@ if(!reduce && window.ScrollTrigger && window.__spine){
   const sp = window.__spine;
 
   /* ====================================================================
-     WAVE 1 #3 — SCROLL POSITION IS THE SINGLE SOURCE OF TRUTH.
+     WAVE 1 #3 , SCROLL POSITION IS THE SINGLE SOURCE OF TRUTH.
      Every section owns one entry in SECTIONS: its authoritative shape + view.
      applySection(id) is the ONLY thing that sets the resting shape. Returning
      to the hero re-applies the humanoid. Hover is a TEMPORARY override that only
@@ -2240,7 +2220,7 @@ if(!reduce && window.ScrollTrigger && window.__spine){
 
   let activeId = "hero";
   let hovering = false;          // true only while a #products card is hovered
-  // M1 FIX — single source of truth for which section dominates the viewport.
+  // M1 FIX , single source of truth for which section dominates the viewport.
   // An IntersectionObserver (below) keeps this current; the hero-scope scrub
   // onUpdate only drives the humanoid zoom while the hero is genuinely the most
   // visible section, so it can't keep re-asserting the hero on mobile while a
@@ -2290,7 +2270,7 @@ if(!reduce && window.ScrollTrigger && window.__spine){
   applySection("hero", 0);
 
   const sf = window.__starfield;
-  // WAVE 1 #5: the OMNI moment — zoom DEEP into the globe (dive) then settle on the right,
+  // WAVE 1 #5: the OMNI moment , zoom DEEP into the globe (dive) then settle on the right,
   // with the starfield streaming in so it reads as immersing into SPACE.
   function enterOmni(){
     activeId="omni"; hovering=false;
@@ -2306,7 +2286,7 @@ if(!reduce && window.ScrollTrigger && window.__spine){
   function leaveOmni(){ if(sf) sf.on(false); }
 
   /* ====================================================================
-     WAVE 2 P1 — THE VIDEO MOMENT.
+     WAVE 2 P1 , THE VIDEO MOMENT.
      On entering #video: measure the real .video-stage rect, morph the node field
      into a rectangle OUTLINE tracing it (corner ticks), light the framed border,
      and start the local muted-loop reel INSIDE the outline. The Vimeo embed stays
@@ -2333,7 +2313,7 @@ if(!reduce && window.ScrollTrigger && window.__spine){
     videoStage.classList.remove("framed");
   }
 
-  // M3 FIX — contact converge point = centre of the EMPTY left .visual panel (the
+  // M3 FIX , contact converge point = centre of the EMPTY left .visual panel (the
   // column that holds the contact canvas), NOT the "We are waiting to hear from you"
   // headline. On desktop the ring lands in the visual column to the left of the copy;
   // when the layout stacks (<=980px) the .visual sits ABOVE the copy, so aiming at its
@@ -2422,19 +2402,19 @@ if(!reduce && window.ScrollTrigger && window.__spine){
   ["omni","products","light","ar","tiers","video","preorder"].forEach(claim);
 
   /* ====================================================================
-     M1 FIX — INTERSECTION-OBSERVER SINGLE SOURCE OF TRUTH.
+     M1 FIX , INTERSECTION-OBSERVER SINGLE SOURCE OF TRUTH.
      The claim() ScrollTriggers above handle the rich entry choreography, but on
      narrow/mobile viewports the 300vh hero runway overlaps the first chapters and
      the scrub trigger could keep re-asserting the hero. This observer watches every
      chapter (plus the hero) and elects the MOST-VISIBLE section as the authority.
      It updates `mostVisibleId` (which guards the hero zoom) and, if the elected
-     section isn't already active, drives its shape — guaranteeing #products/#light/#ar
+     section isn't already active, drives its shape , guaranteeing #products/#light/#ar
      morph correctly at 390px regardless of trigger ordering. The `ar` slide-in and
      omni/video/preorder custom moments stay owned by claim(); this observer only
      reasserts the resting SHAPE if it drifts, so it never double-fires their effects. */
   const goToSection = (id)=>{
     if(id==="hero"){ if(activeId!=="hero") applySection("hero", 0.9); return; }
-    if(activeId===id) return;                 // already owned — don't re-trigger
+    if(activeId===id) return;                 // already owned , don't re-trigger
     if(sf) sf.on(id==="omni");
     if(id==="omni"){ enterOmni(); return; }
     if(id==="ar"){
@@ -2454,7 +2434,7 @@ if(!reduce && window.ScrollTrigger && window.__spine){
   const elFor = (id)=> id==="hero" ? document.getElementById("hero-scope") : document.getElementById(id);
   let ssotRaf=0;
   // Elect by VISIBLE VIEWPORT COVERAGE (px of the viewport the section occupies), NOT by
-  // intersectionRatio — a short section (#omni is just an intro line) scores a high
+  // intersectionRatio , a short section (#omni is just an intro line) scores a high
   // element-fraction while covering little screen, which would wrongly keep the globe
   // active over #products. Coverage = clamp(min(rect.bottom,vh) - max(rect.top,0)).
   function electSection(){
@@ -2491,7 +2471,7 @@ if(!reduce && window.ScrollTrigger && window.__spine){
   // also re-elect on scroll (coverage changes continuously between observer thresholds)
   addEventListener("scroll", ()=>{ if(!ssotRaf) ssotRaf = requestAnimationFrame(electSection); }, {passive:true});
 
-  /* ===== PER-CARD HOVER on #products — recognizable product node-targets =====
+  /* ===== PER-CARD HOVER on #products , recognizable product node-targets =====
      Each card morphs the field into the ACTUAL product silhouette. Hover only takes
      effect when #products is the active section; on mouseleave OR any scroll/section
      change it reverts to the products grid via applySection. */
@@ -2521,7 +2501,7 @@ if(!reduce && window.ScrollTrigger && window.__spine){
       if(!hovering) return;
       hovering = false;
       productsEl.classList.remove("previewing");
-      // revert to the section shape (grid) — never leave a product silhouette stuck
+      // revert to the section shape (grid) , never leave a product silhouette stuck
       if(activeId==="products") applySection("products", 0.6);
     });
   });

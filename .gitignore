@@ -1,12 +1,15 @@
+# Local studio records and release QA, never publish with the site.
 _proof*/
 node_modules/
 *.mjs
-
 dist/
-
-# Studio working files: never publish on the Pages domain
-SLOP-REVIEW.md
 SLOP-SCAN.json
 DUPLICATION.md
 README.md
 _aa-states.json
+BRIEF.md
+STATUS.md
+SLOP-REVIEW.md
+QA-REPORT.md
+_proof/
+_archive/
