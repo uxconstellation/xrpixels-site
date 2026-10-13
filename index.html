@@ -628,7 +628,7 @@ html:not(.site-js) [data-reveal]{opacity:1;transform:none;filter:none}
           <button class="card" type="button" data-shot="card-slots.png" data-vid="vid-slots.mp4" data-label="Slots"><img class="c-shot" src="card-slots.png" alt="Slots" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Slots</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
           <button class="card" type="button" data-shot="card-picklearn.png" data-vid="vid-picklearn.mp4" data-label="Pick & Learn"><img class="c-shot" src="card-picklearn.png" alt="Pick & Learn" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Pick &amp; Learn</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
           <button class="card" type="button" data-shot="card-portalbooth.png" data-vid="vid-portalbooth.mp4" data-label="HoloXP Booth"><img class="c-shot" src="card-portalbooth.png" alt="HoloXP Booth" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">HoloXP Booth</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
-          <button class="card" type="button" data-shot="card-premiere.png" data-vid="vid-premiere.mp4" data-label="Premiere"><img class="c-shot" src="card-premiere.png" alt="Premiere" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Premiere</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
+          <button class="card" type="button" data-shot="card-premiere.png" data-label="Premiere"><img class="c-shot" src="card-premiere.png" alt="Premiere" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Premiere</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
           <button class="card" type="button" data-shot="card-holotwin.png" data-label="HoloTwin"><img class="c-shot" src="card-holotwin.png" alt="HoloTwin" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">HoloTwin</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
           <button class="card" type="button" data-shot="card-omegawall.png" data-label="Omega Wall"><img class="c-shot" src="card-omegawall.png" alt="Omega Wall" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Omega Wall</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
           <button class="card" type="button" data-shot="card-livestreaming.png" data-label="Live Streaming"><img class="c-shot" src="card-livestreaming.png" alt="Live Streaming" loading="lazy" decoding="async"><div class="c-body"><div class="c-title">Live Streaming</div><div class="c-line"></div><div class="c-arrow">→ View</div></div></button>
@@ -668,14 +668,14 @@ html:not(.site-js) [data-reveal]{opacity:1;transform:none;filter:none}
         </div>
         <!-- WAVE 1 #6: real, playable video. Poster + play button; click swaps in the Vimeo
              embed (autoplay). HTML5 fallback wired in JS if the embed is blocked. -->
-        <div class="video-stage" data-reveal id="videoStage" role="button" tabindex="0" aria-label="Play Shaping Tomorrow video">
+        <div class="video-stage" data-reveal id="videoStage" role="button" tabindex="0" aria-label="View Premiere hologram product image">
           <!-- WAVE 2 P1: local muted-loop fallback reel (canvas) plays INSIDE the node frame
                so the "video plays inside the outline" reads on localhost. Click upgrades to the
                Vimeo embed for production. The reel hides once Vimeo mounts. -->
           <canvas id="videoReel" class="video-reel" aria-hidden="true"></canvas>
           <div class="play" id="videoPlay">
             <div class="disc"><svg viewBox="0 0 24 24" fill="var(--ink)"><path d="M8 5v14l11-7z"/></svg></div>
-            <span>Watch Premiere</span>
+            <span>View Premiere</span>
           </div>
         </div>
       </div>
@@ -1854,11 +1854,11 @@ const VIDEO = (function videoPlayer(){
     // black rectangle on screen for the whole watchdog window when Vimeo 401s.
     stage.classList.add("playing");
     const iframe=document.createElement("iframe");
-    iframe.srcdoc='<html><head><style>html,body{margin:0;width:100%;height:100%;background:#030305}video{width:100%;height:100%;object-fit:contain}</style></head><body><video src="./vid-premiere.mp4" autoplay muted loop playsinline controls aria-label="Premiere holographic display case"></video></body></html>';
+    iframe.srcdoc='<html><head><style>html,body{margin:0;width:100%;height:100%;background:#030305}img{width:100%;height:100%;object-fit:contain}</style></head><body><img src="./card-premiere.png" alt="Premiere hologram product image"></body></html>';
     iframe.allow="autoplay; fullscreen; picture-in-picture";
     iframe.addEventListener("load", stopReel, {once:true});
     iframe.setAttribute("allowfullscreen","");
-    iframe.title="Hologram capture touchscreen hardware";
+    iframe.title="Premiere hologram product image";
     stage.appendChild(iframe);
   }
   stage.addEventListener("click",play);
