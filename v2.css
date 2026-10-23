@@ -293,3 +293,6 @@ html.reel-gl .reel-list{position:absolute;width:1px;height:1px;overflow:hidden;c
 .reel-btn:hover{border-color:var(--uv);color:var(--uv)}
 .reel-btn:focus-visible{outline:2px solid var(--uv);outline-offset:3px}
 .reel-top{align-items:center;gap:16px}.reel-top .reel-btn{margin-top:0}
+.h-sub + .h-sub{margin-top:-24px}
+.brief-link{color:var(--uv);text-decoration:underline;text-underline-offset:3px}
+.brief-link:hover{color:var(--fg)}
