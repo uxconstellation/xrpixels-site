@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Brief | XR Pixels</title>
+<meta name="description" content="Tell XR Pixels about your activation so we can shape the right glasses-free 3D hologram, creative approach and delivery plan.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="stylesheet" href="./brief.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="../"><img src="../logos/xrpixels-wordmark-ultraviolet-light.svg" alt="XR Pixels" width="140" height="31"></a>
+  <span class="mono">Project brief</span>
+</header>
+
+<main class="wrap">
+  <!-- Stage + stepper (craft-ref: fin.ai lifecycle stepper; one framed stage swaps with the step) -->
+  <aside class="stage" aria-label="Brief steps">
+    <div class="screen">
+      <video id="film" muted loop playsinline preload="metadata" poster="./walkthrough.jpg" src="./walkthrough.mp4" aria-label="Film for this step"></video>
+      <button class="film-btn" id="filmBtn" type="button" aria-pressed="false">Pause film</button>
+      <p class="film-cap mono" id="filmCap">XR Pixels showreel</p>
+    </div>
+    <ol class="steps" id="steps">
+      <li><button type="button" data-go="0" aria-current="step"><i></i><b>About you</b><span>Who we are talking to.</span></button></li>
+      <li><button type="button" data-go="1"><i></i><b>The event</b><span>Where, when and why.</span></button></li>
+      <li><button type="button" data-go="2"><i></i><b>The experience</b><span>What visitors should see.</span></button></li>
+      <li><button type="button" data-go="3"><i></i><b>Budget and logistics</b><span>Scope, power, install.</span></button></li>
+      <li><button type="button" data-go="4"><i></i><b>Decision</b><span>Timing and next step.</span></button></li>
+    </ol>
+  </aside>
+
+  <form class="brief" id="brief" novalidate>
+    <div class="intro">
+      <h1 class="display">Project brief</h1>
+      <p class="lead">Tell us about your activation so we can shape the right glasses-free 3D hologram, creative approach and delivery plan. Five short steps, about four minutes. Not confirmed yet? Write TBD.</p>
+      <noscript><p class="note">This form needs JavaScript. Please e-mail your brief to <a href="mailto:marketing@xrpixels.com">marketing@xrpixels.com</a>.</p></noscript>
+    </div>
+
+    <!-- 1 About you -->
+    <fieldset class="step" data-step="0" data-film="./walkthrough.mp4" data-poster="./walkthrough.jpg" data-cap="XR Pixels showreel">
+      <legend><span class="mono">Step 1 of 5</span>About you</legend>
+      <div class="grid">
+        <label class="f">Company or brand<input name="company" required maxlength="120" autocomplete="organization"></label>
+        <label class="f">Your name<input name="contactName" required maxlength="120" autocomplete="name"></label>
+        <label class="f">Work e-mail<input name="email" type="email" required maxlength="200" autocomplete="email"></label>
+        <label class="f">Phone<input name="phone" type="tel" required maxlength="40" autocomplete="tel"></label>
+      </div>
+      <details><summary>Add more detail <span>(optional)</span></summary><div class="grid">
+        <label class="f">Job title<input name="jobTitle" maxlength="120" autocomplete="organization-title"></label>
+        <label class="f">Company website<input name="website" maxlength="200" autocomplete="url" inputmode="url" placeholder="brand.com"></label>
+        <label class="f">End client (if you are an agency)<input name="endClient" maxlength="120"></label>
+        <label class="f">Day-to-day contact for this project<input name="dayToDay" maxlength="200"></label>
+      </div></details>
+    </fieldset>
+
+    <!-- 2 The event -->
+    <fieldset class="step" data-step="1" data-film="../holo/holo-premiere-plaza.mp4" data-poster="../holo/holo-premiere-plaza.jpg" data-cap="City plaza, outdoor">
+      <legend><span class="mono">Step 2 of 5</span>The event</legend>
+      <div class="grid">
+        <label class="f wide">Location (city, country, venue)<input name="location" required maxlength="200" placeholder="New York, USA, Javits Center"></label>
+        <label class="f">Event starts<input name="eventStart" type="date"></label>
+        <label class="f">Event ends<input name="eventEnd" type="date"></label>
+        <label class="check wide"><input type="checkbox" name="datesTbd"> Dates not confirmed yet</label>
+      </div>
+      <div class="pick" role="radiogroup" aria-label="Event type" data-name="eventType" data-required>
+        <p class="q">Event type</p>
+        <label><input type="radio" name="eventType" value="Trade show">Trade show</label>
+        <label><input type="radio" name="eventType" value="Conference">Conference</label>
+        <label><input type="radio" name="eventType" value="Product launch">Product launch</label>
+        <label><input type="radio" name="eventType" value="Retail activation">Retail activation</label>
+        <label><input type="radio" name="eventType" value="Corporate event">Corporate event</label>
+        <label><input type="radio" name="eventType" value="Permanent installation">Permanent installation</label>
+        <label><input type="radio" name="eventType" value="Other">Other</label>
+      </div>
+      <label class="f wide">The project and its main objective<textarea name="objective" required maxlength="2000" rows="3" placeholder="What are you launching, and what should the hologram do for it?"></textarea></label>
+      <details><summary>Add more detail <span>(optional)</span></summary><div class="grid">
+        <label class="f">Event or project name<input name="eventName" maxlength="160"></label>
+        <label class="f">Expected footfall<input name="footfall" maxlength="120" placeholder="e.g. 8,000 over 3 days"></label>
+        <label class="f">Installation / setup date<input name="setupDate" type="date"></label>
+        <label class="f">Dismantling date<input name="dismantleDate" type="date"></label>
+        <div class="pick wide" role="radiogroup" aria-label="Installation environment" data-name="environment"><p class="q">Environment</p>
+          <label><input type="radio" name="environment" value="Indoor">Indoor</label><label><input type="radio" name="environment" value="Outdoor">Outdoor</label>
+          <label><input type="radio" name="environment" value="Both">Both</label><label><input type="radio" name="environment" value="TBD">TBD</label></div>
+        <label class="f wide">Who is the target audience?<textarea name="audience" maxlength="1000" rows="2"></textarea></label>
+        <label class="f wide">What should visitors do, think or remember afterwards?<textarea name="takeaway" maxlength="1000" rows="2"></textarea></label>
+        <label class="f wide">How will you measure success?<textarea name="success" maxlength="1000" rows="2"></textarea></label>
+      </div></details>
+    </fieldset>
+
+    <!-- 3 The experience -->
+    <fieldset class="step" data-step="2" data-film="../holo/holo-premiere-retail.mp4" data-poster="../holo/holo-premiere-retail.jpg" data-cap="Glass columns, retail">
+      <legend><span class="mono">Step 3 of 5</span>The experience</legend>
+      <p class="q">Which of these is closest to what you have in mind? <span class="opt">Pick any, or none.</span></p>
+      <div class="sol" data-name="solution">
+        <label><input type="checkbox" name="solution" value="Glass columns"><video muted loop playsinline preload="none" poster="../holo/holo-premiere-retail.jpg" data-src="../holo/holo-premiere-retail.mp4"></video><b>Glass columns</b><span>Products floating in a column</span></label>
+        <label><input type="checkbox" name="solution" value="Suspended column"><video muted loop playsinline preload="none" poster="../holo/holo-omega-atrium.jpg" data-src="../holo/holo-omega-atrium.mp4"></video><b>Suspended column</b><span>Hung through an atrium</span></label>
+        <label><input type="checkbox" name="solution" value="Stage hologram"><video muted loop playsinline preload="none" poster="../holo/holo-avatar-stage.jpg" data-src="../holo/holo-avatar-stage.mp4"></video><b>Stage hologram</b><span>A person, life size</span></label>
+        <label><input type="checkbox" name="solution" value="Lift to learn"><video muted loop playsinline preload="none" poster="../holo/holo-picklearn-brain.jpg" data-src="../holo/holo-picklearn-brain.mp4"></video><b>Lift to learn</b><span>Pick up an item, content plays</span></label>
+        <label><input type="checkbox" name="solution" value="Game / spin to win"><video muted loop playsinline preload="none" poster="../holo/holo-slots-expo.jpg" data-src="../holo/holo-slots-expo.mp4"></video><b>Game / spin to win</b><span>Visitors play in the air</span></label>
+        <label><input type="checkbox" name="solution" value="Trade booth wall"><video muted loop playsinline preload="none" poster="../holo/holo-booth-expo.jpg" data-src="../holo/holo-booth-expo.mp4"></video><b>Trade booth wall</b><span>Holograms across a back wall</span></label>
+        <label class="none"><input type="checkbox" name="solution" value="Not sure yet"><b>Not sure yet</b><span>We will suggest options</span></label>
+      </div>
+      <details><summary>Add more detail <span>(optional)</span></summary><div class="grid">
+        <label class="f">Space available (W x H x D, units)<input name="dimensions" maxlength="200" placeholder="3 m x 2.5 m x 1 m"></label>
+        <label class="f">Preferred image size<input name="imageSize" maxlength="120"></label>
+        <div class="pick wide" role="radiogroup" aria-label="Positioning" data-name="positioning"><p class="q">Positioning</p>
+          <label><input type="radio" name="positioning" value="Wall-mounted">Wall-mounted</label><label><input type="radio" name="positioning" value="Freestanding">Freestanding</label>
+          <label><input type="radio" name="positioning" value="Suspended">Suspended</label><label><input type="radio" name="positioning" value="Custom structure">Custom structure</label><label><input type="radio" name="positioning" value="TBD">TBD</label></div>
+        <div class="pick wide" role="radiogroup" aria-label="Viewing" data-name="viewing"><p class="q">Viewing</p>
+          <label><input type="radio" name="viewing" value="Single-sided">Single-sided</label><label><input type="radio" name="viewing" value="Double-sided">Double-sided</label><label><input type="radio" name="viewing" value="TBD">TBD</label></div>
+        <label class="f wide">Viewing distance and angles<input name="viewingDistance" maxlength="300"></label>
+        <div class="pick wide" role="radiogroup" aria-label="Experience type" data-name="experience"><p class="q">Experience</p>
+          <label><input type="radio" name="experience" value="Pre-recorded content">Pre-recorded content</label><label><input type="radio" name="experience" value="Interactive">Interactive</label><label><input type="radio" name="experience" value="TBD">TBD</label></div>
+        <div class="pick wide" role="radiogroup" aria-label="Who will create the content" data-name="contentBy"><p class="q">Who creates the content?</p>
+          <label><input type="radio" name="contentBy" value="Client">Client</label><label><input type="radio" name="contentBy" value="Agency">Agency</label>
+          <label><input type="radio" name="contentBy" value="XR Pixels creative team">XR Pixels creative team</label><label><input type="radio" name="contentBy" value="TBD">TBD</label></div>
+        <div class="pick wide" data-name="assets"><p class="q">Existing assets</p>
+          <label><input type="checkbox" name="assets" value="3D / CAD models">3D / CAD models</label><label><input type="checkbox" name="assets" value="Videos">Videos</label>
+          <label><input type="checkbox" name="assets" value="Logos / product images">Logos / product images</label><label><input type="checkbox" name="assets" value="None yet">None yet</label></div>
+        <label class="f wide">Concept, storyboard or reference links<textarea name="concept" maxlength="1500" rows="2"></textarea></label>
+        <label class="f">Languages<input name="languages" maxlength="200"></label>
+        <label class="f">Visitor interaction (touch, sensors)<input name="interaction" maxlength="300"></label>
+        <label class="f">Who owns rights to supplied content?<input name="rights" maxlength="300"></label>
+        <label class="f">Who approves the creative, and by when?<input name="approvals" maxlength="300"></label>
+        <label class="f">New content, or adapt existing?<input name="newContent" maxlength="300"></label>
+        <label class="f">Brand, legal or accessibility guidelines<input name="guidelines" maxlength="300"></label>
+        <label class="f wide">Booth or venue layout, drawings or photo links<textarea name="layoutLinks" maxlength="1000" rows="2"></textarea></label>
+      </div></details>
+    </fieldset>
+
+    <!-- 4 Budget and logistics -->
+    <fieldset class="step" data-step="3" data-film="../holo/holo-omega-atrium.mp4" data-poster="../holo/holo-omega-atrium.jpg" data-cap="Atrium column, retail">
+      <legend><span class="mono">Step 4 of 5</span>Budget and logistics</legend>
+      <div class="pick" role="radiogroup" aria-label="Estimated budget range, in US dollars or the equivalent" data-name="budgetRange" data-required><p class="q">Estimated budget <span class="opt">in US dollars, or the equivalent</span></p>
+        <label><input type="radio" name="budgetRange" value="Under USD 10k">Under USD 10k</label><label><input type="radio" name="budgetRange" value="USD 10k to 25k">USD 10k to 25k</label>
+        <label><input type="radio" name="budgetRange" value="USD 25k to 50k">USD 25k to 50k</label><label><input type="radio" name="budgetRange" value="USD 50k to 100k">USD 50k to 100k</label>
+        <label><input type="radio" name="budgetRange" value="Over USD 100k">Over USD 100k</label><label><input type="radio" name="budgetRange" value="Not sure yet">Not sure yet</label></div>
+      <div class="pick" role="radiogroup" aria-label="Has the budget been approved" data-name="budgetApproved" data-required><p class="q">Has the budget been approved?</p>
+        <label><input type="radio" name="budgetApproved" value="Approved">Approved</label><label><input type="radio" name="budgetApproved" value="In development">In development</label>
+        <label><input type="radio" name="budgetApproved" value="Not yet">Not yet</label><label><input type="radio" name="budgetApproved" value="TBD">TBD</label></div>
+      <details><summary>Add more detail <span>(optional)</span></summary><div class="grid">
+        <label class="f">Currency you will pay in, if not USD<input name="currency" maxlength="12" placeholder="EUR, GBP, ZAR"></label>
+        <div class="pick wide" role="radiogroup" aria-label="Does the budget include delivery, installation, content and support" data-name="budgetIncludes"><p class="q">Budget includes delivery, install, content and support?</p>
+          <label><input type="radio" name="budgetIncludes" value="Yes">Yes</label><label><input type="radio" name="budgetIncludes" value="No">No</label><label><input type="radio" name="budgetIncludes" value="Partly">Partly</label><label><input type="radio" name="budgetIncludes" value="TBD">TBD</label></div>
+        <div class="pick wide" role="radiogroup" aria-label="Commercial model" data-name="commercial"><p class="q">Commercial model</p>
+          <label><input type="radio" name="commercial" value="Rental">Rental</label><label><input type="radio" name="commercial" value="Purchase">Purchase</label><label><input type="radio" name="commercial" value="Open to both">Open to both</label></div>
+        <div class="pick wide" role="radiogroup" aria-label="Project frequency" data-name="frequency"><p class="q">Frequency</p>
+          <label><input type="radio" name="frequency" value="One-time event">One-time event</label><label><input type="radio" name="frequency" value="Recurring campaign / multiple events">Recurring / multiple events</label><label><input type="radio" name="frequency" value="TBD">TBD</label></div>
+        <label class="f wide">Needed again after this event, or at other locations?<input name="reuse" maxlength="300"></label>
+        <label class="f">Delivery location, if not the venue<input name="deliveryLocation" maxlength="200"></label>
+        <label class="f">Operating hours and number of days<input name="operatingHours" maxlength="200"></label>
+        <label class="f wide">Power, internet and other facilities on site<textarea name="facilities" maxlength="1000" rows="2"></textarea></label>
+        <div class="pick wide" role="radiogroup" aria-label="Installation and support" data-name="install"><p class="q">Installation</p>
+          <label><input type="radio" name="install" value="XR Pixels managed installation">XR Pixels managed</label><label><input type="radio" name="install" value="Partner / client self-installation">Partner / self-install</label><label><input type="radio" name="install" value="TBD">TBD</label></div>
+        <div class="pick wide" role="radiogroup" aria-label="On-site technical support" data-name="support"><p class="q">On-site technical support</p>
+          <label><input type="radio" name="support" value="Required">Required</label><label><input type="radio" name="support" value="Not required">Not required</label><label><input type="radio" name="support" value="TBD">TBD</label></div>
+        <label class="f wide">Venue restrictions (rigging, access, safety, weather)<textarea name="restrictions" maxlength="1000" rows="2"></textarea></label>
+        <label class="f">Venue approvals needed?<input name="venueApprovals" maxlength="300"></label>
+        <label class="f">Outdoor weather contingency<input name="weather" maxlength="300"></label>
+        <label class="f wide">Special requirements (branding, enclosure, portability)<textarea name="special" maxlength="1000" rows="2"></textarea></label>
+        <label class="f wide">Who owns and manages the equipment during the event?<input name="equipmentOwner" maxlength="200"></label>
+      </div></details>
+    </fieldset>
+
+    <!-- 5 Decision -->
+    <fieldset class="step" data-step="4" data-film="../holo/holo-avatar-stage.mp4" data-poster="../holo/holo-avatar-stage.jpg" data-cap="Stage hologram, sport">
+      <legend><span class="mono">Step 5 of 5</span>Decision</legend>
+      <div class="pick" role="radiogroup" aria-label="Project stage" data-name="stage" data-required><p class="q">Where is the project now?</p>
+        <label><input type="radio" name="stage" value="Exploration">Exploration</label><label><input type="radio" name="stage" value="Concept development">Concept development</label>
+        <label><input type="radio" name="stage" value="Budget approval">Budget approval</label><label><input type="radio" name="stage" value="Vendor selection">Vendor selection</label><label><input type="radio" name="stage" value="Confirmed">Confirmed</label></div>
+      <div class="pick" role="radiogroup" aria-label="Next step needed" data-name="nextStep" data-required><p class="q">What do you need from us next?</p>
+        <label><input type="radio" name="nextStep" value="Budget estimate">Budget estimate</label><label><input type="radio" name="nextStep" value="Formal quote">Formal quote</label>
+        <label><input type="radio" name="nextStep" value="Technical call">Technical call</label><label><input type="radio" name="nextStep" value="Creative proposal">Creative proposal</label>
+        <label><input type="radio" name="nextStep" value="Demo">Demo</label><label><input type="radio" name="nextStep" value="Other">Other</label></div>
+      <details><summary>Add more detail <span>(optional)</span></summary><div class="grid">
+        <label class="f">Expected decision date<input name="decisionDate" type="date"></label>
+        <label class="f">When do you need a proposal or quote?<input name="proposalBy" type="date"></label>
+        <label class="f">Decision-makers and stakeholders<input name="stakeholders" maxlength="300"></label>
+        <label class="f">Speaking with other suppliers?<input name="otherSuppliers" maxlength="200"></label>
+        <label class="f wide">What will decide the solution or supplier?<textarea name="decisionFactors" maxlength="1000" rows="2"></textarea></label>
+        <label class="f wide">Procurement or vendor onboarding, documents required<textarea name="procurement" maxlength="1000" rows="2"></textarea></label>
+        <div class="pick wide" data-name="materials"><p class="q">Supporting materials you can share</p>
+          <label><input type="checkbox" name="materials" value="Venue photos">Venue photos</label><label><input type="checkbox" name="materials" value="Layout / measurements">Layout / measurements</label>
+          <label><input type="checkbox" name="materials" value="Concept references">Concept references</label><label><input type="checkbox" name="materials" value="Content assets">Content assets</label>
+          <label><input type="checkbox" name="materials" value="Technical drawings">Technical drawings</label><label><input type="checkbox" name="materials" value="3D / CAD models">3D / CAD models</label><label><input type="checkbox" name="materials" value="Other">Other</label></div>
+        <label class="f wide">Links to materials (Drive, Dropbox, WeTransfer)<textarea name="materialLinks" maxlength="1500" rows="2"></textarea></label>
+        <label class="f wide">Anything else<textarea name="comments" maxlength="2000" rows="3"></textarea></label>
+      </div></details>
+      <div class="hp" aria-hidden="true"><label>Leave this empty<input name="hp" tabindex="-1" autocomplete="off"></label></div>
+      <div id="turnstile" class="ts"></div>
+    </fieldset>
+
+    <div class="nav">
+      <button type="button" class="btn ghost" id="back">Back</button>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+      <button type="button" class="btn solid" id="next">Next</button>
+      <button type="submit" class="btn solid" id="send" hidden>Send brief</button>
+    </div>
+
+    <div class="done" id="done" hidden tabindex="-1">
+      <h2 class="display">Thank you.</h2>
+      <p class="lead">Your brief is with the XR Pixels team. Reference <b id="ref"></b>. We will come back to you on the next step you asked for.</p>
+      <a class="btn ghost" href="../">Back to xrpixels.com</a>
+    </div>
+  </form>
+</main>
+<script src="./brief.js" defer></script>
+</body>
+</html>

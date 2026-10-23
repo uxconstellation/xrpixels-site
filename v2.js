@@ -4,7 +4,7 @@
 // footer wordmark, normal scroll). Each enhancement class is added only after its own dependency initialised:
 //   hero-gl (voxel mark rendered), hero-scroll (ScrollTrigger drives the 320vh hero), field-gl, wm-canvas.
 // Init runs after first paint inside a GSAP context; any throw reverts it and removes every class (fail()).
-const ENH = ['hero-gl', 'hero-scroll', 'field-gl', 'wm-canvas', 'hdr-live'];
+const ENH = ['hero-gl', 'hero-scroll', 'field-gl', 'wm-canvas', 'hdr-live', 'reel-gl'];
 let dead = false, ctx = null, mmRef = null;
 const enh = c => document.documentElement.classList.add(c);
 const xrMain = () => {
@@ -255,12 +255,122 @@ if (motion) {
       G.to(cells, { opacity: 0, duration: .01, ease: 'steps(1)', delay: .3, stagger: { each: .0018, from: 'random' } });
     });
   });
-  const io = new IntersectionObserver(es => es.forEach(e => {
-    const v = e.target;
-    if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause();
-  }), { rootMargin: '0px 200px' });
-  $$('.case video').forEach(v => io.observe(v));
+  // Films preview only while a card is hovered or focused (no autoplaying loops: WCAG 2.2.2); the dialog has full controls.
+  $$('.case').forEach(card => { const v = $('video', card); if (!v) return;
+    const on = () => { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); }, off = () => v.pause();
+    card.addEventListener('pointerenter', on); card.addEventListener('focusin', on);
+    card.addEventListener('pointerleave', off); card.addEventListener('focusout', off); });
 }
+
+/* ---------- 5b showreel: the mark breaks into voxels, becomes a hologram fan, and the fan plays the work ----------
+   One scrubbed timeline over a sticky WebGL stage. Footage is drawn as light (additive, inside the fan disc, LED
+   scan lines and spinning blades) and swaps behind a stepped pixel snap. Own try: a failure here drops reel-gl
+   only and the static film grid stays. Videos load one ahead, play only while the stage is on screen. */
+if (motion && T) try { (() => {
+  const items = $$('.reel-list li'); if (!items.length) return;
+  const canvas = $('#reelgl');
+  const renderer = new T.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setClearColor(0x030305, 1);
+  const scene = new T.Scene(), cam = new T.PerspectiveCamera(35, 1, .1, 100), rig = new T.Group(); scene.add(rig);
+  const UV = new T.Color('#9d8aff'), SUB = 6, N = MODS.length * SUB * SUB, S = 1.15, R = 3.3;
+  const mark = [], ring = [], scat = [];
+  MODS.forEach(([mx, my]) => { for (let j = 0; j < SUB; j++) for (let i = 0; i < SUB; i++) {
+    const k = mark.length, a = k / N * Math.PI * 2, band = (hash(k, 1) - .5) * .22;
+    mark.push(new T.Vector3((mx + (i + .5) / SUB - 3) * S, (-(my + (j + .5) / SUB) + 2.5) * S, 0));
+    ring.push(new T.Vector3(Math.cos(a) * (R + .18 + band), Math.sin(a) * (R + .18 + band), (hash(k, 2) - .5) * .5));
+    const u = hash(k, 3) * Math.PI * 2, v = Math.acos(2 * hash(k, 4) - 1), d = 9 + hash(k, 5) * 7;
+    scat.push(new T.Vector3(Math.sin(v) * Math.cos(u) * d, Math.sin(v) * Math.sin(u) * d * .6, Math.cos(v) * d - 4));
+  } });
+  const vs = S / SUB * .86, vox = new T.InstancedMesh(new T.BoxGeometry(vs, vs, vs), new T.MeshStandardMaterial({ color: UV, emissive: UV, emissiveIntensity: .35, roughness: .4, metalness: .1 }), N);
+  rig.add(vox); scene.add(new T.AmbientLight(0xffffff, .5));
+  const key = new T.DirectionalLight(0xffffff, 1.6); key.position.set(3, 4, 8); scene.add(key);
+  const blades = new T.Group(), bladeMat = new T.LineBasicMaterial({ color: UV, transparent: true, opacity: 0, blending: T.AdditiveBlending });
+  for (let b = 0; b < 4; b++) { const a = b / 4 * Math.PI * 2; blades.add(new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(), new T.Vector3(Math.cos(a) * R, Math.sin(a) * R, 0)]), bladeMat)); }
+  rig.add(blades);
+  const clips = items.map(li => ({ src: './holo/' + li.dataset.clip, label: li.dataset.label, tag: li.dataset.tag, cap: li.dataset.cap }));
+  const vids = clips.map(c => { const v = document.createElement('video'); v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'none'; v.dataset.src = c.src + '.mp4'; return v; });
+  const texs = vids.map(v => { return new T.VideoTexture(v); });
+  const loader = new T.TextureLoader(), posters = clips.map(c => { return loader.load(c.src + '.jpg'); });
+  const scr = new T.ShaderMaterial({ transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+    uniforms: { map: { value: posters[0] }, uPix: { value: 90 }, uReveal: { value: 0 }, uTime: { value: 0 }, uSize: { value: new T.Vector2(1, 1) }, uR: { value: R } },
+    vertexShader: 'varying vec2 vP; uniform vec2 uSize; void main(){ vP = (uv - .5) * uSize; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }',
+    fragmentShader: `uniform sampler2D map; uniform float uPix, uReveal, uTime, uR; uniform vec2 uSize; varying vec2 vP;
+      void main(){
+        float r = length(vP); if (r > uR) discard;
+        float cells = max(2., uR * 120. / uPix);
+        vec2 q = (floor(vP / (2. * uR) * cells) + .5) / cells * (2. * uR);
+        vec3 c = texture2D(map, q / uSize + .5).rgb;
+        float ang = fract(atan(vP.y, vP.x) / 6.28318 + .25);
+        float sweep = 1. - smoothstep(uReveal - .04, uReveal, ang);
+        float scan = .86 + .14 * sin(vP.y * 90. - uTime * 30.);
+        float spoke = .8 + .2 * smoothstep(0., .5, abs(fract(ang * 4. - uTime * 2.6) - .5));
+        float edge = 1. - smoothstep(uR - .25, uR, r);
+        float pass = exp(-pow((r - uR * (1. - fract(uTime * .35))) * 7., 2.)) * .08;
+        gl_FragColor = vec4(c * 1.25 * scan * spoke * sweep * edge + vec3(.61, .54, 1.) * pass * sweep, 1.);
+      }` });
+  const screen = new T.Mesh(new T.PlaneGeometry(1, 1), scr); rig.add(screen);
+  const fit = i => { const v = vids[i], im = posters[i].image, a = v.videoWidth ? v.videoWidth / v.videoHeight : im && im.width ? im.width / im.height : 16 / 9;
+    const w = a >= 1 ? 2 * R * a : 2 * R, h = a >= 1 ? 2 * R : 2 * R / a; screen.scale.set(w, h, 1); scr.uniforms.uSize.value.set(w, h); };
+  const load = i => { const v = vids[i]; if (v && !v.src) { v.src = v.dataset.src; v.load(); } };
+  const st = { form: 0, fan: 0, clip: 0, out: 0 };
+  let cur = -1, hudAt = -1, live = false, spin = 0;
+  const show = i => { if (i === cur) return; vids.forEach((v, k) => k !== i && v.pause()); cur = i; load(i); load(i + 1);
+    const v = vids[i]; scr.uniforms.map.value = v.readyState >= 2 ? texs[i] : posters[i];
+    v.onloadeddata = () => { if (cur === i) { scr.uniforms.map.value = texs[i]; fit(i); } }; fit(i); };
+  const hud = i => { const c = clips[i]; $('#reelN').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(clips.length).padStart(2, '0');
+    $('#reelTag').textContent = c.tag; $('#reelName').textContent = c.label; $('#reelCap').textContent = c.cap; };
+  const tl = G.timeline({ defaults: { ease: 'none' } });
+  tl.to(st, { form: 1, duration: 1, ease: 'power3.out' }).to({}, { duration: .5 })
+    .to(st, { form: 2, duration: 1, ease: 'power3.inOut' }).to(st, { fan: 1, duration: .5 }, '<.4')
+    .to(scr.uniforms.uReveal, { value: 1.04, duration: .7, ease: 'power2.inOut' })
+    .to(scr.uniforms.uPix, { value: 1, duration: .5, ease: 'steps(6)' }, '<.2');
+  clips.forEach((c, i) => { if (i) tl.to(scr.uniforms.uPix, { value: 70, duration: .25, ease: 'steps(5)' }).to(st, { clip: i, duration: .001 }).to(scr.uniforms.uPix, { value: 1, duration: .3, ease: 'steps(6)' }); tl.to({}, { duration: .9 }); });
+  tl.to(scr.uniforms.uReveal, { value: 0, duration: .6, ease: 'power2.inOut' }).to(st, { fan: 0, duration: .4 }, '<.2').to(st, { form: 1, duration: .9, ease: 'power3.inOut' }, '<').to(st, { out: 1, duration: .4 });
+  enh('reel-gl');
+  const links = $$('.reel-list a'); links.forEach(a => a.tabIndex = -1);
+  const stage = $('.reel-stage'); stage.removeAttribute('aria-hidden'); // controls are live only with the scene
+  let held = false; const pauseBtn = $('#reelPause');
+  let frozen = null; // what the paused frame shows; scroll keeps moving the timeline underneath
+  pauseBtn.addEventListener('click', () => { held = !held; frozen = held ? { r: scr.uniforms.uReveal.value, p: scr.uniforms.uPix.value, m: scr.uniforms.map.value } : null; pauseBtn.setAttribute('aria-pressed', held); pauseBtn.textContent = held ? 'Play' : 'Pause'; if (held) vids.forEach(v => v.pause()); });
+  $('#reelOpen').addEventListener('click', () => { held || pauseBtn.click(); links[Math.max(0, cur)].click(); });
+  const reelST = ST.create({ trigger: '#reel', start: 'top top', end: 'bottom bottom', scrub: .8, animation: tl, onEnter: () => load(0), onEnterBack: () => load(0) });
+  let lost = false; // a lost GPU context after init: drop back to the static film grid
+  canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); lost = true; vids.forEach(v => v.pause()); reelST.kill(); tl.kill();
+    document.documentElement.classList.remove('reel-gl'); stage.setAttribute('aria-hidden', 'true'); links.forEach(a => a.removeAttribute('tabindex')); ST.refresh(); });
+  let px = 0, py = 0;
+  addEventListener('pointermove', e => { px = e.clientX / innerWidth - .5; py = e.clientY / innerHeight - .5; }, { passive: true });
+  const draw = () => { const u = scr.uniforms, now = frozen && [u.uReveal.value, u.uPix.value, u.map.value];
+    if (frozen) { u.uReveal.value = frozen.r; u.uPix.value = frozen.p; u.map.value = frozen.m; }
+    renderer.render(scene, cam);
+    if (now) [u.uReveal.value, u.uPix.value, u.map.value] = now; };
+  const size = () => { const w = canvas.clientWidth, h = canvas.clientHeight; if (!w) return; renderer.setSize(w, h, false); cam.aspect = w / h; cam.position.z = Math.max(13.3, 13.3 / cam.aspect); cam.updateProjectionMatrix(); draw(); }; // fan disc (2R + rim) always fits width and height; setSize clears the canvas, so redraw (frozen state while paused)
+  addEventListener('resize', size); size(); show(0);
+  new IntersectionObserver(es => { live = es[0].isIntersecting; if (!live) vids.forEach(v => v.pause()); }).observe(canvas);
+  const M = new T.Matrix4(), Q = new T.Quaternion(), E = new T.Euler(), P = new T.Vector3(), SC = new T.Vector3(), hudEl = $('.reel-hud'), clock = new T.Clock(); let clockT = 0;
+  (function frame() {
+    if (dead || lost) return; requestAnimationFrame(frame); const dt = clock.getDelta(); if (!live || held) return;
+    clockT += dt; const t = clockT, i = Math.round(st.clip), f = st.form;
+    if (i !== cur) show(i);
+    if (st.fan >= .5 && hudAt !== cur) { hudAt = cur; hud(cur); }
+    const v = vids[cur]; if (st.fan > .5 && v.paused) v.play().catch(() => {}); else if (st.fan < .05 && !v.paused) v.pause();
+    for (let k = 0; k < N; k++) {
+      const A = f <= 1 ? scat[k] : mark[k], B = f <= 1 ? mark[k] : ring[k], u = f <= 1 ? f : f - 1;
+      P.lerpVectors(A, B, clamp(u * 1.6 - hash(k, 6) * .6));
+      if (f > 1) { const a = Math.atan2(P.y, P.x) + t * .25 * (f - 1), r = Math.hypot(P.x, P.y); P.set(Math.cos(a) * r, Math.sin(a) * r, P.z); }
+      const tumble = (1 - Math.min(1, f)) * 3, s = f > 1 ? 1 - (f - 1) * .45 : 1;
+      E.set(t * .7 * tumble + k, t * .5 * tumble, 0); Q.setFromEuler(E); SC.set(s, s, s); M.compose(P, Q, SC); vox.setMatrixAt(k, M);
+    }
+    vox.instanceMatrix.needsUpdate = true;
+    spin += .9 * st.fan; blades.rotation.z = -spin; bladeMat.opacity = st.fan * .35 * (1 - Math.min(1, scr.uniforms.uReveal.value) * .7);
+    scr.uniforms.uTime.value = t; screen.visible = scr.uniforms.uReveal.value > .001;
+    rig.rotation.y += (px * .35 + (f > 1 ? Math.sin(t * .3) * .24 : 0) - rig.rotation.y) * .06;
+    rig.rotation.x += (py * .2 - rig.rotation.x) * .06;
+    rig.position.y = st.out * 1.7; rig.scale.setScalar(1 - st.out * .45); hudEl.style.opacity = 1 - st.out; hudEl.style.visibility = st.out > .95 ? 'hidden' : '';
+    renderer.render(scene, cam);
+  })();
+})(); } catch (e) { // same fallback as context loss: static grid visible, every film tabbable again
+  document.documentElement.classList.remove('reel-gl'); const sg = document.querySelector('.reel-stage'); if (sg) sg.setAttribute('aria-hidden', 'true');
+  document.querySelectorAll('.reel-list a').forEach(a => a.removeAttribute('tabindex')); if (ST) ST.refresh(); console.warn('XR Pixels v2: showreel kept static.', e); }
 
 /* ---------- 7 premiere: the frame opens to full bleed (MakeReign zoom-through), links rise ---------- */
 if (motion) {
@@ -370,6 +480,8 @@ function fail(err) {
     .forEach(el => el.removeAttribute('style'));
   const top = document.getElementById('top'); top.classList.remove('compact'); top.dataset.theme = 'dark';
   document.getElementById('work').classList.remove('is-h');
+  const sg = document.querySelector('.reel-stage'); if (sg) sg.setAttribute('aria-hidden', 'true');
+  document.querySelectorAll('.reel-list a').forEach(a => a.removeAttribute('tabindex'));
 }
 function boot() {
   try {

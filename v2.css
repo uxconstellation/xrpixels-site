@@ -268,3 +268,28 @@ canvas#px{pointer-events:none}
   .hero-scroll .hero{height:auto}.stage{position:relative;height:100vh;height:100svh}
   *{transition:none!important}
 }
+
+/* 5b showreel. Static first: a grid of the nine films (no-JS, reduced motion, no WebGL). With reel-gl the
+   section becomes a 640vh scrubbed WebGL scene and the grid stays in the DOM as the accessible list. */
+.reel{position:relative;padding:22vh 0 12vh}
+.reel-head{padding:0 var(--pad) 6vh}
+.reel-stage{display:none}
+.reel-list{list-style:none;padding:0 var(--pad);display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:calc(var(--cell) * .75)}
+.reel-list a{display:flex;flex-direction:column;gap:6px;color:inherit;text-decoration:none}
+.reel-list img{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;border-radius:10px;background:#0b0c14}
+.reel-list .rs-n{font-weight:600}
+.reel-list a:hover .rs-n,.reel-list a:focus-visible .rs-n{color:var(--uv)}
+html.reel-gl .reel{height:640vh;padding:0}
+html.reel-gl .reel-head{position:absolute;inset:0 0 auto;padding-top:22vh;z-index:2;pointer-events:none}
+html.reel-gl .reel-stage{display:block;position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+html.reel-gl .reel-list{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#reelgl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.reel-top{position:absolute;top:calc(var(--cell) * 4);left:var(--pad);right:var(--pad);display:flex;justify-content:flex-end}
+.reel-n{font-variant-numeric:tabular-nums}
+.reel-hud{position:absolute;left:calc(var(--pad) - 14px);bottom:6vh;display:flex;flex-direction:column;gap:6px;max-width:36ch;padding:12px 14px 14px;border-radius:12px;background:#030305d9}
+.reel-name{font:700 clamp(22px,2.4vw,34px)/1.05 Hubot,system-ui,sans-serif;font-stretch:112.5%}
+.reel-cap{color:var(--mute);font-size:15px}
+.reel-btn{pointer-events:auto;align-self:flex-start;margin-top:10px;padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:#030305b3;color:var(--fg);font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.reel-btn:hover{border-color:var(--uv);color:var(--uv)}
+.reel-btn:focus-visible{outline:2px solid var(--uv);outline-offset:3px}
+.reel-top{align-items:center;gap:16px}.reel-top .reel-btn{margin-top:0}
