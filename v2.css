@@ -197,7 +197,7 @@ canvas#px{pointer-events:none}
 /* ---------- 7 premiere + giant links ---------- */
 .premiere{position:relative;padding:8vh 0 18vh}
 .pframe{position:relative;height:100vh;height:100svh;overflow:hidden;clip-path:inset(0 round 0)}
-.pframe img{width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+.pframe img,.pframe video{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
 .p-copy{position:absolute;right:var(--pad);bottom:8vh;max-width:min(56vw,900px);text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:24px;
   background:#030305d9;padding:28px 32px;border-radius:12px}
 .p-copy .idx{margin:0}
