@@ -375,7 +375,7 @@ if (motion && T) try { (() => {
 /* ---------- 7 premiere: the frame opens to full bleed (MakeReign zoom-through), links rise ---------- */
 if (motion) {
   G.fromTo('.pframe', { clipPath: 'inset(12% 10% round 24px)' }, { clipPath: 'inset(0% 0% round 0px)', ease: 'power2.out', scrollTrigger: { trigger: '.pframe', start: 'top 95%', end: 'top 5%', scrub: true } });
-  G.fromTo('.pframe img', { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.pframe', start: 'top bottom', end: 'bottom top', scrub: true } });
+  G.fromTo('.pframe img, .pframe video', { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.pframe', start: 'top bottom', end: 'bottom top', scrub: true } });
   G.from('.giant li', { yPercent: 60, opacity: 0, duration: 1, ease: 'expo.out', stagger: .09, scrollTrigger: { trigger: '.giant', start: 'top 85%' } });
 }
 
@@ -476,7 +476,7 @@ function fail(err) {
   if (window.ScrollTrigger) ScrollTrigger.getAll().forEach(t => t.kill(true));
   const hero = document.getElementById('hero'), rv = document.querySelector('.reveal');
   if (rv && rv.parentElement !== hero) hero.appendChild(rv);
-  document.querySelectorAll('.h span, .hero-cta, .meta, .matrix, .reveal, .reveal img, .track, .pframe, .pframe img, .giant li, .w')
+  document.querySelectorAll('.h span, .hero-cta, .meta, .matrix, .reveal, .reveal img, .track, .pframe, .pframe img, .pframe video, .giant li, .w')
     .forEach(el => el.removeAttribute('style'));
   const top = document.getElementById('top'); top.classList.remove('compact'); top.dataset.theme = 'dark';
   document.getElementById('work').classList.remove('is-h');
