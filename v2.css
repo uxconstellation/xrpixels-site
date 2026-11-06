@@ -296,3 +296,17 @@ html.reel-gl .reel-list{position:absolute;width:1px;height:1px;overflow:hidden;c
 .h-sub + .h-sub{margin-top:-24px}
 .brief-link{color:var(--uv);text-decoration:underline;text-underline-offset:3px}
 .brief-link:hover{color:var(--fg)}
+
+/* ---------- interactive: framed partner demo under our own bar ---------- */
+/* --ix-crop is the height of the partner's top bar; the iframe is shifted up by it so only our bar shows */
+.interactive{position:relative;background:var(--void);color:var(--fg);padding:22vh var(--pad) 18vh;--ix-crop:64px}
+.ix-head{max-width:1100px;margin:0 auto 56px}
+.ix-lead{max-width:44ch;margin-top:28px;font-size:clamp(17px,1.4vw,21px);line-height:1.55;color:var(--mute)}
+.ix-frame{max-width:1100px;margin:0 auto;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#000}
+.ix-bar{display:flex;align-items:center;gap:12px;height:56px;padding:0 18px;border-bottom:1px solid var(--line)}
+.ix-bar img{border-radius:4px}
+.ix-name{font-weight:700;letter-spacing:-.01em}
+.ix-bar .mono{margin-left:auto;color:var(--uv)}
+.ix-view{position:relative;height:min(72vh,720px);overflow:hidden;display:grid;place-items:center;background:radial-gradient(60% 60% at 50% 40%,#9d8aff22,transparent)}
+.ix-view iframe{position:absolute;left:0;top:calc(-1 * var(--ix-crop));width:100%;height:calc(100% + var(--ix-crop));border:0}
+@media (max-width:760px){.ix-view{height:70vh}}
