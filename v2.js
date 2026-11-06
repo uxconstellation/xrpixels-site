@@ -524,3 +524,19 @@ requestAnimationFrame(() => setTimeout(boot, 0));
       .then(function () { clearTimeout(timer); button.disabled = false; });
   });
 })();
+
+/* ---------- interactive: load the partner iframe only when asked (no third-party requests on page load) ---------- */
+(function () {
+  var view = document.querySelector('.ix-view'); if (!view) return;
+  var btn = view.querySelector('.ix-load');
+  btn.addEventListener('click', function () {
+    var f = document.createElement('iframe');
+    f.src = view.dataset.src;
+    f.title = 'XR Pixels interactive demo';
+    f.loading = 'lazy';
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    f.setAttribute('allow', 'autoplay; fullscreen');
+    f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups');
+    btn.replaceWith(f);
+  });
+})();
