@@ -1,4 +1,4 @@
-import{l as i,a as r}from"./backend-CNXL_UEy.js";const l=`body{margin:0;background:var(--void) var(--cross);color:var(--fg);font:400 15px/1.5 Host,system-ui,sans-serif}
+import{l as i,a as r}from"./backend-NOpXSjAW.js";const l=`body{margin:0;background:var(--void) var(--cross);color:var(--fg);font:400 15px/1.5 Host,system-ui,sans-serif}
 .adm{max-width:1100px;margin:0 auto;padding:28px 24px}header{display:flex;justify-content:space-between;align-items:center;gap:16px}
 header img{height:20px;display:block}h1{font:800 34px/1 Hubot,sans-serif;font-stretch:112.5%;letter-spacing:-.04em;margin:28px 0 0}
 #state{font:12px var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--mute)}
