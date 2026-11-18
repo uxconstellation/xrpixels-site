@@ -4158,7 +4158,7 @@ attribute vec3 aTan; attribute float aAng; varying float vRib;`).replace("#inclu
     <div class="txt">
       <div class="steps mono"><span><em>01</em> Scan</span><span><em>02</em> Snap</span><span><em>03</em> You're on</span></div>
       <div class="h disp">Get on<br/><span>the jersey</span></div>
-      <div class="by mono">Powered by <img src="./brand/xrpixels-logo.svg" alt="XR Pixels"/></div>
+      <div class="by mono" style="flex-wrap:wrap;row-gap:calc(.3 * var(--u))">Powered by <span style="display:inline-flex;align-items:center"><img src="./brand/xrpixels-logo.svg" alt="XR Pixels"/>,</span><span style="flex-basis:100%">with the help of our partners</span></div>
     </div>
   </div>
   <div class="xr-toast" id="toast"><img id="toastImg" alt=""/><div><b class="disp" id="toastName"></b><span class="mono" id="toastNum"></span></div></div>
